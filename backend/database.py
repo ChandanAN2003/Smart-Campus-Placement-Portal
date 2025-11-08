@@ -25,14 +25,22 @@ class Database:
         self.port = int(os.getenv("DB_PORT", self.port))
 
         # Enable SSL only for TiDB Cloud (Render)
-        self.ssl = {"ssl": {}} if os.getenv("DB_SSL", "False") == "True" else None
+        self.ssl = {"ssl": {}} if os.getenv("DB_SSL", "False").lower() == "true" else None
 
         self.connection = None
 
     def connect(self):
         """Establish database connection"""
         try:
-            print(f"Connecting to database at {self.host}:{self.port} ...")
+            print("--------------------------------------------------")
+            print(f"🌍 Connecting to database...")
+            print(f"Host: {self.host}")
+            print(f"Port: {self.port}")
+            print(f"User: {self.user}")
+            print(f"Database: {self.database}")
+            print(f"SSL: {'Enabled' if self.ssl else 'Disabled'}")
+            print("--------------------------------------------------")
+
             self.connection = pymysql.connect(
                 host=self.host,
                 user=self.user,
