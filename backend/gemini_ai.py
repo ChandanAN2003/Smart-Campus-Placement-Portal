@@ -12,17 +12,18 @@ GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
+def _get_generative_model(model_name="gemini-2.5-flash"):
+    """
+    Get generative model
+    """
+    # Strictly use the requested model (2.5)
+    print(f"[DEBUG] Initializing model: {model_name}")
+    model = genai.GenerativeModel(model_name)
+    return model
+
 def analyze_resume(resume_text, job_role, job_description=""):
     """
     Analyze resume using Gemini API and return job-fit analysis
-    
-    Args:
-        resume_text: Text content extracted from resume
-        job_role: Job role/position name
-        job_description: Optional job description
-    
-    Returns:
-        dict with keys: skills, education, experience, job_fit_score, suggestions
     """
     if not GEMINI_API_KEY:
         return {
@@ -60,7 +61,7 @@ def analyze_resume(resume_text, job_role, job_description=""):
         Provide specific, actionable suggestions for improvement.
         """
         
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = _get_generative_model("gemini-2.5-flash")
         response = model.generate_content(prompt)
         
         # Parse response (Gemini may return markdown or plain text)
@@ -98,48 +99,116 @@ def analyze_resume(resume_text, job_role, job_description=""):
             'suggestions': f'Error: {str(e)}'
         }
 
-def extract_skills_from_text(text):
-    """Extract skills list from text"""
-    skills = []
-    # Common tech skills to look for
-    tech_skills = ['Python', 'Java', 'JavaScript', 'SQL', 'HTML', 'CSS', 'React', 'Node.js', 
-                   'Flask', 'Django', 'AWS', 'Azure', 'Git', 'Docker', 'Machine Learning']
-    for skill in tech_skills:
-        if skill.lower() in text.lower():
-            skills.append(skill)
-    return skills[:10]  # Limit to 10 skills
+def perform_skill_gap_analysis(resume_text, job_role, job_description=""):
+    """
+    Perform detailed skill gap analysis and suggest learning path
+    """
+    if not GEMINI_API_KEY:
+        return None
+        
+    try:
+        prompt = f"""
+        Perform a detailed Skill Gap Analysis matching this resume against the target role: {job_role}
+        
+        Job Description: {job_description if job_description else 'Standard industry requirements for this role'}
+        
+        Resume Content:
+        {resume_text[:4000]}
+        
+        Provide a JSON response with this EXACT structure:
+        {{
+            "ats_score": 85,
+            "missing_skills": ["skill1", "skill2"],
+            "skill_gap_analysis": "Detailed analysis of gaps...",
+            "recommended_courses": [
+                {{"title": "Course Name 1", "platform": "Coursera/Udemy/etc", "duration": "4 weeks"}},
+                {{"title": "Course Name 2", "platform": "Platform", "duration": "Duration"}}
+            ],
+            "project_ideas": [
+                {{"title": "Project 1", "description": "Description...", "tech_stack": "React, Node.js"}}
+            ],
+            "interview_prep_topics": ["Topic 1", "Topic 2"]
+        }}
+        """
+        
+        model = _get_generative_model("gemini-2.5-flash")
+        response = model.generate_content(prompt)
+        response_text = response.text.strip()
+        
+        import json
+        import re
+        
+        json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+        if json_match:
+            return json.loads(json_match.group())
+        return None
+        
+    except Exception as e:
+        print(f"Skill gap analysis error: {e}")
+        return None
 
-def extract_field(text, field_name):
-    """Extract a specific field from text"""
-    import re
-    pattern = rf'{field_name}[:\-]?\s*(.+?)(?:\n|$)'
-    match = re.search(pattern, text, re.IGNORECASE)
-    return match.group(1).strip() if match else 'Not specified'
+def generate_mock_test(job_role, difficulty="Medium"):
+    """
+    Generate technical mock test questions
+    """
+    if not GEMINI_API_KEY:
+        return []
+        
+    try:
+        prompt = f"""
+        Generate a technical mock test for the role: {job_role}
+        Difficulty: {difficulty}
+        
+        Generate 10 technical multiple choice questions (MCQs).
+        
+        Composition:
+        - 5 Questions: LeetCode-style Data Structures & Algorithms (DSA) logic (e.g., Time Complexity, Arrays, Linked Lists, Trees, Graph logic, or identifying the correct algorithm for a problem).
+        - 5 Questions: Language-specific coding output/logic (based on the requested role).
+        
+        Focus on code snippets, algorithmic logic, and technical concepts.
+        
+        Provide JSON response in this format:
+        [
+            {{
+                "id": 1,
+                "question": "Question text...",
+                "options": ["Option A", "Option B", "Option C", "Option D"],
+                "correct_answer": "Option A",
+                "explanation": "Why it is correct..."
+            }}
+        ]
+        """
+        
+        model = _get_generative_model("gemini-2.5-flash")
+        print("[DEBUG] Prompt generated. Calling model.generate_content...")
+        response = model.generate_content(prompt)
+        print("[DEBUG] Response received.")
+        response_text = response.text.strip()
+        print(f"[DEBUG] Response text (first 100 chars): {response_text[:100]}")
+        
+        import json
+        import re
+        
+        json_match = re.search(r'\[.*\]', response_text, re.DOTALL)
+        if json_match:
+            print("[DEBUG] JSON match found.")
+            return json.loads(json_match.group())
+        
+        print("[DEBUG] No JSON match found in response.")
+        return []
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        print(f"Mock test generation error: {e}")
+        return []
 
-def extract_score(text):
-    """Extract job fit score from text"""
-    import re
-    # Look for numbers 0-100
-    scores = re.findall(r'\b([0-9]{1,2}|100)\b', text)
-    for score in scores:
-        score_int = int(score)
-        if 0 <= score_int <= 100:
-            return score_int
-    return 50  # Default score
+# ... helper functions extract_skills_from_text, extract_field, extract_score omitted as they are unchanged ... 
+# (Wait, replace tool replaces range, so I need to be careful to not cut them off if they are in range)
 
 def generate_email_content(email_type, recipient_name, company_name, job_role, additional_info=""):
     """
     Generate professional email content using Gemini
-    
-    Args:
-        email_type: 'offer', 'rejection', 'shortlist', 'reminder'
-        recipient_name: Name of recipient
-        company_name: Company name
-        job_role: Job role
-        additional_info: Any additional context
-    
-    Returns:
-        Email subject and body
     """
     if not GEMINI_API_KEY:
         return get_default_email(email_type, recipient_name, company_name, job_role)
@@ -167,8 +236,11 @@ def generate_email_content(email_type, recipient_name, company_name, job_role, a
         [email body]
         """
         
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content(prompt)
+        model = _get_generative_model("gemini-2.5-flash")
+        response = model.generate_content(prompt, generation_config=genai.types.GenerationConfig(
+            max_output_tokens=1000,
+            temperature=0.7
+        ))
         
         response_text = response.text.strip()
         

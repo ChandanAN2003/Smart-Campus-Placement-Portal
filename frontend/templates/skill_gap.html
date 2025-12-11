@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Gap Analysis | Placement Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: conic-gradient(var(--primary) 0%, rgba(255, 255, 255, 0.1) 0%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            position: relative;
+        }
+
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: var(--surface-1);
+            border-radius: 50%;
+        }
+
+        .score-value {
+            position: relative;
+            z-index: 1;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <i class="fas fa-graduation-cap"></i>
+            <span>Placement Portal</span>
+        </a>
+        <div class="d-flex align-center gap-2">
+            <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary btn-sm"><i
+                    class="fas fa-arrow-left"></i> Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="card-title">
+                    <i class="fas fa-chart-line" style="color: var(--accent);"></i> AI Skill Gap Analyzer
+                </div>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                Compare your resume against any job description to get a detailed analysis, recommended courses, and
+                project ideas.
+            </p>
+
+            <form id="skillGapForm">
+                <div class="grid-3" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Target Job Role</label>
+                            <input type="text" id="job_role" name="job_role" class="form-control"
+                                placeholder="e.g. Full Stack Developer" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Job Description (Optional)</label>
+                            <textarea id="job_description" name="job_description" class="form-control" rows="8"
+                                placeholder="Paste the job description here..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-magic"></i> Analyze Gap
+                        </button>
+                    </div>
+
+                    <div style="display: flex; align-items: center; justify-content: center;">
+                        <div style="text-align: center; color: var(--text-secondary);">
+                            <i class="fas fa-rocket"
+                                style="font-size: 5rem; color: rgba(255,255,255,0.05); margin-bottom: 1rem;"></i>
+                            <p>AI-powered insights based on your resume <br>and current market trends.</p>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div id="loading" style="display: none; text-align: center; padding: 4rem;">
+            <i class="fas fa-spinner fa-spin fa-3x" style="color: var(--primary); margin-bottom: 1rem;"></i>
+            <p>Analyzing profile and fetching recommendations...</p>
+        </div>
+
+        <div id="results" style="display: none;">
+            <div class="grid-3 mb-4" style="grid-template-columns: 1fr 2fr;">
+                <!-- Score Card -->
+                <div class="card text-center">
+                    <h3 style="margin-bottom: 1.5rem;">ATS Match Score</h3>
+                    <div class="score-circle" id="scoreCircle">
+                        <div class="score-value" id="atsScore">0%</div>
+                    </div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Based on keyword matching and semantic
+                        analysis.</p>
+                </div>
+
+                <!-- Missing Skills -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i> Missing Skills
+                        </div>
+                    </div>
+                    <div id="missingSkills" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
+
+                    <div style="margin-top: 2rem;">
+                        <div class="card-title" style="font-size: 1rem; margin-bottom: 1rem;">
+                            <i class="fas fa-microscope" style="color: var(--info);"></i> Detailed Analysis
+                        </div>
+                        <p id="analysisText"
+                            style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-3 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-book" style="color: var(--success);"></i> Recommended Courses
+                        </div>
+                    </div>
+                    <div id="courseList"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-laptop-code" style="color: var(--accent);"></i> Project Ideas
+                        </div>
+                    </div>
+                    <div id="projectList"></div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <i class="fas fa-comments" style="color: var(--primary);"></i> Interview Prep
+                        </div>
+                    </div>
+                    <div id="interviewTopics" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check for role query param
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const role = urlParams.get('role');
+            if (role) {
+                document.getElementById('job_role').value = role;
+            }
+        });
+
+        document.getElementById('skillGapForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = new FormData(form);
+
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+
+            try {
+                const response = await fetch('/api/analyze_skill_gap', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                // Update UI
+                const score = data.ats_score || 0;
+                document.getElementById('atsScore').textContent = `${score}%`;
+                document.getElementById('scoreCircle').style.background = `conic-gradient(var(--primary) ${score}%, rgba(255,255,255,0.1) ${score}%)`;
+
+                const missingSkillsDiv = document.getElementById('missingSkills');
+                missingSkillsDiv.innerHTML = data.missing_skills.map(skill =>
+                    `<span class="badge badge-warning">${skill}</span>`
+                ).join('');
+
+                document.getElementById('analysisText').textContent = data.skill_gap_analysis;
+
+                document.getElementById('courseList').innerHTML = data.recommended_courses.map(c =>
+                    `<div style="margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem;">
+                        <p style="color: var(--text-primary); margin-bottom: 4px; font-weight: 600;">${c.title}</p>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary);">
+                            <span>${c.platform}</span>
+                            <span>${c.duration}</span>
+                        </div>
+                    </div>`
+                ).join('');
+
+                document.getElementById('projectList').innerHTML = data.project_ideas.map(p =>
+                    `<div style="margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem;">
+                        <p style="color: var(--text-primary); margin-bottom: 4px; font-weight: 600;">${p.title}</p>
+                        <p style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--text-muted);">${p.description}</p>
+                        <small style="color: var(--accent); background: rgba(139, 92, 246, 0.1); padding: 2px 8px; border-radius: 4px;">${p.tech_stack}</small>
+                    </div>`
+                ).join('');
+
+                document.getElementById('interviewTopics').innerHTML = data.interview_prep_topics.map(t =>
+                    `<span class="badge badge-info">${t}</span>`
+                ).join('');
+
+                document.getElementById('results').style.display = 'block';
+
+            } catch (err) {
+                console.error(err);
+                alert('Analysis failed. Please try again.');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

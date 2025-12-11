@@ -24,7 +24,7 @@ backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
 
 from database import db
-from gemini_ai import analyze_resume, generate_email_content
+from gemini_ai import analyze_resume, generate_email_content, perform_skill_gap_analysis, generate_mock_test
 from mail_utils import init_mail, send_application_update_email
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
@@ -387,6 +387,102 @@ def resume_analysis(drive_id):
     analysis = analyze_resume(resume_text, drive['job_role'], drive.get('job_description', ''))
     
     return jsonify(analysis)
+
+@app.route('/student/skill_gap')
+@login_required
+@role_required('student')
+def skill_gap_page():
+    """Render Skill Gap Analysis page"""
+    return render_template('skill_gap.html')
+
+@app.route('/api/analyze_skill_gap', methods=['POST'])
+@login_required
+def analyze_skill_gap_api():
+    """API to analyze skill gap"""
+    user_id = session['user_id']
+    job_role = request.form.get('job_role')
+    job_description = request.form.get('job_description')
+    
+    if not job_role:
+        return jsonify({'error': 'Job role is required'}), 400
+        
+    # Get latest resume
+    resume = db.execute_query(
+        "SELECT * FROM resumes WHERE user_id = %s ORDER BY analyzed_at DESC LIMIT 1",
+        (user_id,),
+        fetch_one=True
+    )
+    
+    if not resume:
+        return jsonify({'error': 'Please upload a resume first'}), 400
+        
+    resume_text = extract_text_from_file(resume['file_path'])
+    
+    analysis = perform_skill_gap_analysis(resume_text, job_role, job_description)
+    
+    if not analysis:
+        return jsonify({'error': 'Analysis failed'}), 500
+        
+    return jsonify(analysis)
+
+@app.route('/student/mock_test')
+@login_required
+@role_required('student')
+def mock_test_page():
+    """Render Mock Test page"""
+    drive_id = request.args.get('drive_id')
+    drive = None
+    if drive_id:
+        drive = db.execute_query(
+            "SELECT * FROM drives WHERE id = %s",
+            (drive_id,),
+            fetch_one=True
+        )
+    return render_template('mock_test.html', drive=drive)
+
+@app.route('/api/generate_test', methods=['POST'])
+@login_required
+def generate_test_api():
+    """API to generate mock test"""
+    job_role = request.json.get('job_role')
+    difficulty = request.json.get('difficulty', 'Medium')
+    
+    questions = generate_mock_test(job_role, difficulty)
+    
+    return jsonify(questions)
+
+@app.route('/api/submit_test_result', methods=['POST'])
+@login_required
+def submit_test_result():
+    """Submit mock test result for a drive"""
+    user_id = session['user_id']
+    drive_id = request.json.get('drive_id')
+    score = request.json.get('score')
+    
+    if not drive_id or score is None:
+        return jsonify({'error': 'Missing drive_id or score'}), 400
+        
+    # Update application with test score
+    try:
+        # Check if application exists
+        app_exists = db.execute_query(
+            "SELECT id FROM applications WHERE student_id = %s AND drive_id = %s",
+            (user_id, drive_id),
+            fetch_one=True
+        )
+        
+        if app_exists:
+            db.execute_query(
+                "UPDATE applications SET mock_test_score = %s WHERE student_id = %s AND drive_id = %s",
+                (score, user_id, drive_id)
+            )
+            return jsonify({'success': True, 'message': 'Test score recorded'})
+        else:
+             return jsonify({'error': 'Application not found. Please apply first.'}), 404
+             
+    except Exception as e:
+        print(f"Error saving test score: {e}")
+        return jsonify({'error': 'Database error'}), 500
 
 # ==================== HOD Routes ====================
 

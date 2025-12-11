@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Test | Placement Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            user-select: none;
+            overflow: hidden;
+            /* Prevent scrolling during test */
+        }
+
+        .camera-feed {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: 150px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--primary);
+            z-index: 1000;
+            background: #000;
+        }
+
+        .option-card {
+            padding: 1rem 1.5rem;
+            border: 1px solid var(--glass-border);
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.02);
+            display: flex;
+            align-items: center;
+        }
+
+        .option-card:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .option-card.selected {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.15);
+        }
+
+        .test-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            position: relative;
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body oncontextmenu="return false;">
+
+    <div class="camera-feed">
+        <video id="webcam" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-laptop-code"></i>
+            <span>Mock Test Environment</span>
+        </div>
+        <div class="d-flex align-center gap-2">
+            <button onclick="quitTest()" class="btn btn-danger btn-sm">Exit Test</button>
+        </div>
+    </nav>
+
+    <div class="container-fluid" style="height: calc(100vh - 80px); overflow-y: auto;">
+
+        <!-- Setup Screen -->
+        <div id="setup-screen" class="card" style="max-width: 600px; margin: 50px auto; text-align: center;">
+            <div style="margin-bottom: 2rem;">
+                <div
+                    style="width: 80px; height: 80px; background: rgba(99, 102, 241, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2.5rem; color: var(--primary);">
+                    <i class="fas fa-user-astronaut"></i>
+                </div>
+                <h2 style="margin-bottom: 1rem;">System Check & Rules</h2>
+                <p style="color: var(--text-secondary);">Please review the rules before starting.</p>
+            </div>
+
+            <div
+                style="text-align: left; background: rgba(255,255,255,0.03); padding: 1.5rem; border-radius: 1rem; margin-bottom: 2rem;">
+                <div class="d-flex align-center gap-2 mb-2">
+                    <i class="fas fa-video text-success" style="width: 20px;"></i> <span>Webcam feed required
+                        (monitored)</span>
+                </div>
+                <div class="d-flex align-center gap-2 mb-2">
+                    <i class="fas fa-expand text-warning" style="width: 20px;"></i> <span>Fullscreen mode
+                        enforced</span>
+                </div>
+                <div class="d-flex align-center gap-2 mb-2">
+                    <i class="fas fa-mouse-pointer text-danger" style="width: 20px;"></i> <span>No tab switching
+                        (Auto-fail)</span>
+                </div>
+            </div>
+
+            {% if drive %}
+            <div class="card"
+                style="border: 1px solid var(--primary); background: rgba(99, 102, 241, 0.05); margin-bottom: 2rem;">
+                <h4 style="margin-bottom: 0.5rem; color: var(--primary);">{{ drive.company_name }} Interview</h4>
+                <p>Role: <strong>{{ drive.job_role }}</strong></p>
+                <input type="hidden" id="driveId" value="{{ drive.id }}">
+                <input type="hidden" id="testRoleInput" value="{{ drive.job_role }}">
+            </div>
+            {% else %}
+            <div class="form-group" style="text-align: left;">
+                <label class="form-label">Select Technology Stack</label>
+                <select id="testRole" class="form-control">
+                    <option value="Software Engineer">General Software Engineering</option>
+                    <option value="Data Scientist">Data Science & ML</option>
+                    <option value="Web Developer">Full Stack Web Development</option>
+                    <option value="Java Developer">Java Spring Boot</option>
+                    <option value="Python Developer">Python Django/Flask</option>
+                </select>
+            </div>
+            {% endif %}
+
+            <button onclick="startTestSetup()" class="btn btn-primary w-100">
+                <i class="fas fa-play"></i> Start Assessment
+            </button>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loading" style="display: none; text-align: center; margin-top: 100px;">
+            <i class="fas fa-circle-notch fa-spin fa-3x" style="color: var(--primary); margin-bottom: 1.5rem;"></i>
+            <h3>Generating Questions...</h3>
+            <p style="color: var(--text-secondary);">AI is curating a personalized test for you.</p>
+        </div>
+
+        <!-- Test Interface -->
+        <div id="test-screen" class="test-container" style="display: none;">
+            <div class="card">
+                <div class="d-flex justify-between align-center mb-4"
+                    style="border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem;">
+                    <div>
+                        <span class="badge badge-info" id="question-number">Question 1/5</span>
+                    </div>
+                    <div class="d-flex align-center gap-2" style="font-family: monospace; font-size: 1.2rem;">
+                        <i class="far fa-clock"></i> <span id="timer">--:--</span>
+                    </div>
+                </div>
+
+                <div id="questions-container" style="min-height: 300px;">
+                    <!-- Question injected here -->
+                </div>
+
+                <div class="d-flex justify-between mt-4 border-top pt-4"
+                    style="border-color: var(--glass-border) !important;">
+                    <div style="font-size: 0.9rem; color: var(--text-secondary); display: flex; align-items: center;">
+                        <i class="fas fa-shield-alt text-success mr-2"></i> Proctoring Active
+                    </div>
+                    <button id="nextBtn" onclick="nextQuestion()" class="btn btn-primary" disabled>
+                        Next Question <i class="fas fa-chevron-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="card"
+            style="display: none; max-width: 500px; margin: 50px auto; text-align: center;">
+            <div style="margin-bottom: 2rem;">
+                <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--success); margin-bottom: 1rem;"></i>
+                <h2>Assessment Complete</h2>
+            </div>
+
+            <div style="background: rgba(255,255,255,0.05); border-radius: 1rem; padding: 2rem; margin-bottom: 2rem;">
+                <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem;">YOUR SCORE</div>
+                <div id="finalScore"
+                    style="font-size: 3.5rem; font-weight: 800; line-height: 1; color: var(--primary);">0/0</div>
+            </div>
+
+            <div id="result-message" style="margin-bottom: 2rem;"></div>
+
+            <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary w-100">
+                Return to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let stream = null;
+
+        // Camera Setup
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                document.getElementById('webcam').srcObject = stream;
+            } catch (err) {
+                alert("Camera access is required for this test! Please check permissions.");
+                window.location.href = "{{ url_for('student_dashboard') }}";
+            }
+        }
+
+        async function startTestSetup() {
+            await startCamera();
+            try {
+                await document.documentElement.requestFullscreen();
+            } catch (e) {
+                console.log("Fullscreen optional for dev");
+            }
+
+            const driveId = document.getElementById('driveId') ? document.getElementById('driveId').value : null;
+            const role = document.getElementById('testRoleInput') ? document.getElementById('testRoleInput').value : document.getElementById('testRole').value;
+
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+
+            try {
+                const response = await fetch('/api/generate_test', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ job_role: role })
+                });
+
+                questions = await response.json();
+
+                if (!questions || questions.length === 0) {
+                    alert("Failed to generate questions. Please try again.");
+                    window.location.href = "{{ url_for('student_dashboard') }}";
+                    return;
+                }
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('test-screen').style.display = 'block';
+                showQuestion(0);
+                startTimer(30 * 60); // 30 minutes in seconds
+
+            } catch (err) {
+                console.error(err);
+                alert("Error starting test");
+            }
+        }
+
+        let timerInterval;
+
+        function startTimer(duration) {
+            let timer = duration, minutes, seconds;
+            const display = document.getElementById('timer');
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(timerInterval);
+                    alert("Time's up! Your test will be submitted automatically.");
+                    finishTest();
+                }
+            }, 1000);
+        }
+
+        function showQuestion(index) {
+            const container = document.getElementById('questions-container');
+            const q = questions[index];
+
+            container.innerHTML = `
+                <h3 style="margin-bottom: 2rem; font-weight: 600; font-size: 1.3rem;">${q.question}</h3>
+                <div class="options-grid">
+                    ${q.options.map((opt, i) => `
+                        <div class="option-card" onclick="selectOption(this, '${opt}')">
+                            <div style="width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; margin-right: 15px; font-weight: bold;">${String.fromCharCode(65 + i)}</div>
+                            <div style="flex: 1;">${opt}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            document.getElementById('question-number').textContent = `Question ${index + 1}/${questions.length}`;
+            document.getElementById('nextBtn').disabled = true;
+        }
+
+        let selectedAnswer = null;
+
+        function selectOption(element, answer) {
+            document.querySelectorAll('.option-card').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedAnswer = answer;
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            if (selectedAnswer === questions[currentQuestionIndex].correct_answer) {
+                score++;
+            }
+
+            currentQuestionIndex++;
+            selectedAnswer = null;
+
+            if (currentQuestionIndex < questions.length) {
+                showQuestion(currentQuestionIndex);
+            } else {
+                finishTest();
+            }
+        }
+
+        async function finishTest() {
+            clearInterval(timerInterval);
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+            if (stream) stream.getTracks().forEach(track => track.stop());
+
+            document.getElementById('test-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            document.getElementById('finalScore').textContent = `${score}/${questions.length}`;
+            document.querySelector('.camera-feed').style.display = 'none';
+
+            // Submit Score if for a drive
+            const driveId = document.getElementById('driveId') ? document.getElementById('driveId').value : null;
+            if (driveId) {
+                try {
+                    await fetch('/api/submit_test_result', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            drive_id: driveId,
+                            score: score
+                        })
+                    });
+                    document.getElementById('result-message').innerHTML = '<p class="text-success"><i class="fas fa-check"></i> Score submitted to TPO successfully!</p>';
+                } catch (err) {
+                    console.error("Error submitting score", err);
+                }
+            }
+        }
+
+        function quitTest() {
+            if (stream) stream.getTracks().forEach(track => track.stop());
+            window.location.href = "{{ url_for('student_dashboard') }}";
+        }
+
+        // Security Measures: Immediate Disqualification on Tab Switch
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden && document.getElementById('test-screen').style.display === 'block') {
+                disqualifyTest();
+            }
+        });
+
+        // Also catch window blur events (losing focus)
+        window.addEventListener("blur", () => {
+            if (document.getElementById('test-screen').style.display === 'block') {
+                disqualifyTest();
+            }
+        });
+
+        async function disqualifyTest() {
+            // Stop resources
+            clearInterval(timerInterval);
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+            if (stream) stream.getTracks().forEach(track => track.stop());
+
+            // Hide test, show result
+            document.getElementById('test-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+
+            // Set score to 0 and show disqualification message
+            score = 0;
+            document.getElementById('finalScore').textContent = "0";
+            document.getElementById('finalScore').style.color = "var(--danger)";
+
+            const resultMessage = document.getElementById('result-message');
+            resultMessage.innerHTML = `
+                <div class="alert alert-danger" style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: #ff6b6b; padding: 1rem; border-radius: 0.5rem;">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>DISQUALIFIED</strong><br>
+                    You switched tabs or minimized the window during the test. Your score has been recorded as 0.
+                </div>
+            `;
+            document.querySelector('.camera-feed').style.display = 'none';
+
+            // Submit 0 Score if for a drive
+            const driveId = document.getElementById('driveId') ? document.getElementById('driveId').value : null;
+            if (driveId) {
+                try {
+                    await fetch('/api/submit_test_result', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            drive_id: driveId,
+                            score: 0 // Force 0 score
+                        })
+                    });
+                } catch (err) {
+                    console.error("Error submitting disqualification score", err);
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>

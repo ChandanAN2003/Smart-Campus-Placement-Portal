@@ -33,7 +33,7 @@ class Database:
         """Establish database connection"""
         try:
             print("--------------------------------------------------")
-            print("🌍 Connecting to database...")
+            print("[INFO] Connecting to database...")
             print(f"Host: {self.host}")
             print(f"Port: {self.port}")
             print(f"User: {self.user}")
@@ -51,10 +51,10 @@ class Database:
                 cursorclass=pymysql.cursors.DictCursor,
                 autocommit=False
             )
-            print("✅ Database connection successful!")
+            print("[OK] Database connection successful!")
             return self.connection
         except Exception as e:
-            print(f"❌ Database connection error: {e}")
+            print(f"[ERROR] Database connection error: {e}")
             raise
 
     def get_connection(self):
@@ -79,14 +79,14 @@ class Database:
                 return result
         except Exception as e:
             conn.rollback()
-            print(f"❌ Query execution error: {e}")
+            print(f"[ERROR] Query execution error: {e}")
             raise
 
     def close(self):
         """Close database connection"""
         if self.connection and self.connection.open:
             self.connection.close()
-            print("🔒 Database connection closed.")
+            print("[INFO] Database connection closed.")
 
 # Global instance
 db = Database()

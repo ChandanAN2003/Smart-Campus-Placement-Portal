@@ -1,167 +1,183 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HOD Dashboard - Placement Portal</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
+
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#"><i class="bi bi-person-badge"></i> HOD Dashboard</a>
-            <div class="navbar-nav ms-auto">
-                <span class="navbar-text me-3">Welcome, {{ session.name }}</span>
-                <a class="btn btn-outline-light btn-sm" href="{{ url_for('logout') }}">Logout</a>
-            </div>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <i class="fas fa-user-tie"></i>
+            <span>HOD Dashboard</span>
+        </a>
+        <div class="d-flex align-center gap-2">
+            <span style="color: var(--text-secondary); margin-right: 15px;">Welcome, {{ session.name }}</span>
+            <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm">Logout</a>
         </div>
     </nav>
 
-    <div class="container-fluid mt-4">
+    <div class="container-fluid">
         {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert {{ 'alert-error' if category == 'error' else 'alert-success' }}">
+            <i class="fas {{ 'fa-exclamation-circle' if category == 'error' else 'fa-check-circle' }}"></i> {{ message
+            }}
+        </div>
+        {% endfor %}
+        {% endif %}
         {% endwith %}
 
-        <!-- Statistics -->
-        <div class="row mb-4">
-            <div class="col-md-4">
-                <div class="card text-white bg-primary">
-                    <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-people"></i> Total Students</h5>
-                        <h2>{{ total_students }}</h2>
-                    </div>
+        <!-- Stats Grid -->
+        <div class="grid-3 mb-4">
+            <div class="card stat-card">
+                <div class="stat-icon" style="color: var(--primary);">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ total_students }}</div>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem;">Total Students</div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-success">
-                    <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-check-circle"></i> Approved</h5>
-                        <h2>{{ approved_students }}</h2>
-                    </div>
+            <div class="card stat-card">
+                <div class="stat-icon" style="color: var(--success);">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ approved_students }}</div>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem;">Approved</div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-warning">
-                    <div class="card-body">
-                        <h5 class="card-title"><i class="bi bi-clock"></i> Pending</h5>
-                        <h2>{{ total_students - approved_students }}</h2>
-                    </div>
+            <div class="card stat-card">
+                <div class="stat-icon" style="color: var(--warning);">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <div>
+                    <div class="stat-value">{{ total_students - approved_students }}</div>
+                    <div style="color: var(--text-secondary); font-size: 0.9rem;">Pending</div>
                 </div>
             </div>
         </div>
 
-        <!-- Pending Approvals -->
-        <div class="card mb-4">
-            <div class="card-header bg-warning text-dark">
-                <h5 class="mb-0"><i class="bi bi-hourglass-split"></i> Pending Student Approvals</h5>
-            </div>
-            <div class="card-body">
+        <div class="dashboard-layout" style="grid-template-columns: 1fr;">
+            <!-- Pending Approvals -->
+            <div class="card mb-4" style="border-left: 4px solid var(--warning);">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-user-clock" style="color: var(--warning);"></i> Pending Student Approvals
+                    </div>
+                </div>
                 {% if pending_students %}
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Department</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for student in pending_students %}
-                                <tr>
-                                    <td>{{ student.name }}</td>
-                                    <td>{{ student.email }}</td>
-                                    <td>{{ student.department or 'N/A' }}</td>
-                                    <td>
-                                        <form method="POST" action="{{ url_for('approve_student', student_id=student.id) }}" style="display: inline;">
-                                            <button type="submit" class="btn btn-sm btn-success">
-                                                <i class="bi bi-check"></i> Approve
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Department</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in pending_students %}
+                            <tr>
+                                <td style="font-weight: 600;">{{ student.name }}</td>
+                                <td>{{ student.email }}</td>
+                                <td>{{ student.department or 'N/A' }}</td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <form method="POST"
+                                            action="{{ url_for('approve_student', student_id=student.id) }}">
+                                            <button type="submit" class="btn btn-success btn-sm">
+                                                <i class="fas fa-check"></i> Approve
                                             </button>
                                         </form>
-                                        <form method="POST" action="{{ url_for('reject_student', student_id=student.id) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to reject this student?');">
-                                            <button type="submit" class="btn btn-sm btn-danger">
-                                                <i class="bi bi-x"></i> Reject
+                                        <form method="POST"
+                                            action="{{ url_for('reject_student', student_id=student.id) }}"
+                                            onsubmit="return confirm('Reject this student?');">
+                                            <button type="submit" class="btn btn-danger btn-sm">
+                                                <i class="fas fa-times"></i> Reject
                                             </button>
                                         </form>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
                 {% else %}
-                    <p class="text-muted text-center">No pending approvals</p>
+                <div class="text-center p-4">
+                    <p class="text-secondary">No pending approvals.</p>
+                </div>
                 {% endif %}
             </div>
-        </div>
 
-        <!-- Department Applications -->
-        <div class="card mb-4">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0"><i class="bi bi-list-ul"></i> Department Applications</h5>
-            </div>
-            <div class="card-body">
+            <!-- Department Applications -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-list-ul" style="color: var(--info);"></i> Department Applications
+                    </div>
+                </div>
                 {% if applications %}
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Student</th>
-                                    <th>Company</th>
-                                    <th>Job Role</th>
-                                    <th>Status</th>
-                                    <th>Applied Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for app in applications %}
-                                <tr>
-                                    <td>{{ app.student_name }}</td>
-                                    <td>{{ app.company_name }}</td>
-                                    <td>{{ app.job_role }}</td>
-                                    <td>
-                                        <span class="badge bg-{{ 
-                                            'success' if app.status == 'Selected' else 
-                                            'info' if app.status == 'Shortlisted' else 
-                                            'warning' if app.status == 'Applied' else 
-                                            'danger' 
-                                        }}">
-                                            {{ app.status }}
-                                        </span>
-                                    </td>
-                                    <td>{{ app.applied_at.strftime('%Y-%m-%d') if app.applied_at else 'N/A' }}</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Company</th>
+                                <th>Job Role</th>
+                                <th>Status</th>
+                                <th>Applied Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for app in applications %}
+                            <tr>
+                                <td>
+                                    <div style="font-weight: 600;">{{ app.student_name }}</div>
+                                </td>
+                                <td>{{ app.company_name }}</td>
+                                <td>{{ app.job_role }}</td>
+                                <td>
+                                    <span
+                                        class="badge badge-{{ 'success' if app.status == 'Selected' else 'info' if app.status == 'Shortlisted' else 'warning' if app.status == 'Applied' else 'danger' }}">
+                                        {{ app.status }}
+                                    </span>
+                                </td>
+                                <td>{{ app.applied_at.strftime('%Y-%m-%d') if app.applied_at else 'N/A' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
                 {% else %}
-                    <p class="text-muted text-center">No applications yet</p>
+                <div class="text-center p-4">
+                    <p class="text-secondary">No applications yet.</p>
+                </div>
                 {% endif %}
             </div>
-        </div>
 
-        <!-- Export Report -->
-        <div class="card">
-            <div class="card-body text-center">
-                <a href="{{ url_for('export_hod_report') }}" class="btn btn-primary">
-                    <i class="bi bi-download"></i> Export Department Report (Excel)
-                </a>
+            <!-- Export -->
+            <div class="card text-center">
+                <div class="card-header">
+                    <div class="card-title justify-content-center">Reports</div>
+                </div>
+                <div class="p-4">
+                    <a href="{{ url_for('export_hod_report') }}" class="btn btn-primary">
+                        <i class="fas fa-download"></i> Export Department Report (Excel)
+                    </a>
+                </div>
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-</html>
 
+</html>

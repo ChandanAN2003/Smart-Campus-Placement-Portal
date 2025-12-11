@@ -31,15 +31,16 @@ def init_database():
                         if statement:
                             cursor.execute(statement)
                 conn.commit()
-                print("✓ Database schema created successfully")
+                conn.commit()
+                print("[OK] Database schema created successfully")
             finally:
                 conn.close()
 
         create_default_users()
-        print("✓ Database initialized successfully")
+        print("[OK] Database initialized successfully")
 
     except Exception as e:
-        print(f"✗ Database initialization error: {e}")
+        print(f"[ERROR] Database initialization error: {e}")
         raise
 
 def create_default_users():
@@ -51,7 +52,7 @@ def create_default_users():
             fetch_one=True
         )
         if result and result['count'] > 0:
-            print("✓ Default users already exist")
+            print("[INFO] Default users already exist")
             return
 
         # Default users
@@ -73,13 +74,13 @@ def create_default_users():
             ('Alice Johnson', 'alice@college.edu', student_password, 'student', 'Computer Science', True)
         )
 
-        print("✓ Default users created:")
+        print("[OK] Default users created:")
         print("  TPO: tpo@college.edu / admin123")
         print("  HOD: hod.cs@college.edu / hod123")
         print("  Student: alice@college.edu / student123")
 
     except Exception as e:
-        print(f"✗ Error creating default users: {e}")
+        print(f"[ERROR] Error creating default users: {e}")
     finally:
         if conn:
             conn.close()

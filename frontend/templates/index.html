@@ -1,128 +1,245 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>College Placement Portal - Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Placement Portal - Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-light">
-    <div class="container">
-        <div class="row justify-content-center align-items-center min-vh-100">
-            <div class="col-md-6 col-lg-5">
-                <div class="card shadow-lg border-0">
-                    <div class="card-body p-5">
-                        <div class="text-center mb-4">
-                            <h2 class="text-primary fw-bold">🎓 Placement Portal</h2>
-                            <p class="text-muted">AI-Integrated College Placement Management</p>
+
+<body>
+    <div class="auth-container">
+        <div class="card"
+            style="max-width: 1000px; width: 100%; padding: 0; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; min-height: 600px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+
+            <!-- Hero / Info Section -->
+            <div
+                style="background: linear-gradient(135deg, var(--primary), var(--accent)); padding: 4rem 3rem; display: flex; flex-direction: column; justify-content: center; position: relative; color: white;">
+                <div style="position: relative; z-index: 2;">
+                    <div style="font-size: 3.5rem; margin-bottom: 1.5rem;"><i class="fas fa-graduation-cap"></i></div>
+                    <h1 style="font-size: 3rem; font-weight: 800; line-height: 1.1; margin-bottom: 1.5rem;">Launch Your
+                        Career</h1>
+                    <p style="font-size: 1.1rem; opacity: 0.9; margin-bottom: 3rem; max-width: 400px;">
+                        The intelligent platform for campus placements. Smart skill analysis, seamless drive management,
+                        and AI-powered preparation.
+                    </p>
+
+                    <div class="d-flex gap-2" style="flex-direction: column;">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                            <div
+                                style="width: 48px; height: 48px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 700;">AI Analysis</div>
+                                <div style="font-size: 0.85rem; opacity: 0.8;">Resume scoring & insights</div>
+                            </div>
                         </div>
-
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {% for category, message in messages %}
-                                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                                        {{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
-
-                        <!-- Login Form -->
-                        <div id="loginForm">
-                            <h4 class="mb-4">Login</h4>
-                            <form method="POST" action="{{ url_for('login') }}">
-                                <div class="mb-3">
-                                    <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" name="email" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="password" class="form-label">Password</label>
-                                    <input type="password" class="form-control" id="password" name="password" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary w-100 mb-3">Login</button>
-                                <p class="text-center">
-                                    <a href="#" onclick="showRegister(); return false;" class="text-decoration-none">Don't have an account? Register</a>
-                                </p>
-                            </form>
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                            <div
+                                style="width: 48px; height: 48px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 700;">Skill Gap</div>
+                                <div style="font-size: 0.85rem; opacity: 0.8;">Personalized learning paths</div>
+                            </div>
                         </div>
-
-                        <!-- Register Form -->
-                        <div id="registerForm" style="display: none;">
-                            <h4 class="mb-4">Register</h4>
-                            <form method="POST" action="{{ url_for('register') }}">
-                                <div class="mb-3">
-                                    <label for="reg_name" class="form-label">Full Name</label>
-                                    <input type="text" class="form-control" id="reg_name" name="name" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="reg_email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="reg_email" name="email" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="reg_password" class="form-label">Password</label>
-                                    <input type="password" class="form-control" id="reg_password" name="password" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="reg_role" class="form-label">Role</label>
-                                    <select class="form-select" id="reg_role" name="role" required onchange="toggleDepartment()">
-                                        <option value="">Select Role</option>
-                                        <option value="student">Student</option>
-                                        <option value="hod">Head of Department (HOD)</option>
-                                        <option value="tpo">Training & Placement Officer (TPO)</option>
-                                    </select>
-                                </div>
-                                <div class="mb-3" id="departmentField" style="display: none;">
-                                    <label for="reg_department" class="form-label">Department</label>
-                                    <input type="text" class="form-control" id="reg_department" name="department" placeholder="e.g., Computer Science">
-                                </div>
-                                <button type="submit" class="btn btn-success w-100 mb-3">Register</button>
-                                <p class="text-center">
-                                    <a href="#" onclick="showLogin(); return false;" class="text-decoration-none">Already have an account? Login</a>
-                                </p>
-                            </form>
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div
+                                style="width: 48px; height: 48px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+                                <i class="fas fa-laptop-code"></i>
+                            </div>
+                            <div>
+                                <div style="font-weight: 700;">Mock Tests</div>
+                                <div style="font-size: 0.85rem; opacity: 0.8;">Practice for technical rounds</div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="text-center mt-3">
-                    <small class="text-muted">Default Credentials:<br>
-                    TPO: tpo@college.edu / admin123<br>
-                    HOD: hod.cs@college.edu / hod123<br>
-                    Student: alice@college.edu / student123</small>
+
+                <!-- Decor Circles -->
+                <div
+                    style="position: absolute; top: -100px; left: -100px; width: 300px; height: 300px; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); filter: blur(40px);">
                 </div>
+                <div
+                    style="position: absolute; bottom: -50px; right: -50px; width: 250px; height: 250px; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); filter: blur(30px);">
+                </div>
+            </div>
+
+            <!-- Auth Forms -->
+            <div
+                style="padding: 4rem 3rem; background: var(--surface-1); display: flex; flex-direction: column; justify-content: center; position: relative;">
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                <div style="position: absolute; top: 20px; left: 20px; right: 20px; z-index: 10;">
+                    {% for category, message in messages %}
+                    <div class="alert {{ 'alert-error' if category == 'error' else 'alert-success' }}"
+                        style="margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <i class="fas {{ 'fa-exclamation-circle' if category == 'error' else 'fa-check-circle' }}"></i>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+
+                <!-- Login Form -->
+                <div id="loginForm">
+                    <div style="margin-bottom: 2.5rem;">
+                        <h2
+                            style="color: var(--text-primary); font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">
+                            Welcome Back</h2>
+                        <p style="color: var(--text-secondary);">Sign in to access your dashboard.</p>
+                    </div>
+
+                    <form action="{{ url_for('login') }}" method="POST">
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email" class="form-control" required
+                                placeholder="john@example.com" style="height: 50px;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" required placeholder="••••••••"
+                                style="height: 50px;">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mb-4" style="height: 50px; font-size: 1rem;">
+                            Sign In <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+                        </button>
+                    </form>
+
+                    <div class="text-center">
+                        <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Don't have an account?</p>
+                        <button onclick="toggleForms()"
+                            style="background: none; border: none; color: var(--primary); font-weight: 600; cursor: pointer; font-size: 1rem;">
+                            Create New Account
+                        </button>
+                    </div>
+
+                    <div
+                        style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--glass-border); text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+                        <p style="margin-bottom: 5px;">Demo Credentials:</p>
+                        <code
+                            style="background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px;">student@gmail.com / student123</code>
+                    </div>
+                </div>
+
+                <!-- Register Form -->
+                <div id="registerForm" style="display: none;">
+                    <div style="margin-bottom: 2rem;">
+                        <h2
+                            style="color: var(--text-primary); font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">
+                            Create Account</h2>
+                        <p style="color: var(--text-secondary);">Join the placement portal today.</p>
+                    </div>
+
+                    <form action="{{ url_for('register') }}" method="POST">
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="name" class="form-control" required placeholder="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email" class="form-control" required
+                                placeholder="john@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" required placeholder="••••••••">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Role</label>
+                            <select name="role" id="reg_role" class="form-control" required
+                                onchange="toggleDepartment()">
+                                <option value="student">Student</option>
+                                <option value="hod">Head of Department (HOD)</option>
+                                <option value="tpo">TPO</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="deptField">
+                            <label class="form-label">Department</label>
+                            <select name="department" id="reg_dept" class="form-control">
+                                <option value="">Select Department</option>
+                                <option value="CSE">Computer Science (CSE)</option>
+                                <option value="ECE">Electronics (ECE)</option>
+                                <option value="MECH">Mechanical (MECH)</option>
+                                <option value="CIVIL">Civil</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mb-4" style="height: 48px;">
+                            Create Account
+                        </button>
+                    </form>
+
+                    <div class="text-center">
+                        <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Already have an account?</p>
+                        <button onclick="toggleForms()"
+                            style="background: none; border: none; color: var(--primary); font-weight: 600; cursor: pointer; font-size: 1rem;">
+                            Sign In Instead
+                        </button>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        //{% if show_register %}
-        //showRegister();
-        //{% endif %}
+    <!-- Mobile Responsive Adjustments -->
+    <style>
+        @media (max-width: 900px) {
+            .card {
+                grid-template-columns: 1fr !important;
+                min-height: auto !important;
+                max-width: 500px !important;
+            }
 
-        function showRegister() {
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('registerForm').style.display = 'block';
+            .card>div:first-child {
+                display: none !important;
+                /* Hide hero on mobile to save space */
+            }
+
+            .auth-container {
+                padding: 1rem;
+            }
         }
+    </style>
 
-        function showLogin() {
-            document.getElementById('registerForm').style.display = 'none';
-            document.getElementById('loginForm').style.display = 'block';
+    <script>
+        function toggleForms() {
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            const isLoginVisible = loginForm.style.display !== 'none';
+
+            if (isLoginVisible) {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            } else {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            }
         }
 
         function toggleDepartment() {
             const role = document.getElementById('reg_role').value;
-            const deptField = document.getElementById('departmentField');
+            const deptField = document.getElementById('deptField');
+            const deptInput = document.getElementById('reg_dept');
+
             if (role === 'student' || role === 'hod') {
                 deptField.style.display = 'block';
-                document.getElementById('reg_department').required = true;
+                deptInput.required = true;
             } else {
                 deptField.style.display = 'none';
-                document.getElementById('reg_department').required = false;
+                deptInput.required = false;
             }
         }
+
+        // Initialize
+        toggleDepartment();
     </script>
 </body>
-</html>
 
+</html>
