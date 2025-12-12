@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Aptitude Challenge | Placement Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .quiz-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            background: #1e293b;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-card {
+            display: none;
+        }
+
+        .question-card.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .option-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 1rem;
+            margin: 0.8rem 0;
+            background: #334155;
+            border: 1px solid #475569;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover {
+            background: #475569;
+        }
+
+        .option-btn.selected {
+            background: #3b82f6;
+            border-color: #3b82f6;
+        }
+
+        .option-btn.correct {
+            background: #22c55e !important;
+            border-color: #22c55e !important;
+        }
+
+        .option-btn.wrong {
+            background: #ef4444 !important;
+            border-color: #ef4444 !important;
+        }
+
+        .btn-next {
+            background: #3b82f6;
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+
+        .result-box {
+            display: none;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'navbar.html' %}
+
+    <div class="container">
+        <div class="quiz-container">
+            <div id="loading" class="text-center">
+                <i class="fas fa-brain fa-spin fa-3x mb-3" style="color: #3b82f6;"></i>
+                <h2>Generating Today's Challenge...</h2>
+                <p>Sit tight! AI is crafting unique logic puzzles for you.</p>
+            </div>
+
+            <div id="quiz-content">
+                <div class="d-flex justify-content-between mb-4">
+                    <h3 id="q-counter">Question 1/5</h3>
+                    <span class="badge bg-primary">Daily Streak: 🔥 Active</span>
+                </div>
+
+                <div id="questions-wrapper">
+                    <!-- Questions injected here -->
+                </div>
+
+                <div id="explanation-box" class="alert alert-info mt-3" style="display: none;">
+                    <strong>Explanation:</strong> <span id="explanation-text"></span>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <button id="next-btn" class="btn-next" style="display: none;" onclick="nextQuestion()">Next Question
+                        <i class="fas fa-arrow-right ml-2"></i></button>
+                    <button id="finish-btn" class="btn-next bg-success" style="display: none;"
+                        onclick="showResults()">See Results</button>
+                </div>
+            </div>
+
+            <div id="result-box" class="result-box">
+                <i class="fas fa-trophy fa-4x text-warning mb-3"></i>
+                <h2>Challenge Complete!</h2>
+                <p class="lead">You scored <span id="final-score" class="text-primary fw-bold"></span>/5</p>
+                <div id="points-msg" class="mt-3 text-success fw-bold"></div>
+
+                <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary mt-4">Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let questions = [];
+        let currentIdx = 0;
+        let score = 0;
+
+        document.addEventListener('DOMContentLoaded', loadQuestions);
+
+        async function loadQuestions() {
+            try {
+                const res = await fetch('/api/daily_challenge/generate');
+                questions = await res.json();
+
+                if (questions.length === 0) {
+                    document.getElementById('loading').innerHTML = "<h3>Failed to load questions. Please check API Key.</h3>";
+                    return;
+                }
+
+                renderQuestion(0);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('quiz-content').style.display = 'block';
+            } catch (e) {
+                console.error(e);
+                document.getElementById('loading').innerHTML = "<h3>Error connecting to server.</h3>";
+            }
+        }
+
+        function renderQuestion(idx) {
+            const wrapper = document.getElementById('questions-wrapper');
+            const q = questions[idx];
+
+            const html = `
+                <div class="question-card active">
+                    <h4 class="mb-4">${q.question}</h4>
+                    <div class="options">
+                        ${q.options.map((opt, i) => `
+                            <button class="option-btn" onclick="checkAnswer(${i}, ${q.correct_index}, this)">${opt}</button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            wrapper.innerHTML = html;
+            document.getElementById('q-counter').innerText = `Question ${idx + 1}/${questions.length}`;
+            document.getElementById('explanation-box').style.display = 'none';
+            document.getElementById('next-btn').style.display = 'none';
+            document.getElementById('finish-btn').style.display = 'none';
+        }
+
+        function checkAnswer(selected, correct, btn) {
+            // Disable all buttons
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(b => b.onclick = null);
+
+            if (selected === correct) {
+                btn.classList.add('correct');
+                score++;
+            } else {
+                btn.classList.add('wrong');
+                buttons[correct].classList.add('correct');
+            }
+
+            // Show explanation
+            document.getElementById('explanation-text').innerText = questions[currentIdx].explanation;
+            document.getElementById('explanation-box').style.display = 'block';
+
+            // Show Next or Finish
+            if (currentIdx < questions.length - 1) {
+                document.getElementById('next-btn').style.display = 'block';
+            } else {
+                document.getElementById('finish-btn').style.display = 'block';
+            }
+        }
+
+        function nextQuestion() {
+            currentIdx++;
+            renderQuestion(currentIdx);
+        }
+
+        async function showResults() {
+            document.getElementById('quiz-content').style.display = 'none';
+            document.getElementById('result-box').style.display = 'block';
+            document.getElementById('final-score').innerText = score;
+
+            // Submit score
+            try {
+                const res = await fetch('/api/daily_challenge/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ score: score })
+                });
+                const data = await res.json();
+                document.getElementById('points-msg').innerText = data.message;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+
+</html>

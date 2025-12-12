@@ -116,11 +116,46 @@
             <div class="form-group" style="text-align: left;">
                 <label class="form-label">Select Technology Stack</label>
                 <select id="testRole" class="form-control">
+                    {% set dept = (user_dept or '')|upper %}
+
+                    {% if dept in ['CS', 'IS', 'MCA', 'MTECH'] %}
                     <option value="Software Engineer">General Software Engineering</option>
-                    <option value="Data Scientist">Data Science & ML</option>
                     <option value="Web Developer">Full Stack Web Development</option>
+                    <option value="Data Scientist">Data Science & ML</option>
                     <option value="Java Developer">Java Spring Boot</option>
                     <option value="Python Developer">Python Django/Flask</option>
+
+                    {% elif dept == 'MBA' %}
+                    <option value="Business Analyst">Business & Management</option>
+                    <option value="Marketing Manager">Marketing Strategy</option>
+                    <option value="Finance Analyst">Financial Analysis</option>
+                    <option value="HR Manager">Human Resources</option>
+
+                    {% elif dept == 'EC' %}
+                    <option value="Electronics Engineer">Electronics & Communication</option>
+                    <option value="Embedded Systems Engineer">Embedded Systems</option>
+                    <option value="VLSI Engineer">VLSI Design</option>
+                    <option value="Software Engineer">Software Engineering (Basic)</option>
+
+                    {% elif dept == 'EEE' %}
+                    <option value="Electrical Engineer">Electrical Engineering</option>
+                    <option value="Power Systems Engineer">Power Systems</option>
+                    <option value="Control Systems Engineer">Control Systems</option>
+
+                    {% elif dept == 'CIVIL' %}
+                    <option value="Civil Engineer">Civil Engineering</option>
+                    <option value="Structural Engineer">Structural Engineering</option>
+
+                    {% elif dept == 'MECH' %}
+                    <option value="Mechanical Engineer">Mechanical Engineering</option>
+                    <option value="AutoCAD Designer">AutoCAD Design</option>
+
+                    {% else %}
+                    <!-- Fallback for unknown departments -->
+                    <option value="Software Engineer">General Software Engineering</option>
+                    <option value="Business Analyst">Business Aptitude</option>
+                    <option value="Aptitude">General Aptitude</option>
+                    {% endif %}
                 </select>
             </div>
             {% endif %}
@@ -325,9 +360,11 @@
             document.getElementById('finalScore').textContent = `${score}/${questions.length}`;
             document.querySelector('.camera-feed').style.display = 'none';
 
-            // Submit Score if for a drive
+            // Submit Score
             const driveId = document.getElementById('driveId') ? document.getElementById('driveId').value : null;
+
             if (driveId) {
+                // Official Drive Submission
                 try {
                     await fetch('/api/submit_test_result', {
                         method: 'POST',
@@ -340,6 +377,23 @@
                     document.getElementById('result-message').innerHTML = '<p class="text-success"><i class="fas fa-check"></i> Score submitted to TPO successfully!</p>';
                 } catch (err) {
                     console.error("Error submitting score", err);
+                }
+            } else {
+                // Generic Practice Submission (Gamification Only)
+                try {
+                    const response = await fetch('/api/submit_practice_result', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            score: score
+                        })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        document.getElementById('result-message').innerHTML = `<p class="text-success"><i class="fas fa-star"></i> ${data.message}</p>`;
+                    }
+                } catch (err) {
+                    console.error("Error submitting practice score", err);
                 }
             }
         }
@@ -357,11 +411,12 @@
         });
 
         // Also catch window blur events (losing focus)
-        window.addEventListener("blur", () => {
-            if (document.getElementById('test-screen').style.display === 'block') {
-                disqualifyTest();
-            }
-        });
+        // Also catch window blur events (losing focus)
+        // window.addEventListener("blur", () => {
+        //     if (document.getElementById('test-screen').style.display === 'block') {
+        //         disqualifyTest();
+        //     }
+        // });
 
         async function disqualifyTest() {
             // Stop resources

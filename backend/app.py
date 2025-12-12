@@ -114,6 +114,10 @@ def register():
         if not all([name, email, password, role]):
             flash('All fields are required.', 'error')
             return render_template('index.html', show_register=True)
+
+        # Password Strength (Client-side handles this now, keeping backend minimal to avoid flash errors)
+        # We rely on the frontend JS to block submission if invalid.
+        # This prevents the red banner from appearing on reload.
         
         # Check if email exists
         existing = db.execute_query(
@@ -135,7 +139,11 @@ def register():
             (name, email, password_hash, role, department, is_approved)
         )
         
-        flash('Registration successful! Please log in.', 'success')
+        if role == 'student':
+            flash('Registration successful! Your account is pending HOD approval.', 'info')
+        else:
+            flash('Registration successful! Please log in.', 'success')
+            
         return redirect(url_for('index'))
     
     return render_template('index.html', show_register=True)
@@ -438,7 +446,15 @@ def mock_test_page():
             (drive_id,),
             fetch_one=True
         )
-    return render_template('mock_test.html', drive=drive)
+    # Get user department
+    user = db.execute_query(
+        "SELECT department FROM users WHERE id = %s",
+        (session['user_id'],),
+        fetch_one=True
+    )
+    user_dept = user['department'] if user else ''
+    
+    return render_template('mock_test.html', drive=drive, user_dept=user_dept)
 
 @app.route('/api/generate_test', methods=['POST'])
 @login_required
@@ -449,7 +465,141 @@ def generate_test_api():
     
     questions = generate_mock_test(job_role, difficulty)
     
+    if not questions:
+        return jsonify({'error': 'Failed to generate questions'}), 500
+        
     return jsonify(questions)
+
+# --- Coding Practice Routes ---
+
+@app.route('/student/coding_practice')
+@login_required
+@role_required('student')
+def coding_practice_page():
+    """Render Coding Practice IDE page"""
+    return render_template('coding_practice.html')
+
+@app.route('/api/coding/list', methods=['POST'])
+@login_required
+def get_problem_list_api():
+    """API to get list of LeetCode problems"""
+    topic = request.json.get('topic', 'Arrays')
+    difficulty = request.json.get('difficulty', 'Easy')
+    
+    from leetcode_service import get_leetcode_problem_list
+    problems = get_leetcode_problem_list(topic, difficulty)
+    
+    return jsonify(problems)
+
+@app.route('/api/coding/get', methods=['POST'])
+@login_required
+def get_problem_details_api():
+    """API to get details of a specific problem"""
+    slug = request.json.get('slug')
+    
+    if not slug:
+        return jsonify({'error': 'Missing slug'}), 400
+        
+    from leetcode_service import get_problem_details
+    problem = get_problem_details(slug)
+    
+    if not problem:
+        return jsonify({'error': 'Failed to fetch problem details'}), 404
+        
+    return jsonify(problem)
+
+# --- AI Interview Routes ---
+
+@app.route('/student/ai_interview')
+@login_required
+@role_required('student')
+def ai_interview_page():
+    """Render AI Voice Interview page"""
+    return render_template('ai_interview.html')
+
+@app.route('/api/interview/chat', methods=['POST'])
+@login_required
+def interview_chat_api():
+    """API for AI Interview Chat"""
+    data = request.json
+    user_message = data.get('message')
+    history = data.get('history', [])
+    topic = data.get('topic', 'General HR')
+    language = data.get('language', 'en-US')
+    
+    # If starting fresh, history might be empty, but we need an initial topic context
+    if not history and not user_message:
+         # Initial greeting trigger
+         history = []
+         user_message = "Start the interview."
+    
+    # Append current user message if it exists (it might be empty if it's the very first trigger)
+    conversation = history.copy()
+    if user_message:
+        conversation.append({'role': 'user', 'message': user_message})
+    
+    from gemini_ai import generate_interview_response
+    ai_response = generate_interview_response(conversation, topic, language)
+    
+    return jsonify({'response': ai_response})
+
+@app.route('/api/coding/run', methods=['POST'])
+@login_required
+def run_code_api():
+    """API to run/evaluate code"""
+    code = request.json.get('code')
+    language = request.json.get('language')
+    problem = request.json.get('problem')
+    
+    if not code or not problem:
+        return jsonify({'error': 'Missing code or problem data'}), 400
+        
+    from gemini_ai import evaluate_code_submission
+    result = evaluate_code_submission(code, language, problem)
+    
+    # Save submission
+    try:
+        status = result.get('status', 'failed')
+        db.execute_query(
+            """INSERT INTO coding_submissions 
+               (user_id, problem_title, language, code, status) 
+               VALUES (%s, %s, %s, %s, %s)""",
+            (session['user_id'], problem.get('title', 'Unknown'), language, code, status)
+        )
+    except Exception as e:
+        print(f"Error saving submission: {e}")
+
+    # Gamification: Award points if success
+    if result.get('status') == 'success':
+        try:
+            from gamification_service import add_points
+            g_result = add_points(session['user_id'], 20, "Solved Coding Problem")
+            result['gamification'] = g_result
+        except Exception as e:
+            print(f"Gamification hook error: {e}")
+    
+    return jsonify(result)
+
+# Duplicate routes removed
+
+
+@app.route('/api/coding/submissions', methods=['GET'])
+@login_required
+def get_coding_submissions():
+    """Get coding submissions for a problem"""
+    problem_title = request.args.get('problem')
+    if not problem_title:
+        return jsonify([])
+    
+    submissions = db.execute_query(
+        """SELECT id, problem_title, language, status, submitted_at as timestamp 
+           FROM coding_submissions 
+           WHERE user_id = %s AND problem_title = %s 
+           ORDER BY submitted_at DESC""",
+        (session['user_id'], problem_title),
+        fetch_all=True
+    )
+    return jsonify(submissions)
 
 @app.route('/api/submit_test_result', methods=['POST'])
 @login_required
@@ -476,13 +626,69 @@ def submit_test_result():
                 "UPDATE applications SET mock_test_score = %s WHERE student_id = %s AND drive_id = %s",
                 (score, user_id, drive_id)
             )
-            return jsonify({'success': True, 'message': 'Test score recorded'})
+            
+            # Gamification: Award 50 points for passing (assuming pass mark is 50%)
+            msg = 'Test score recorded'
+            if int(score) >= 5:
+                try:
+                    from gamification_service import add_points
+                    g_result = add_points(user_id, 50, "Passed Mock Test")
+                    if g_result['success']:
+                         msg += f" (+{50} Points awarded!)"
+                         if g_result['badges_awarded']:
+                             msg += f" New Badge: {', '.join(g_result['badges_awarded'])}!"
+                except Exception as e:
+                    print(f"Gamification hook error: {e}")
+            
+            return jsonify({'success': True, 'message': msg})
         else:
              return jsonify({'error': 'Application not found. Please apply first.'}), 404
              
     except Exception as e:
         print(f"Error saving test score: {e}")
         return jsonify({'error': 'Database error'}), 500
+
+@app.route('/api/submit_practice_result', methods=['POST'])
+@login_required
+def submit_practice_result():
+    """Submit practice test result (Gamification only)"""
+    user_id = session['user_id']
+    score = request.json.get('score')
+    
+    if score is None:
+        return jsonify({'error': 'Missing score'}), 400
+        
+    msg = 'Practice completed'
+    # Gamification: Award 50 points for passing
+    if int(score) >= 5:
+        try:
+            from gamification_service import add_points
+            g_result = add_points(user_id, 50, "Passed Practice Test")
+            if g_result['success']:
+                 msg = f"Passed! +{50} Points awarded!"
+                 if g_result['badges_awarded']:
+                     msg += f" New Badge: {', '.join(g_result['badges_awarded'])}!"
+        except Exception as e:
+            print(f"Gamification hook error: {e}")
+            
+    return jsonify({'success': True, 'message': msg})
+
+
+
+# ==================== Leaderboard Routes ====================
+
+@app.route('/student/leaderboard')
+@login_required
+@role_required('student', 'tpo', 'hod')
+def leaderboard_page():
+    return render_template('leaderboard.html')
+
+@app.route('/api/leaderboard')
+@login_required
+def get_leaderboard_api():
+    from gamification_service import get_leaderboard
+    data = get_leaderboard(limit=10)
+    return jsonify(data)
 
 # ==================== HOD Routes ====================
 
@@ -493,22 +699,30 @@ def hod_dashboard():
     """HOD dashboard"""
     department = session.get('department', '')
     
-    # Get pending approvals
     pending_students = db.execute_query(
-        "SELECT * FROM users WHERE role = 'student' AND department = %s AND is_approved = FALSE",
+        "SELECT * FROM users WHERE role = 'student' AND UPPER(department) = UPPER(%s) AND (is_approved = FALSE OR is_approved = 0)",
         (department,),
         fetch_all=True
     )
     
+    # Debug and Ensure Dicts
+    if pending_students:
+        print(f"[DEBUG] Raw pending_students type: {type(pending_students)}")
+        print(f"[DEBUG] Row type: {type(pending_students[0])}")
+        print(f"[DEBUG] Data: {pending_students}")
+        # Force conversion to dict if it's not (e.g. if it's a tuple)
+        # Note: If it's a tuple, dict() won't work directly without keys. 
+        # But let's see the log first.
+    
     # Get department statistics
     total_students = db.execute_query(
-        "SELECT COUNT(*) as count FROM users WHERE role = 'student' AND department = %s",
+        "SELECT COUNT(*) as count FROM users WHERE role = 'student' AND UPPER(department) = UPPER(%s)",
         (department,),
         fetch_one=True
     )
     
     approved_students = db.execute_query(
-        "SELECT COUNT(*) as count FROM users WHERE role = 'student' AND department = %s AND is_approved = TRUE",
+        "SELECT COUNT(*) as count FROM users WHERE role = 'student' AND UPPER(department) = UPPER(%s) AND is_approved = TRUE",
         (department,),
         fetch_one=True
     )
@@ -519,7 +733,7 @@ def hod_dashboard():
            FROM applications a 
            JOIN users u ON a.student_id = u.id 
            JOIN drives d ON a.drive_id = d.id 
-           WHERE u.department = %s 
+           WHERE UPPER(u.department) = UPPER(%s) 
            ORDER BY a.applied_at DESC 
            LIMIT 20""",
         (department,),
@@ -666,6 +880,22 @@ def tpo_dashboard():
         fetch_all=True
     )
     
+    # Get department-wise placement stats
+    dept_stats = db.execute_query(
+        """SELECT u.department, COUNT(DISTINCT a.student_id) as count 
+           FROM applications a 
+           JOIN users u ON a.student_id = u.id 
+           WHERE a.status = 'Selected' 
+           GROUP BY u.department""",
+        fetch_all=True
+    )
+    
+    # Get application status stats
+    status_stats = db.execute_query(
+        "SELECT status, COUNT(*) as count FROM applications GROUP BY status",
+        fetch_all=True
+    )
+
     return render_template('tpo_dashboard.html',
                          total_students=total_students['count'] if total_students else 0,
                          total_drives=total_drives['count'] if total_drives else 0,
@@ -673,7 +903,9 @@ def tpo_dashboard():
                          total_applications=total_applications['count'] if total_applications else 0,
                          selected_count=selected_count['count'] if selected_count else 0,
                          drives=drives or [],
-                         applications=applications or [])
+                         applications=applications or [],
+                         dept_stats=dept_stats,
+                         status_stats=status_stats)
 
 @app.route('/tpo/create_drive', methods=['POST'])
 @login_required
@@ -686,13 +918,18 @@ def create_drive():
     eligibility = request.form.get('eligibility', '')
     last_date = request.form.get('last_date')
     
+    # New Fields
+    vacancy_count = request.form.get('vacancy_count', 0)
+    departments = request.form.getlist('departments') # List of selected checkboxes
+    departments_str = ",".join(departments) if departments else "All"
+
     if not all([company_name, job_role, last_date]):
         flash('Company name, job role, and last date are required.', 'error')
         return redirect(url_for('tpo_dashboard'))
     
     db.execute_query(
-        "INSERT INTO drives (company_name, job_role, job_description, eligibility, last_date, created_by) VALUES (%s, %s, %s, %s, %s, %s)",
-        (company_name, job_role, job_description, eligibility, last_date, session['user_id'])
+        "INSERT INTO drives (company_name, job_role, job_description, eligibility, last_date, created_by, vacancy_count, departments) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+        (company_name, job_role, job_description, eligibility, last_date, session['user_id'], vacancy_count, departments_str)
     )
     
     flash('Placement drive created successfully!', 'success')
@@ -876,6 +1113,46 @@ def export_tpo_report():
     return send_file(output, mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                     as_attachment=True, download_name='placement_report.xlsx')
 
+# ==================== Aptitude Game Routes ====================
+
+@app.route('/student/daily_challenge')
+@login_required
+@role_required('student')
+def daily_challenge_page():
+    """Render Daily Aptitude Challenge page"""
+    return render_template('daily_challenge.html')
+
+@app.route('/api/daily_challenge/generate', methods=['GET'])
+@login_required
+def generate_challenge_api():
+    """API to generate daily questions"""
+    from gemini_ai import generate_aptitude_questions
+    questions = generate_aptitude_questions(count=5)
+    return jsonify(questions)
+
+@app.route('/api/daily_challenge/submit', methods=['POST'])
+@login_required
+def submit_challenge_result():
+    """Award points for daily challenge"""
+    score = request.json.get('score', 0)
+    
+    # Award points: 5 points per correct answer + 10 bonus for completing
+    points = (score * 5) + 10
+    
+    try:
+        from gamification_service import add_points
+        msg = f"Points awarded: +{points}"
+        g_result = add_points(session['user_id'], points, "Daily Challenge Completed")
+        if g_result['badges_awarded']:
+             msg += f" New Badge: {', '.join(g_result['badges_awarded'])}!"
+        return jsonify({'success': True, 'message': msg})
+    except Exception as e:
+        print(f"Gamification error: {e}")
+        return jsonify({'success': True, 'message': "Challenge complete (Points system offline)"})
+
+
+
+
 # ==================== API Routes ====================
 
 @app.route('/api/notifications/mark_read/<int:notif_id>', methods=['POST'])
@@ -909,4 +1186,3 @@ if __name__ == '__main__':
         print(f"Database initialization note: {e}")
     
     app.run(debug=True, host='0.0.0.0', port=5000)
-

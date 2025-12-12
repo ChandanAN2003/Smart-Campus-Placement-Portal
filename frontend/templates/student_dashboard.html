@@ -63,6 +63,13 @@
                         Gap</a>
                     <a href="{{ url_for('mock_test_page') }}" class="nav-item"><i class="fas fa-laptop-code"></i> Mock
                         Test</a>
+                    <a href="{{ url_for('coding_practice_page') }}" class="nav-item"><i class="fas fa-code"></i> Coding
+                        Practice</a>
+                    <a href="{{ url_for('ai_interview_page') }}" class="nav-item"><i class="fas fa-microphone-alt"></i>
+                        AI Interviewer</a>
+
+                    <a href="{{ url_for('leaderboard_page') }}" class="nav-item"><i class="fas fa-trophy"></i>
+                        Leaderboard</a>
                     <a href="#applications" class="nav-item"><i class="fas fa-tasks"></i> Applications</a>
                 </div>
             </aside>
@@ -95,6 +102,27 @@
                         </div>
                     </form>
                 </section>
+
+                <!-- Quick Practice -->
+                <h3 class="mb-4">AI Practice Zone</h3>
+                <div class="grid-3 mb-5">
+                    <div class="card" style="border-left: 4px solid #f59e0b;">
+                        <h4><i class="fas fa-brain text-warning"></i> Daily Aptitude</h4>
+                        <p class="text-secondary small mt-2">5 Logic puzzles to keep your brain sharp. Maintain your
+                            streak!</p>
+                        <a href="{{ url_for('daily_challenge_page') }}" class="btn btn-primary w-100 mt-3">Play Now</a>
+                    </div>
+
+
+
+                    <div class="card" style="border-left: 4px solid #ef4444;">
+                        <h4><i class="fas fa-code text-danger"></i> Coding Arena</h4>
+                        <p class="text-secondary small mt-2">Solve algorithmic problems with AI hints and test cases.
+                        </p>
+                        <a href="{{ url_for('coding_practice_page') }}" class="btn btn-primary w-100 mt-3">Practice
+                            Code</a>
+                    </div>
+                </div>
 
                 <!-- Active Drives -->
                 <h3 class="mb-4">Active Placement Drives</h3>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard | Placement Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: #0f172a;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            height: 60px;
+            background: #1e293b;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1.5rem;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .leaderboard-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .leaderboard-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #fbbf24, #d97706);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .leaderboard-card {
+            background: #1e293b;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .rank-row {
+            display: flex;
+            align-items: center;
+            padding: 20px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s;
+        }
+
+        .rank-row:last-child {
+            border-bottom: none;
+        }
+
+        .rank-row:hover {
+            background: #334155;
+        }
+
+        .rank-num {
+            font-size: 1.5rem;
+            font-weight: 700;
+            width: 60px;
+            color: #94a3b8;
+        }
+
+        .rank-1 {
+            color: #fbbf24;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+        }
+
+        .rank-2 {
+            color: #94a3b8;
+        }
+
+        .rank-3 {
+            color: #b45309;
+        }
+
+        .user-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar {
+            width: 45px;
+            height: 45px;
+            background: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .score-box {
+            text-align: right;
+        }
+
+        .score-val {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #4ade80;
+        }
+
+        .score-label {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .trophy-icon {
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div style="font-weight: 700; font-size: 1.2rem;"><i class="fas fa-trophy"></i> Leaderboard</div>
+        <a href="/" class="btn btn-secondary btn-sm">Dashboard</a>
+    </nav>
+
+    <div class="container">
+        <div class="leaderboard-header">
+            <h1>Top Performers</h1>
+            <p style="color: #94a3b8; font-size: 1.1rem; margin-top: 10px;">The students dominating the placement charts
+            </p>
+        </div>
+
+        <div class="leaderboard-card" id="lb-container">
+            <div class="text-center p-5"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadLeaderboard);
+
+        async function loadLeaderboard() {
+            const container = document.getElementById('lb-container');
+            try {
+                const res = await fetch('/api/leaderboard');
+                const data = await res.json();
+
+                if (data.length === 0) {
+                    container.innerHTML = '<div class="text-center p-5 text-secondary">No data available yet.</div>';
+                    return;
+                }
+
+                let html = '';
+                data.forEach((user, index) => {
+                    const rank = index + 1;
+                    let rankClass = '';
+                    let icon = '';
+
+                    if (rank === 1) { rankClass = 'rank-1'; icon = '<i class="fas fa-crown trophy-icon" style="color:#fbbf24"></i>'; }
+                    else if (rank === 2) { rankClass = 'rank-2'; icon = '<i class="fas fa-medal trophy-icon" style="color:#94a3b8"></i>'; }
+                    else if (rank === 3) { rankClass = 'rank-3'; icon = '<i class="fas fa-medal trophy-icon" style="color:#b45309"></i>'; }
+                    else { icon = `<span class="rank-num">${rank}</span>`; }
+
+                    const initials = user.full_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+                    html += `
+                        <div class="rank-row">
+                            <div style="width: 60px; text-align:center;">${icon}</div>
+                            <div class="user-info">
+                                <div class="avatar">${initials}</div>
+                                <div>
+                                    <div style="font-weight: 600; font-size: 1.1rem;">${user.full_name}</div>
+                                    <div style="font-size: 0.85rem; color: #64748b;">${user.department}</div>
+                                </div>
+                            </div>
+                            <div class="score-box">
+                                <div class="score-val">${user.score || 0}</div>
+                                <div class="score-label">Points</div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+
+            } catch (e) {
+                container.innerHTML = '<div class="text-danger p-5 text-center">Failed to load leaderboard.</div>';
+            }
+        }
+    </script>
+</body>
+
+</html>

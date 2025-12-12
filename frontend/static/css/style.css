@@ -7,39 +7,36 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-    /* 🎨 Color Palette */
-    --bg-dark: #0f172a;
-    --bg-darker: #020617;
-    --primary: #6366f1;
-    /* Indigo 500 */
-    --primary-hover: #4f46e5;
-    /* Indigo 600 */
-    --accent: #8b5cf6;
-    /* Violet 500 */
-    --success: #10b981;
-    /* Emerald 500 */
-    --info: #3b82f6;
-    /* Blue 500 */
-    --warning: #f59e0b;
-    /* Amber 500 */
-    --danger: #ef4444;
-    /* Red 500 */
+    /* 🎨 Color Palette - "Cyber Blue" Theme */
+    --bg-dark: #02040a;
+    --bg-darker: #000000;
+    --primary: #0099ff;
+    /* Electric Blue */
+    --primary-hover: #007acc;
+    --accent: #00d4ff;
+    /* Cyan Accent */
+    --success: #00e676;
+    --info: #2979ff;
+    --warning: #ffea00;
+    --danger: #ff1744;
 
     /* 🌑 Surface Colors */
-    --surface-1: rgba(30, 41, 59, 0.4);
-    --surface-2: rgba(30, 41, 59, 0.6);
-    --surface-hover: rgba(51, 65, 85, 0.5);
+    --surface-1: rgba(10, 25, 41, 0.7);
+    /* Darker Blue-Grey Glass */
+    --surface-2: rgba(23, 42, 69, 0.8);
+    --surface-hover: rgba(30, 58, 95, 0.6);
 
     /* 🔤 Typography */
     --font-main: 'Plus Jakarta Sans', sans-serif;
-    --text-primary: #f8fafc;
+    --text-primary: #e2e8f0;
     --text-secondary: #94a3b8;
     --text-muted: #64748b;
 
     /* ✨ Effects */
-    --glass-border: rgba(255, 255, 255, 0.08);
-    --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    --glow-primary: 0 0 20px rgba(99, 102, 241, 0.3);
+    --glass-border: rgba(100, 255, 218, 0.1);
+    /* Subtle Cyan Tint Border */
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --glow-primary: 0 0 20px rgba(0, 212, 255, 0.4);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -283,7 +280,19 @@ body {
 }
 
 .table tr:hover td {
-    background: rgba(255, 255, 255, 0.02);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.table tr {
+    transition: background 0.2s;
+    height: 60px;
+    /* Force height */
+}
+
+/* Ensure text is visible and not collapsed */
+.table td span,
+.table td div {
+    display: inline-block;
 }
 
 /* 🏷️ Badges */
@@ -498,4 +507,78 @@ body {
         border-radius: 0 0 1.5rem 1.5rem;
         margin-bottom: 1.5rem;
     }
+}
+
+/* 🖼️ Modal Styles (Added Fix) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    display: none;
+    /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+}
+
+.modal {
+    background: #1a1b26;
+    /* Dark Theme bg */
+    border: 1px solid #2f2e4e;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #2f2e4e;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #141321;
+    border-radius: 12px 12px 0 0;
+}
+
+.modal-body {
+    padding: 10px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.problem-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #2f2e4e;
+    cursor: pointer;
+    transition: background 0.2s;
+    border-radius: 6px;
+    margin-bottom: 4px;
+}
+
+.problem-row:hover {
+    background: #25263a;
 }

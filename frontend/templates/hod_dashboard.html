@@ -17,6 +17,8 @@
             <span>HOD Dashboard</span>
         </a>
         <div class="d-flex align-center gap-2">
+            <a href="{{ url_for('leaderboard_page') }}" class="btn btn-secondary btn-sm"><i class="fas fa-trophy"></i>
+                Leaderboard</a>
             <span style="color: var(--text-secondary); margin-right: 15px;">Welcome, {{ session.name }}</span>
             <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm">Logout</a>
         </div>
@@ -65,7 +67,7 @@
             </div>
         </div>
 
-        <div class="dashboard-layout" style="grid-template-columns: 1fr;">
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
             <!-- Pending Approvals -->
             <div class="card mb-4" style="border-left: 4px solid var(--warning);">
                 <div class="card-header">
@@ -74,43 +76,39 @@
                     </div>
                 </div>
                 {% if pending_students %}
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Department</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for student in pending_students %}
-                            <tr>
-                                <td style="font-weight: 600;">{{ student.name }}</td>
-                                <td>{{ student.email }}</td>
-                                <td>{{ student.department or 'N/A' }}</td>
-                                <td>
-                                    <div class="d-flex gap-2">
-                                        <form method="POST"
-                                            action="{{ url_for('approve_student', student_id=student.id) }}">
-                                            <button type="submit" class="btn btn-success btn-sm">
-                                                <i class="fas fa-check"></i> Approve
-                                            </button>
-                                        </form>
-                                        <form method="POST"
-                                            action="{{ url_for('reject_student', student_id=student.id) }}"
-                                            onsubmit="return confirm('Reject this student?');">
-                                            <button type="submit" class="btn btn-danger btn-sm">
-                                                <i class="fas fa-times"></i> Reject
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;">
+                    {% for student in pending_students %}
+                    <div
+                        style="background: rgba(255,255,255,0.05); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--glass-border);">
+                        <div class="d-flex align-center gap-2 mb-2">
+                            <div
+                                style="width: 40px; height: 40px; background: var(--warning); color: black; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                                {{ student.name[0] | upper }}
+                            </div>
+                            <div>
+                                <h4 style="margin: 0;">{{ student.name }}</h4>
+                                <small style="color: var(--text-secondary);">{{ student.department }}</small>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+                            <i class="fas fa-envelope"></i> {{ student.email }}
+                        </div>
+                        <div class="d-flex gap-2">
+                            <form method="POST" action="{{ url_for('approve_student', student_id=student.id) }}"
+                                style="flex: 1;">
+                                <button type="submit" class="btn btn-success btn-sm w-100">
+                                    <i class="fas fa-check"></i> Approve
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ url_for('reject_student', student_id=student.id) }}"
+                                style="flex: 1;" onsubmit="return confirm('Reject, really?');">
+                                <button type="submit" class="btn btn-danger btn-sm w-100">
+                                    <i class="fas fa-times"></i> Deny
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
                 {% else %}
                 <div class="text-center p-4">

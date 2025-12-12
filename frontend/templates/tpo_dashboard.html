@@ -17,6 +17,8 @@
             <span>TPO Dashboard</span>
         </a>
         <div class="d-flex align-center gap-2">
+            <a href="{{ url_for('leaderboard_page') }}" class="btn btn-secondary btn-sm"><i class="fas fa-trophy"></i>
+                Leaderboard</a>
             <span style="color: var(--text-secondary); margin-right: 15px;">Welcome, {{ session.name }}</span>
             <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm">Logout</a>
         </div>
@@ -73,6 +75,86 @@
                 </div>
             </div>
         </div>
+
+        <!-- 📊 Analytics Charts Row -->
+        <div class="row mb-4" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-chart-pie" style="color: var(--accent);"></i> Application
+                        Status</div>
+                </div>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-chart-bar" style="color: var(--info);"></i> Placements by
+                        Dept</div>
+                </div>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="deptChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart.js Library -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Prepare Data
+                const statusData = {{ status_stats | tojson
+            }};
+            const deptData = {{ dept_stats | tojson }};
+
+            // 1. Status Chart (Pie)
+            const ctxStatus = document.getElementById('statusChart').getContext('2d');
+            new Chart(ctxStatus, {
+                type: 'doughnut',
+                data: {
+                    labels: statusData.map(d => d.status),
+                    datasets: [{
+                        data: statusData.map(d => d.count),
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'], // Blue, Green, Yellow, Red
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: '#94a3b8' } }
+                    }
+                }
+            });
+
+            // 2. Dept Chart (Bar)
+            const ctxDept = document.getElementById('deptChart').getContext('2d');
+            new Chart(ctxDept, {
+                type: 'bar',
+                data: {
+                    labels: deptData.map(d => d.department || 'Unknown'),
+                    datasets: [{
+                        label: 'Students Placed',
+                        data: deptData.map(d => d.count),
+                        backgroundColor: '#00d4ff',
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#94a3b8' } },
+                        x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+            });
+        </script>
 
         <div class="dashboard-layout" style="grid-template-columns: 1fr 350px;">
             <!-- Left Column: Pending Actions / Tables -->
@@ -161,6 +243,8 @@
                                 <tr>
                                     <th>Company</th>
                                     <th>Role</th>
+                                    <th>Depts</th>
+                                    <th>Vacancies</th>
                                     <th>Last Date</th>
                                     <th>Status</th>
                                 </tr>
@@ -170,6 +254,8 @@
                                 <tr>
                                     <td style="font-weight: 600;">{{ drive.company_name }}</td>
                                     <td>{{ drive.job_role }}</td>
+                                    <td><span class="badge badge-info">{{ drive.departments or 'All' }}</span></td>
+                                    <td>{{ drive.vacancy_count or '∞' }}</td>
                                     <td>{{ drive.last_date }}</td>
                                     <td>
                                         <span
@@ -214,7 +300,25 @@
                                 placeholder="Key responsibilities..."></textarea>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Eligibility</label>
+                            <label class="form-label">Target Departments</label>
+                            <div
+                                style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px;">
+                                <label><input type="checkbox" name="departments" value="CS"> CS</label>
+                                <label><input type="checkbox" name="departments" value="IS"> IS</label>
+                                <label><input type="checkbox" name="departments" value="EC"> EC</label>
+                                <label><input type="checkbox" name="departments" value="EEE"> EEE</label>
+                                <label><input type="checkbox" name="departments" value="MCA"> MCA</label>
+                                <label><input type="checkbox" name="departments" value="MBA"> MBA</label>
+                                <label><input type="checkbox" name="departments" value="MTECH"> MTECH</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Vacancy Count</label>
+                            <input type="number" class="form-control" name="vacancy_count" min="1"
+                                placeholder="e.g. 10">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Eligibility Criteria</label>
                             <input type="text" class="form-control" name="eligibility" placeholder="e.g. CGPA > 8.0">
                         </div>
                         <div class="form-group">

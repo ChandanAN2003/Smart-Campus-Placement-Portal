@@ -1,198 +1,117 @@
-# 🎓 AI-Integrated College Placement Management Portal
+# 🎓 AI-Powered Smart Placement & Talent Management Portal
 
-> 🚀 A complete web-based solution to automate and streamline college placement processes with **AI-powered resume analysis** using **Google Gemini API**.
+![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
+![Flask](https://img.shields.io/badge/Flask-2.0+-green.svg)
+![MySQL](https://img.shields.io/badge/MySQL-8.0-orange.svg)
+![Gemini AI](https://img.shields.io/badge/Gemini-Pro-purple.svg)
 
-## 🌟 Overview
-
-The **AI-Integrated College Placement Management Portal** is a production-ready application designed to simplify and automate the **college placement workflow**.  
-It provides **role-based dashboards** for students, HODs, and the TPO, with integrated **AI resume analysis**, **email notifications**, and **data analytics** — all within a responsive, mobile-friendly interface.
-
----
-
-## ✨ Key Features
-
-| Category | Features |
-|-----------|-----------|
-| 🤖 **AI Integration** | Smart resume analysis using **Google Gemini API** |
-| 👥 **User Roles** | Separate dashboards for **Students**, **HODs**, and **TPO/Admins** |
-| 📧 **Email Automation** | Auto email notifications for application updates & offer letters |
-| 📊 **Analytics & Reporting** | Placement reports with Excel export |
-| 🔒 **Security** | Password hashing, session management, and role-based access |
-| 📱 **Responsive Design** | Fully mobile-friendly using Bootstrap 5.3 |
+A next-generation **Campus Placement Automation System** that leverages **Generative AI** to streamline the recruitment process. This platform connects Students, Training & Placement Officers (TPOs), and HODs while providing advanced AI-driven tools for career preparation.
 
 ---
 
-## 🧩 Tech Stack
+## 🚀 Key Features
 
-| Layer | Technologies |
-|--------|---------------|
-| **Frontend** | HTML, CSS, JavaScript, Bootstrap 5.3 |
-| **Backend** | Python (Flask Framework) |
-| **Database** | MySQL 8.0 |
-| **AI Engine** | Google Gemini API |
-| **Email Service** | Flask-Mail (Gmail SMTP) |
+### 🤖 AI-Powered Student Tools
+- **Advanced Resume Analysis (ATS)**: Uses Gemini AI to scan resumes against Job Descriptions, providing a **% Match Score** and specific improvement suggestions.
+- **Skill Gap Analysis**: Identifies missing skills for a target role and generates a personalized **Learning Path** with course recommendations (Coursera/Udemy).
+- **AI Mock Interviews**: A voice-enabled AI interviewer that conducts domain-specific interviews (HR, Technical, Managerial) and provides instant feedback.
+- **Proctored Mock Tests**: Full-screen, webcam-monitored technical assessments generated dynamically based on the student's department (CS, MBA, EEE, etc.).
+- **Coding Arena**: Integrated LeetCode-style coding environment with AI code reviews.
 
----
+### 👥 Role-Based Portals
 
-## 🏗️ Project Structure
+#### 1. Student Dashboard
+- View and Apply for active Placement Drives.
+- Track Application Status (Applied -> Shortlisted -> Offer).
+- Earn **Badges & Points** (Gamification) for solving problems and taking tests.
+- View detailed analytics of performance.
 
-college-placement-portal/
-├── backend/ # Flask backend application
-│ ├── app.py # Main Flask entry point
-│ ├── init_db.py # Database setup script
-│ └── routes/ # Role-based routes
-├── frontend/ # HTML templates and static assets
-│ ├── templates/
-│ └── static/
-├── database/ # SQL schema and seed data
-│ ├── schema.sql
-│ └── seed.sql
-└── docs/ # Documentation (setup, deployment, etc.)
+#### 2. TPO (Admin) Dashboard
+- **Create & Manage Drives**: Post new job openings with specific departmental eligibility.
+- **Analytics**: View placement statistics, department-wise trends, and offer counts.
+- Manage student database and approvals.
 
-yaml
-Copy code
+#### 3. HOD (Head of Dept) Dashboard
+- **Verify Students**: Approve or reject student registrations from their department.
+- Monitor department-specific placement progress.
+- View list of placed/unplaced students.
 
 ---
 
-## 🚀 Quick Start
+## 🛠️ Technology Stack
 
-### 1️⃣ Prerequisites
-
-Make sure you have the following installed:
-
-- 🐍 Python **3.11+**
-- 🛢️ MySQL **8.0+**
-- 🔑 Google Gemini API key
-- 📧 Gmail account (for email automation)
+- **Frontend**: HTML5, CSS3 (Glassmorphism UI), JavaScript, Three.js (3D Backgrounds).
+- **Backend**: Python (Flask Framework).
+- **Database**: MySQL (Relational Data Management).
+- **AI Engine**: Google Gemini 1.5 Pro / Flash.
+- **Tools**: SQLAlchemy, Werkzeug Security, Chart.js.
 
 ---
 
-### 2️⃣ Installation Steps
+## ⚙️ Installation & Setup
 
-```bash
-# 1. Clone the repository
-git clone <repository-url>
-cd college-placement-portal
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/your-username/smart-placement-portal.git
+   cd smart-placement-portal
+   ```
 
-# 2. Set up Python environment
-cd backend
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
+2. **Set up Virtual Environment**
+   ```bash
+   cd backend
+   python -m venv venv
+   # Windows
+   venv\Scripts\activate
+   # Mac/Linux
+   source venv/bin/activate
+   ```
 
-# 3. Configure environment
-cp ../docs/env_example.txt .env
-# Edit .env file with your credentials
+3. **Install Dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-# 4. Initialize database
-mysql -u root -p < ../database/schema.sql
-python init_db.py
+4. **Environment Variables**
+   Create a `.env` file in the `backend` folder:
+   ```env
+   SECRET_KEY=your_secret_key
+   DB_USER=root
+   DB_PASSWORD=your_password
+   DB_HOST=localhost
+   DB_NAME=placement_portal
+   GEMINI_API_KEY=your_gemini_api_key
+   ```
 
-# 5. Run the Flask app
-python app.py
-Now, open your browser and visit 👉 http://localhost:5000
+5. **Initialize Database**
+   ```bash
+   python init_db.py
+   ```
 
-🔐 Default Login Credentials
-Role	Email	Password
-🧑‍💼 TPO/Admin	tpo@college.edu	admin123
-🧑‍🏫 HOD	hod.cs@college.edu	hod123
-🧑‍🎓 Student	alice@college.edu	student123
+6. **Run the Application**
+   ```bash
+   python app.py
+   ```
+   Access the portal at `http://localhost:5000`
 
-🎯 User Roles
-🧑‍🎓 Student
-Upload and analyze resume (AI)
+---
 
-Apply for placement drives
+## 📸 Screenshots
 
-Track application status
+| Student Dashboard | Resume Analysis |
+|:---:|:---:|
+| *(Add Screenshot)* | *(Add Screenshot)* |
 
-🧑‍🏫 HOD
-Approve student eligibility
+| Mock Test Environment | AI Interview |
+|:---:|:---:|
+| *(Add Screenshot)* | *(Add Screenshot)* |
 
-Monitor department statistics
+---
 
-Export placement reports
+## 🔮 Future Scope
+- **Mobile App**: React Native application for students.
+- **Automated Emailing**: SMTP integration for offer letter dispatch.
+- **Blockchain**: Verifiable certificates for achievements.
 
-👨‍💼 TPO/Admin
-Manage drives and applications
+---
 
-Upload offer letters
-
-View overall analytics
-
-📄 Documentation
-📘 README.md — Complete overview
-
-⚙️ QUICKSTART.md — Step-by-step setup
-
-☁️ DEPLOYMENT.md — Deployment guide
-
-📊 PROJECT_SUMMARY.md — Feature summary
-
-🧠 AI Integration (Google Gemini)
-The Google Gemini API enhances the system by analyzing uploaded resumes and generating:
-
-Skill extraction
-
-Strength & improvement suggestions
-
-Job fit recommendations
-
-This helps students understand how well they align with placement requirements and assists TPOs in better candidate selection.
-
-🛠️ Environment Variables (.env)
-Create a .env file in /backend directory with the following:
-
-ini
-Copy code
-FLASK_APP=app.py
-FLASK_ENV=development
-
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=yourpassword
-DB_NAME=placement_portal
-
-GEMINI_API_KEY=your_gemini_api_key
-
-MAIL_SERVER=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USE_TLS=True
-MAIL_USERNAME=your_email@gmail.com
-MAIL_PASSWORD=your_app_password
-🖥️ Deployment
-See detailed instructions in docs/DEPLOYMENT.md.
-You can deploy using:
-
-🌐 AWS EC2 (Flask + MySQL)
-
-☁️ Render / Railway / Vercel (Backend)
-
-💾 AWS RDS / PlanetScale (Database)
-
-📸 Screenshots
-Dashboard	Description
-🎓 Student	Resume analysis & drive applications
-🧑‍🏫 HOD	Department approval & reporting
-👨‍💼 TPO	Manage drives & view analytics
-
-(Add screenshots in /docs/screenshots/ and link them here)
-
-🤝 Contributing
-Pull requests are welcome!
-If you’d like to improve the UI, add new AI features, or fix bugs:
-
-Fork the repo
-
-Create a new branch (feature/your-feature)
-
-Commit and push
-
-Open a Pull Request 🎉
-
-📜 License
-This project is open-source and available for educational and research purposes.
-
-💡 Credits
-Built with ❤️ by Chandan A.N
-Guided by the vision to enhance college placement systems through AI automation and modern web technologies.
+**Developed for Final Year Project 2025**

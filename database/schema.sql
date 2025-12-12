@@ -9,6 +9,7 @@ CREATE TABLE users (
     role ENUM('student','hod','tpo') NOT NULL,
     department VARCHAR(100),
     is_approved BOOLEAN DEFAULT FALSE,
+    score INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

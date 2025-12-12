@@ -12,70 +12,15 @@
 <body>
     <div class="auth-container">
         <div class="card"
-            style="max-width: 1000px; width: 100%; padding: 0; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; min-height: 600px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
-
-            <!-- Hero / Info Section -->
-            <div
-                style="background: linear-gradient(135deg, var(--primary), var(--accent)); padding: 4rem 3rem; display: flex; flex-direction: column; justify-content: center; position: relative; color: white;">
-                <div style="position: relative; z-index: 2;">
-                    <div style="font-size: 3.5rem; margin-bottom: 1.5rem;"><i class="fas fa-graduation-cap"></i></div>
-                    <h1 style="font-size: 3rem; font-weight: 800; line-height: 1.1; margin-bottom: 1.5rem;">Launch Your
-                        Career</h1>
-                    <p style="font-size: 1.1rem; opacity: 0.9; margin-bottom: 3rem; max-width: 400px;">
-                        The intelligent platform for campus placements. Smart skill analysis, seamless drive management,
-                        and AI-powered preparation.
-                    </p>
-
-                    <div class="d-flex gap-2" style="flex-direction: column;">
-                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                            <div
-                                style="width: 48px; height: 48px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
-                                <i class="fas fa-robot"></i>
-                            </div>
-                            <div>
-                                <div style="font-weight: 700;">AI Analysis</div>
-                                <div style="font-size: 0.85rem; opacity: 0.8;">Resume scoring & insights</div>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                            <div
-                                style="width: 48px; height: 48px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <div>
-                                <div style="font-weight: 700;">Skill Gap</div>
-                                <div style="font-size: 0.85rem; opacity: 0.8;">Personalized learning paths</div>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 1rem;">
-                            <div
-                                style="width: 48px; height: 48px; background: rgba(255,255,255,0.15); border-radius: 12px; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
-                                <i class="fas fa-laptop-code"></i>
-                            </div>
-                            <div>
-                                <div style="font-weight: 700;">Mock Tests</div>
-                                <div style="font-size: 0.85rem; opacity: 0.8;">Practice for technical rounds</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Decor Circles -->
-                <div
-                    style="position: absolute; top: -100px; left: -100px; width: 300px; height: 300px; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); filter: blur(40px);">
-                </div>
-                <div
-                    style="position: absolute; bottom: -50px; right: -50px; width: 250px; height: 250px; border-radius: 50%; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); filter: blur(30px);">
-                </div>
-            </div>
+            style="max-width: 450px; width: 100%; padding: 0; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); background: rgba(10, 25, 41, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(0, 212, 255, 0.2);">
 
             <!-- Auth Forms -->
             <div
-                style="padding: 4rem 3rem; background: var(--surface-1); display: flex; flex-direction: column; justify-content: center; position: relative;">
+                style="padding: 3rem 2.5rem; display: flex; flex-direction: column; justify-content: center; position: relative;">
 
                 {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
-                <div style="position: absolute; top: 20px; left: 20px; right: 20px; z-index: 10;">
+                <div style="margin-bottom: 20px;">
                     {% for category, message in messages %}
                     <div class="alert {{ 'alert-error' if category == 'error' else 'alert-success' }}"
                         style="margin-bottom: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
@@ -89,52 +34,64 @@
 
                 <!-- Login Form -->
                 <div id="loginForm">
-                    <div style="margin-bottom: 2.5rem;">
+                    <div style="margin-bottom: 2rem; text-align: center;">
+                        <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--primary);"><i
+                                class="fas fa-graduation-cap"></i></div>
                         <h2
-                            style="color: var(--text-primary); font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">
-                            Welcome Back</h2>
-                        <p style="color: var(--text-secondary);">Sign in to access your dashboard.</p>
+                            style="color: var(--text-primary); font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem;">
+                            Placement Portal</h2>
+                        <p style="color: var(--text-secondary);">Sign in to your account</p>
                     </div>
 
                     <form action="{{ url_for('login') }}" method="POST">
                         <div class="form-group">
                             <label class="form-label">Email Address</label>
-                            <input type="email" name="email" class="form-control" required
-                                placeholder="john@example.com" style="height: 50px;">
+                            <div style="position: relative;">
+                                <i class="fas fa-envelope"
+                                    style="position: absolute; left: 15px; top: 15px; color: var(--text-muted);"></i>
+                                <input type="email" name="email" class="form-control" required
+                                    placeholder="name@example.com" style="height: 48px; padding-left: 45px;">
+                            </div>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Password</label>
-                            <input type="password" name="password" class="form-control" required placeholder="••••••••"
-                                style="height: 50px;">
+                            <div style="position: relative;">
+                                <i class="fas fa-lock"
+                                    style="position: absolute; left: 15px; top: 15px; color: var(--text-muted);"></i>
+                                <input type="password" name="password" class="form-control" required
+                                    placeholder="••••••••" style="height: 48px; padding-left: 45px;">
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100 mb-4" style="height: 50px; font-size: 1rem;">
-                            Sign In <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+                        <button type="submit" class="btn btn-primary w-100 mb-4"
+                            style="height: 48px; font-size: 1rem; font-weight: 700; letter-spacing: 0.5px;">
+                            SIGN IN
                         </button>
                     </form>
 
                     <div class="text-center">
-                        <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Don't have an account?</p>
+                        <p style="color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 0.9rem;">Don't have an
+                            account?</p>
                         <button onclick="toggleForms()"
-                            style="background: none; border: none; color: var(--primary); font-weight: 600; cursor: pointer; font-size: 1rem;">
+                            style="background: none; border: none; color: var(--accent); font-weight: 600; cursor: pointer; font-size: 0.95rem;">
                             Create New Account
                         </button>
                     </div>
 
                     <div
-                        style="margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--glass-border); text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+                        style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--glass-border); text-align: center; color: var(--text-muted); font-size: 0.8rem;">
                         <p style="margin-bottom: 5px;">Demo Credentials:</p>
                         <code
-                            style="background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px;">student@gmail.com / student123</code>
+                            style="background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; color: var(--text-secondary);">student@gmail.com / student123</code>
                     </div>
                 </div>
 
                 <!-- Register Form -->
                 <div id="registerForm" style="display: none;">
-                    <div style="margin-bottom: 2rem;">
+                    <div style="margin-bottom: 2rem; text-align: center;">
                         <h2
-                            style="color: var(--text-primary); font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">
+                            style="color: var(--text-primary); font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem;">
                             Create Account</h2>
-                        <p style="color: var(--text-secondary);">Join the placement portal today.</p>
+                        <p style="color: var(--text-secondary);">Join the platform</p>
                     </div>
 
                     <form action="{{ url_for('register') }}" method="POST">
@@ -145,11 +102,16 @@
                         <div class="form-group">
                             <label class="form-label">Email Address</label>
                             <input type="email" name="email" class="form-control" required
-                                placeholder="john@example.com">
+                                placeholder="name@example.com">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Password</label>
-                            <input type="password" name="password" class="form-control" required placeholder="••••••••">
+                            <input type="password" name="password" id="reg_password" class="form-control" required
+                                placeholder="••••••••" style="margin-bottom: 5px;" oninput="validatePassword()">
+                            <small id="passwordHint" class="text-secondary" style="font-size: 0.75rem; color: #a0aec0;">
+                                <i class="fas fa-info-circle"></i> Must start with Uppercase, contain 1 Number & 1
+                                Special Char
+                            </small>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Role</label>
@@ -164,21 +126,25 @@
                             <label class="form-label">Department</label>
                             <select name="department" id="reg_dept" class="form-control">
                                 <option value="">Select Department</option>
-                                <option value="CSE">Computer Science (CSE)</option>
-                                <option value="ECE">Electronics (ECE)</option>
-                                <option value="MECH">Mechanical (MECH)</option>
-                                <option value="CIVIL">Civil</option>
+                                <option value="CS">Computer Science (CS)</option>
+                                <option value="EC">Electronics & Communication (EC)</option>
+                                <option value="EEE">Electrical & Electronics (EEE)</option>
+                                <option value="IS">Information Science (IS)</option>
+                                <option value="MCA">MCA</option>
+                                <option value="MBA">MBA</option>
+                                <option value="MTECH">MTech</option>
                             </select>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 mb-4" style="height: 48px;">
-                            Create Account
+                            Sign Up
                         </button>
                     </form>
 
                     <div class="text-center">
-                        <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Already have an account?</p>
+                        <p style="color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 0.9rem;">Already have
+                            an account?</p>
                         <button onclick="toggleForms()"
-                            style="background: none; border: none; color: var(--primary); font-weight: 600; cursor: pointer; font-size: 1rem;">
+                            style="background: none; border: none; color: var(--accent); font-weight: 600; cursor: pointer; font-size: 0.95rem;">
                             Sign In Instead
                         </button>
                     </div>
@@ -188,27 +154,16 @@
         </div>
     </div>
 
-    <!-- Mobile Responsive Adjustments -->
-    <style>
-        @media (max-width: 900px) {
-            .card {
-                grid-template-columns: 1fr !important;
-                min-height: auto !important;
-                max-width: 500px !important;
-            }
-
-            .card>div:first-child {
-                display: none !important;
-                /* Hide hero on mobile to save space */
-            }
-
-            .auth-container {
-                padding: 1rem;
-            }
-        }
-    </style>
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="{{ url_for('static', filename='js/background3d.js') }}"></script>
 
     <script>
+        // Init 3D Background
+        document.addEventListener('DOMContentLoaded', () => {
+            init3DBackground();
+        });
+
         function toggleForms() {
             const loginForm = document.getElementById('loginForm');
             const registerForm = document.getElementById('registerForm');
@@ -221,6 +176,9 @@
                 loginForm.style.display = 'block';
                 registerForm.style.display = 'none';
             }
+
+            // Clear alerts on toggle to avoid confusion
+            document.querySelectorAll('.alert').forEach(el => el.style.display = 'none');
         }
 
         function toggleDepartment() {
@@ -234,6 +192,47 @@
             } else {
                 deptField.style.display = 'none';
                 deptInput.required = false;
+            }
+        }
+
+        function validatePassword() {
+            const password = document.getElementById('reg_password').value;
+            const hint = document.getElementById('passwordHint');
+            const input = document.getElementById('reg_password');
+
+            // Patterns
+            const startUpper = /^[A-Z]/;
+            const hasNumber = /\d/;
+            const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/;
+
+            let isValid = true;
+            let messages = [];
+
+            if (!startUpper.test(password)) {
+                isValid = false;
+                messages.push("Must start with Uppercase");
+            }
+            if (!hasNumber.test(password)) {
+                isValid = false;
+                messages.push("Need number");
+            }
+            if (!hasSpecial.test(password)) {
+                isValid = false;
+                messages.push("Need special char");
+            }
+
+            if (isValid) {
+                hint.style.color = "var(--success)"; // Green
+                hint.innerHTML = '<i class="fas fa-check-circle"></i> Password looks strong!';
+                input.setCustomValidity(""); // Valid
+                input.style.borderColor = "var(--success)";
+            } else {
+                hint.style.color = "#ef4444"; // Red
+                // hint.innerHTML = '<i class="fas fa-times-circle"></i> ' + messages.join(", ");
+                // Keep original text but red
+                hint.innerHTML = '<i class="fas fa-exclamation-circle"></i> Must start with Uppercase, contain 1 Number & 1 Special Char';
+                input.setCustomValidity("Must start with Uppercase, contain 1 Number & 1 Special Char");
+                input.style.borderColor = "#ef4444";
             }
         }
 

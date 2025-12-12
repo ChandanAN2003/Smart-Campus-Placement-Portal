@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Voice Interviewer | Placement Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: #0f172a;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .navbar {
+            height: 60px;
+            background: #1e293b;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1.5rem;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-y: auto;
+            /* Allow scrolling if content is too tall */
+            padding: 1rem 0;
+        }
+
+        /* Avatar / Visualizer Area */
+        .avatar-container {
+            width: 120px;
+            /* Reduced from 200px */
+            height: 120px;
+            /* Reduced from 200px */
+            border-radius: 50%;
+            background: radial-gradient(circle, #3b82f6 0%, #1e293b 70%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 50px rgba(59, 130, 246, 0.3);
+            position: relative;
+            margin-bottom: 1.5rem;
+            /* Reduced margin */
+            transition: transform 0.2s;
+            flex-shrink: 0;
+        }
+
+        .avatar-pulse {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid #3b82f6;
+            opacity: 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .avatar-icon {
+            font-size: 3rem;
+            /* Reduced from 5rem */
+            color: #fff;
+            z-index: 2;
+        }
+
+        /* Chat Area */
+        .chat-box {
+            width: 90%;
+            max-width: 700px;
+            height: 250px;
+            /* Reduced from 300px */
+            overflow-y: auto;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            /* Reduced margin */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 8px;
+            max-width: 80%;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+
+        .message.ai {
+            background: #334155;
+            align-self: flex-start;
+            border-bottom-left-radius: 0;
+        }
+
+        .message.user {
+            background: #2563eb;
+            align-self: flex-end;
+            border-bottom-right-radius: 0;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .mic-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: none;
+            background: #ef4444;
+            color: #fff;
+            font-size: 1.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+            transition: all 0.2s;
+        }
+
+        .mic-btn.active {
+            background: #fff;
+            color: #ef4444;
+            animation: pulse-red 1.5s infinite;
+        }
+
+        .mic-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @keyframes pulse-red {
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 20px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+
+        .end-btn {
+            padding: 0.8rem 1.5rem;
+            background: #334155;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* Setup Modal */
+        .setup-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0f172a;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div style="font-weight: 700; font-size: 1.2rem;"><i class="fas fa-microphone-alt"></i> AI Interviewer</div>
+        <a href="{{ url_for('student_dashboard') }}" class="end-btn"
+            style="text-decoration: none; font-size: 0.9rem;">Exit</a>
+    </nav>
+
+    <!-- Setup Screen -->
+    <div id="setup-screen" class="setup-modal">
+        <h1 class="mb-4">Ready for your Interview?</h1>
+        <p class="text-secondary mb-4">Select a topic to begin. The AI will ask questions and listen to your answers.
+        </p>
+
+        <div class="d-flex gap-3 mb-4" style="flex-wrap: wrap; justify-content: center;">
+            <select id="interview-topic"
+                style="padding: 10px; border-radius: 6px; background: #1e293b; color: #fff; border: 1px solid #475569; width: 250px;">
+                <option value="General HR">General HR Interview</option>
+                <option value="Python Technical">Python Developer</option>
+                <option value="Java Technical">Java Developer</option>
+                <option value="Frontend React">Frontend (React)</option>
+                <option value="Data Structures">DSA & Problem Solving</option>
+                <option value="Behavioral">Behavioral / Leadership</option>
+            </select>
+
+            <select id="interview-lang"
+                style="padding: 10px; border-radius: 6px; background: #1e293b; color: #fff; border: 1px solid #475569; width: 200px;">
+                <option value="en-US">English (US)</option>
+                <option value="hi-IN">Hindi (India)</option>
+                <option value="es-ES">Spanish</option>
+                <option value="fr-FR">French</option>
+                <option value="de-DE">German</option>
+                <option value="kn-IN">Kannada</option>
+            </select>
+        </div>
+
+        <p id="perm-status" class="text-secondary" style="font-size: 0.9rem;">Microphone access required.</p>
+
+        <button id="enable-audio-btn" onclick="requestPermissions()" class="btn"
+            style="padding: 12px 30px; font-size: 1rem; background: #475569; border: none; border-radius: 8px; color: white; cursor: pointer; margin-bottom: 10px;">
+            <i class="fas fa-unlock"></i> Enable Audio
+        </button>
+
+        <button id="start-btn" onclick="startInterview()" class="btn btn-primary"
+            style="padding: 12px 30px; font-size: 1.1rem; background: #3b82f6; border: none; border-radius: 8px; color: white; cursor: pointer; display: none;">
+            Start Interview
+        </button>
+    </div>
+
+    <!-- Main Interview Interface -->
+    <div class="main-container" id="interview-interface" style="display: none;">
+
+        <div class="avatar-container">
+            <div class="avatar-pulse"></div>
+            <i class="fas fa-robot avatar-icon"></i>
+        </div>
+
+        <div id="status-text" style="margin-bottom: 2rem; color: #94a3b8; min-height: 24px;">AI is ready...</div>
+
+        <div class="chat-box" id="chat-history">
+            <!-- Messages go here -->
+        </div>
+
+        <div class="controls" style="flex-direction: column; width: 100%; max-width: 700px;">
+
+            <div style="display: flex; gap: 1rem; align-items: center; justify-content: center; width: 100%;">
+                <button id="mic-btn" class="mic-btn" onclick="toggleMic()" title="Toggle Microphone">
+                    <i class="fas fa-microphone"></i>
+                </button>
+            </div>
+
+            <!-- Text Input Fallback -->
+            <div class="input-group mt-3" style="display: flex; width: 100%; gap: 10px;">
+                <input type="text" id="text-response" class="form-control"
+                    placeholder="Type your answer here if mic is unavailable..."
+                    style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #475569; background: #1e293b; color: white;"
+                    onkeypress="handleKeyPress(event)">
+                <button onclick="sendTextResponse()" class="btn btn-primary" style="border-radius: 8px;">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+
+        </div>
+        <p style="margin-top: 1rem; font-size: 0.8rem; color: #64748b;">Click microphone to speak, or type your answer
+            above.</p>
+    </div>
+
+    <script>
+        // ... existing script ...
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendTextResponse();
+        }
+
+        function sendTextResponse() {
+            const input = document.getElementById('text-response');
+            const text = input.value.trim();
+            if (text) {
+                processUserResponse(text);
+                input.value = '';
+            }
+        }
+
+        let recognition;
+        let isListening = false;
+        let synth = window.speechSynthesis;
+        let history = [];
+        let currentTopic = "";
+        let currentLang = "en-US";
+
+        // Initialize Speech Recognition
+        if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+        } else {
+            alert("Web Speech API is not supported in this browser. Please use Chrome.");
+        }
+
+        // Initialize Button Listener safely
+        // Removed redundant event listener to avoid conflict with onclick attribute
+
+        async function requestPermissions() {
+            try {
+                console.log("Requesting audio permission...");
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                console.log("Permission granted");
+                document.getElementById('perm-status').textContent = "Microphone access granted.";
+                document.getElementById('perm-status').style.color = "#4ade80";
+                document.getElementById('start-btn').style.display = 'block';
+                document.getElementById('enable-audio-btn').style.display = 'none'; // Hide enable button after success
+
+                // Keep stream tracks active or stop them? 
+                // WebSpeechRecognition requests its own permission usually, but getting it here primes the permission state.
+                // Stopping it strictly might be better to release the HW, but sometimes keeping it helps.
+                // We will stop it to avoid "tab is using mic" double indicator if possible, but let's test.
+                stream.getTracks().forEach(track => {
+                    track.stop();
+                });
+            } catch (err) {
+                console.error("Permission error:", err);
+                alert("Microphone permission denied. Please allow microphone access in your browser settings.");
+                document.getElementById('perm-status').textContent = "Access Denied. Check browser settings.";
+                document.getElementById('perm-status').style.color = "#ef4444";
+            }
+        }
+
+        function startInterview() {
+            currentTopic = document.getElementById('interview-topic').value;
+            currentLang = document.getElementById('interview-lang').value;
+
+            if (recognition) {
+                recognition.lang = currentLang;
+            }
+
+            document.getElementById('setup-screen').style.display = 'none';
+            document.getElementById('interview-interface').style.display = 'flex';
+
+            // Trigger first message
+            processAIResponse("", true);
+        }
+
+        function toggleMic() {
+            if (!recognition) {
+                alert("Voice recognition is not supported in this browser. Please use the text input below.");
+                return;
+            }
+
+            if (isListening) {
+                stopListening();
+            } else {
+                startListening();
+            }
+        }
+
+        function startListening() {
+            isListening = true;
+            document.getElementById('mic-btn').classList.add('active');
+            document.getElementById('status-text').textContent = "Listening...";
+
+            // Ensure lang is set
+            recognition.lang = currentLang;
+            try {
+                recognition.start();
+            } catch (e) {
+                console.error("Recognition start error:", e);
+            }
+
+            let finalTranscript = '';
+
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+                document.getElementById('status-text').textContent = interimTranscript || "Listening...";
+            };
+
+            recognition.onend = () => {
+                // If stopped manually (isListening became false via toggleMic->stopListening), we process input.
+                // If stopped automatically by silence but we wanted continuous, we might restart. However, dealing with "manual stop" preference:
+
+                if (isListening) {
+                    // It stopped on its own (silence/error) but user didn't click stop. 
+                    // Should we restart or just process what we have? 
+                    // User complained "need to stop mic". So let's NOT restart automatically to confuse them.
+                    // Actually, if it stops on its own, it might be partial. But usually 'continuous=true' keeps it open.
+                    // Let's assume onEnd means "done" for this turn if we rely on manual stop.
+                    recognition.start(); // Keep listening until they click stop?
+                    // Wait, user wants "stop the mic once voice of talking is done".
+                    // Ideally: Click Start -> Speak -> Click Stop -> Process.
+                } else {
+                    // Manually stopped. Process!
+                    if (finalTranscript.trim().length > 0) {
+                        processUserResponse(finalTranscript);
+                    } else {
+                        document.getElementById('status-text').textContent = "No speech detected. Click mic to try again.";
+                    }
+                }
+            };
+
+
+            recognition.onerror = (event) => {
+                console.error("Recognition error", event.error);
+                isListening = false;
+                document.getElementById('mic-btn').classList.remove('active');
+                document.getElementById('status-text').textContent = "Error: " + event.error;
+            };
+        }
+
+        function stopListening() {
+            isListening = false;
+            recognition.stop();
+        }
+
+        function processUserResponse(text) {
+            if (!text || !text.trim()) {
+                return;
+            }
+
+            // Add user message to chat
+            addMessage(text, 'user');
+
+            // Send to AI
+            processAIResponse(text);
+        }
+
+        async function processAIResponse(userText, isStart = false) {
+            document.getElementById('status-text').textContent = "AI is thinking...";
+
+            // Prepare history for API (exclude visual-only tweaks if any)
+            const apiHistory = history.map(h => ({ role: h.role, message: h.text }));
+
+            try {
+                const response = await fetch('/api/interview/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: userText,
+                        history: apiHistory,
+                        topic: currentTopic,
+                        language: currentLang
+                    })
+                });
+
+                const data = await response.json();
+                const aiText = data.response;
+
+                addMessage(aiText, 'ai');
+                speak(aiText);
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('status-text').textContent = "Error connecting to AI.";
+            }
+        }
+
+        function addMessage(text, role) {
+            const div = document.createElement('div');
+            div.className = `message ${role}`;
+            div.textContent = text;
+            document.getElementById('chat-history').appendChild(div);
+
+            // Auto scroll
+            const chatBox = document.getElementById('chat-history');
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Update local history
+            if (role === 'user' || role === 'ai') {
+                history.push({ role: role, text: text });
+            }
+        }
+
+        function speak(text) {
+            if (synth.speaking) {
+                synth.cancel(); // Stop unexpected overlaps
+            }
+            document.getElementById('status-text').textContent = "AI is speaking...";
+
+            const utterThis = new SpeechSynthesisUtterance(text);
+            utterThis.lang = currentLang;
+
+            // Try to find a matching voice
+            // Try to find a matching voice with improved logic
+            const voices = synth.getVoices();
+            console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`)); // Debugging
+
+            let voice = voices.find(v => v.lang === currentLang);
+
+            // 1. Try exact match (e.g., 'hi-IN')
+            if (!voice) {
+                // 2. Try just the language code (e.g., 'hi')
+                const langCode = currentLang.split('-')[0];
+                voice = voices.find(v => v.lang.startsWith(langCode));
+            }
+
+            // 3. Specific Fallbacks/Preferences based on availability (Chrome usually has 'Google ...')
+            if (!voice) {
+                if (currentLang.startsWith('hi')) {
+                    voice = voices.find(v => v.name.includes('Hindi') || v.name.includes('Google हिन्दी'));
+                } else if (currentLang.startsWith('kn')) {
+                    voice = voices.find(v => v.name.includes('Kannada') || v.lang.includes('kn'));
+                } else if (currentLang.startsWith('es')) {
+                    voice = voices.find(v => v.name.includes('Spanish') || v.name.includes('Español'));
+                } else if (currentLang.startsWith('de')) {
+                    voice = voices.find(v => v.name.includes('German') || v.name.includes('Deutsch'));
+                } else if (currentLang.startsWith('fr')) {
+                    voice = voices.find(v => v.name.includes('French') || v.name.includes('Français'));
+                }
+            }
+
+            // 4. Ultimate fallback to English if the requested language voice isn't installed
+            if (!voice) {
+                console.warn(`No voice found for ${currentLang}. Falling back to English.`);
+                voice = voices.find(v => v.lang.startsWith('en'));
+            }
+
+            if (voice) utterThis.voice = voice;
+
+            utterThis.onend = function (event) {
+                document.getElementById('status-text').textContent = "Your turn. Click mic to answer.";
+            };
+
+            utterThis.onerror = function (event) {
+                console.error('Speech synthesis error', event);
+                document.getElementById('status-text').textContent = "Error speaking.";
+            };
+
+            synth.speak(utterThis);
+        }
+
+        // Load voices immediately so they are ready
+        window.speechSynthesis.onvoiceschanged = () => {
+            window.speechSynthesis.getVoices();
+        };
+    </script>
+</body>
+
+</html>

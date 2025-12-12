@@ -1,0 +1,14 @@
+<nav class="navbar">
+    <a href="/" class="logo">
+        <i class="fas fa-graduation-cap"></i>
+        <span>Placement Portal</span>
+    </a>
+    <div class="d-flex align-center gap-2">
+        {% if session.get('user_id') %}
+        <span style="color: var(--text-secondary); margin-right: 15px;">Welcome, {{ session.get('name') }}</span>
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary btn-sm">Logout</a>
+        {% else %}
+        <a href="{{ url_for('index') }}" class="btn btn-primary btn-sm">Login</a>
+        {% endif %}
+    </div>
+</nav>

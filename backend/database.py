@@ -27,46 +27,37 @@ class Database:
         # Enable SSL only for TiDB Cloud (Render)
         self.ssl = {"ssl": {}} if os.getenv("DB_SSL", "False").lower() == "true" else None
 
-        self.connection = None
-
     def connect(self):
         """Establish database connection"""
         try:
-            print("--------------------------------------------------")
-            print("[INFO] Connecting to database...")
-            print(f"Host: {self.host}")
-            print(f"Port: {self.port}")
-            print(f"User: {self.user}")
-            print(f"Database: {self.database}")
-            print(f"SSL: {'Enabled' if self.ssl else 'Disabled'}")
-            print("--------------------------------------------------")
-
-            self.connection = pymysql.connect(
+            # print("--------------------------------------------------")
+            # print("[INFO] Connecting to database...")
+            # Reduced logging to avoid noise on every query
+            
+            connection = pymysql.connect(
                 host=self.host,
                 user=self.user,
                 password=self.password,
                 database=self.database,
                 port=self.port,
-                ssl=self.ssl,  # ✅ enables secure connection for TiDB Cloud
+                ssl=self.ssl,
                 cursorclass=pymysql.cursors.DictCursor,
                 autocommit=False
             )
-            print("[OK] Database connection successful!")
-            return self.connection
+            return connection
         except Exception as e:
             print(f"[ERROR] Database connection error: {e}")
             raise
 
     def get_connection(self):
-        """Get existing connection or create new one"""
-        if self.connection is None or not self.connection.open:
-            return self.connect()
-        return self.connection
+        """Get a new connection"""
+        return self.connect()
 
     def execute_query(self, query, params=None, fetch_one=False, fetch_all=False):
         """Execute a query and return results"""
-        conn = self.get_connection()
+        conn = None
         try:
+            conn = self.connect()
             with conn.cursor() as cursor:
                 cursor.execute(query, params)
                 if fetch_one:
@@ -78,15 +69,20 @@ class Database:
                 conn.commit()
                 return result
         except Exception as e:
-            conn.rollback()
+            if conn:
+                try:
+                    conn.rollback()
+                except Exception:
+                    pass
             print(f"[ERROR] Query execution error: {e}")
             raise
+        finally:
+            if conn:
+                conn.close()
 
     def close(self):
-        """Close database connection"""
-        if self.connection and self.connection.open:
-            self.connection.close()
-            print("[INFO] Database connection closed.")
+        """Placeholder for backward compatibility"""
+        pass
 
 # Global instance
 db = Database()

@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coding Practice | Placement Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v=2">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js" crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/mode-python.min.js" crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/theme-dracula.min.js" crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
+    <style>
+        :root {
+            /* Radical / Cyberpunk Theme Colors */
+            --editor-bg: #141321;
+            --panel-bg: #1a1b26;
+            --border-color: #2f2e4e;
+            --text-primary: #c0caf5;
+            --text-secondary: #565f89;
+            --accent: #ff007c;
+            /* Razor Pink */
+            --accent-glow: rgba(255, 0, 124, 0.4);
+            --secondary-accent: #00d0ff;
+            /* Cyber Blue */
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f0e17;
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        .navbar {
+            height: 50px;
+            background: #141321;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 1rem;
+            justify-content: space-between;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            font-weight: 800;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-shadow: 0 0 10px var(--accent-glow);
+            font-family: 'Fira Code', monospace;
+        }
+
+        .layout {
+            display: flex;
+            height: calc(100vh - 50px);
+        }
+
+        .left-panel {
+            width: 40%;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            background: var(--panel-bg);
+        }
+
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--editor-bg);
+        }
+
+        /* Tabs */
+        .tabs,
+        .panel-tabs {
+            display: flex;
+            background: #141321;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-right: 1px solid var(--border-color);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            background: #141321;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: #fff;
+            background: #1f1e33;
+        }
+
+        .tab.active {
+            background: var(--panel-bg);
+            color: var(--accent);
+            border-top: 2px solid var(--accent);
+        }
+
+        /* Problem Desc */
+        .problem-container {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .problem-title {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+
+        .badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            /* More techy, less rounded */
+            background: #3c3c3c;
+            color: #ddd;
+            font-weight: 600;
+            font-size: 0.75rem;
+            border: 1px solid transparent;
+        }
+
+        .badge.Easy {
+            color: #00d0ff;
+            background: rgba(0, 208, 255, 0.1);
+            border-color: rgba(0, 208, 255, 0.3);
+        }
+
+        .badge.Medium {
+            color: #ffc01e;
+            background: rgba(255, 192, 30, 0.1);
+            border-color: rgba(255, 192, 30, 0.3);
+        }
+
+        .badge.Hard {
+            color: #ff007c;
+            background: rgba(255, 0, 124, 0.1);
+            border-color: rgba(255, 0, 124, 0.3);
+        }
+
+        .problem-content {
+            line-height: 1.7;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .problem-content pre {
+            background: #0f0e17;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-family: 'Fira Code', monospace;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Editor Controls */
+        .editor-header {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1rem;
+            background: #141321;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .lang-select {
+            background: #1f1e33;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 2px 8px;
+            outline: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .action-btn {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 0 10px rgba(255, 0, 124, 0.3);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #d9006b;
+            box-shadow: 0 0 15px rgba(255, 0, 124, 0.5);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--text-secondary);
+            color: var(--text-primary);
+            padding: 5px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-outline:hover {
+            border-color: var(--secondary-accent);
+            color: var(--secondary-accent);
+        }
+
+        /* Bottom Panel */
+        .bottom-panel {
+            height: 200px;
+            border-top: 1px solid var(--border-color);
+            background: #1a1b26;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-content {
+            padding: 1rem;
+            overflow-y: auto;
+            flex: 1;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            background: #1a1b26;
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-code"></i> <span>CodePortal</span>
+            <div style="margin-left: 20px; font-weight: normal; font-size: 0.9rem; color: #888;">
+                <button onclick="openProblemList()" class="btn-outline"><i class="fas fa-list"></i> Problem
+                    List</button>
+            </div>
+        </div>
+        <div>
+            <a href="{{ url_for('student_dashboard') }}" class="btn-outline" style="border: none;">Back to Dashboard</a>
+            <button onclick="runCode()" class="action-btn" style="margin-left: 10px;"><i class="fas fa-play"></i>
+                Run</button>
+        </div>
+    </nav>
+
+    <div class="layout">
+        <!-- Left Panel: Problem Description -->
+        <div class="left-panel">
+            <div class="tabs">
+                <div class="tab active" onclick="switchLeftTab('desc')"><i class="fas fa-file-alt"></i> Description
+                </div>
+                <div class="tab" onclick="switchLeftTab('subs')"><i class="fas fa-history"></i> Submissions</div>
+            </div>
+            <div class="problem-container" id="problem-view">
+                <div class="text-center p-5" style="margin-top: 100px; color: #666;">
+                    <h3>Select a problem to start</h3>
+                    <button onclick="openProblemList()" class="action-btn mt-3">Browse Problems</button>
+                </div>
+            </div>
+            <div class="problem-container" id="submissions-view" style="display: none;">
+                <div class="text-secondary text-center p-4">Select a problem to view history.</div>
+            </div>
+        </div>
+
+
+        <!-- Right Panel: Editor & Output -->
+        <div class="right-panel">
+            <div class="editor-header">
+                <select id="language" class="lang-select" onchange="changeLanguage()">
+                    <option value="python">Python 3</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="java">Java</option>
+                    <option value="cpp">C++</option>
+                    <option value="c">C</option>
+                    <option value="csharp">C#</option>
+                    <option value="go">Go</option>
+                    <option value="rust">Rust</option>
+                    <option value="php">PHP</option>
+                    <option value="typescript">TypeScript</option>
+                    <option value="kotlin">Kotlin</option>
+                    <option value="swift">Swift</option>
+                </select>
+                <div style="font-size: 0.8rem; color: #aaa;">Autosaved</div>
+            </div>
+
+            <div style="flex: 1; position: relative; min-height: 0;">
+                <div id="ace-editor" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;"></div>
+            </div>
+
+            <div class="bottom-panel">
+                <div class="panel-tabs">
+                    <div class="tab active" onclick="switchTab('testcases')">Test Cases</div>
+                    <div class="tab" onclick="switchTab('result')">Result</div>
+                </div>
+                <div class="panel-content" id="output-view">
+                    <!-- Test cases content -->
+                    <div class="text-secondary" style="opacity: 0.7;">Run your code to see results.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Problems Modal -->
+    <div id="listModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Problem List</h3>
+                <div class="d-flex gap-2">
+                    <select id="filter-topic" class="lang-select" style="border: 1px solid #555; padding: 4px;">
+                        <option value="Arrays">Arrays</option>
+                        <option value="Strings">Strings</option>
+                        <option value="Trees">Trees</option>
+                        <option value="DP">DP</option>
+                    </select>
+                    <select id="filter-difficulty" class="lang-select" style="border: 1px solid #555; padding: 4px;">
+                        <option value="Easy">Easy</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Hard">Hard</option>
+                    </select>
+                    <button onclick="fetchProblems()" class="action-btn">Filter</button>
+                </div>
+                <button onclick="document.getElementById('listModal').style.display='none'"
+                    style="background:none; border:none; color:#fff; font-size: 1.2rem; cursor:pointer;">&times;</button>
+            </div>
+            <div class="modal-body" id="problem-list">
+                <!-- List items loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let editor;
+        let currentProblem = null;
+        let currentTestCases = [];
+
+        // Initialize Ace Editor
+        // Initialize Ace Editor
+        document.addEventListener('DOMContentLoaded', function () {
+            // CRITICAL: Set base path for loading themes/modes
+            ace.config.set("basePath", "https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/");
+
+            editor = ace.edit("ace-editor");
+            editor.setTheme("ace/theme/dracula");
+            editor.session.setMode("ace/mode/python");
+            editor.setFontSize(15);
+            editor.setValue("# Select a problem to start coding", -1);
+
+            // Auto-open list on load
+            openProblemList();
+            fetchProblems();
+        });
+
+        function changeLanguage() {
+            const lang = document.getElementById('language').value;
+            const modeMap = {
+                'python': 'python',
+                'javascript': 'javascript',
+                'java': 'java',
+                'cpp': 'c_cpp',
+                'c': 'c_cpp',
+                'csharp': 'csharp',
+                'golang': 'golang',
+                'php': 'php',
+                'rust': 'rust',
+                'typescript': 'typescript',
+                'kotlin': 'kotlin',
+                'swift': 'swift'
+            };
+
+            if (modeMap[lang]) {
+                editor.session.setMode("ace/mode/" + modeMap[lang]);
+            }
+
+            const boilerplates = {
+                'python': '# Write solution here\nclass Solution:\n    def solve(self):\n        pass',
+                'javascript': '// Write solution here\nfunction solve() {\n    \n}',
+                'java': 'class Solution {\n    public void solve() {\n        \n    }\n}',
+                'cpp': '#include <iostream>\nusing namespace std;\n\nclass Solution {\npublic:\n    void solve() {\n        \n    }\n}',
+                'c': '#include <stdio.h>\n\nvoid solve() {\n    \n}',
+                'csharp': 'public class Solution {\n    public void Solve() {\n        \n    }\n}',
+                'typescript': 'function solve(): void {\n    \n}',
+                'kotlin': 'class Solution {\n    fun solve() {\n        \n    }\n}',
+                'swift': 'class Solution {\n    func solve() {\n        \n    }\n}'
+            };
+
+            if (boilerplates[lang]) {
+                editor.setValue(boilerplates[lang], -1);
+            }
+        }
+
+        async function fetchProblems() {
+            const topic = document.getElementById('filter-topic').value;
+            const difficulty = document.getElementById('filter-difficulty').value;
+            const container = document.getElementById('problem-list');
+
+            container.innerHTML = '<div class="text-center p-3">Loading...</div>';
+
+            try {
+                const res = await fetch('/api/coding/list', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topic, difficulty })
+                });
+                const list = await res.json();
+
+                if (list.length === 0) {
+                    container.innerHTML = '<div class="text-center p-3 text-secondary">No problems found.</div>';
+                    return;
+                }
+
+                container.innerHTML = list.map(p => `
+                    <div class="problem-row" onclick="loadProblem('${p.slug}')">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 500;">${p.title}</div>
+                        </div>
+                        <span class="badge ${p.difficulty}">${p.difficulty}</span>
+                    </div>
+                `).join('');
+
+            } catch (e) {
+                container.innerHTML = `<div class="text-danger p-3">Error: ${e.message}</div>`;
+            }
+        }
+
+        async function loadProblem(slug) {
+            document.getElementById('listModal').style.display = 'none';
+            document.getElementById('problem-view').innerHTML = '<div class="p-4 text-center">Loading problem...</div>';
+
+            try {
+                const res = await fetch('/api/coding/get', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ slug: slug })
+                });
+
+                // Handle non-JSON responses (like 500 HTML pages)
+                const contentType = res.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    const text = await res.text();
+                    throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}...`);
+                }
+
+                const data = await res.json();
+
+                if (data.error) {
+                    alert("Error: " + data.error);
+                    return;
+                }
+
+                currentProblem = data;
+
+                // Update UI
+                document.getElementById('problem-view').innerHTML = `
+                    <div class="problem-title" id="problem-title">${data.title}</div>
+                    <div class="meta-tags">
+                        <span class="badge ${data.difficulty}" id="problem-difficulty">${data.difficulty}</span>
+                        <span style="color: #888;">Topic: ${document.getElementById('filter-topic').value}</span>
+                    </div>
+                    <div class="problem-content" id="problem-description">${data.description}</div>
+                `;
+
+                // Set Code
+                editor.setValue(data.starter_code || '# Write your solution', -1);
+
+                // Set Test Cases in bottom panel
+                currentTestCases = data.test_cases || [];
+                showTestCases();
+
+            } catch (e) {
+                document.getElementById('problem-view').innerHTML = `<div class="text-danger p-4">Error loading problem: ${e.message}</div>`;
+            }
+        }
+
+        function showTestCases() {
+            const panel = document.getElementById('output-view');
+            const examples = currentProblem.test_cases || currentProblem.examples;
+
+            if (!examples) {
+                panel.innerHTML = '<div class="text-secondary">No specific test cases provided.</div>';
+                return;
+            }
+
+            let html = `
+                <div style="font-size: 0.85rem; color: #888; margin-bottom: 10px;">Test Cases</div>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button class="action-btn" style="background:#444; font-size: 0.8rem;">Case 1</button>
+                </div>
+                
+                <div style="background: #333; padding: 15px; border-radius: 6px;">
+                    <div style="font-size: 0.8rem; color: #aaa; margin-bottom: 5px;">Input:</div>
+                    <code style="display: block; background: rgba(0,0,0,0.2); padding: 8px; border-radius: 4px; color: #eee; font-family: 'Fira Code'; font-size: 0.9rem;">
+                        ${examples}
+                    </code>
+                </div>
+            `;
+
+            panel.innerHTML = html;
+        }
+
+        function switchTab(tabName) {
+            const panel = document.getElementById('output-view');
+            const tabs = document.querySelectorAll('.panel-tabs .tab');
+            tabs.forEach(t => t.classList.remove('active'));
+
+            if (tabName === 'testcases') {
+                tabs[0].classList.add('active');
+                showTestCases();
+            } else {
+                tabs[1].classList.add('active');
+                if (!panel.innerHTML.includes('Result:')) {
+                    panel.innerHTML = '<div class="text-secondary">Run code to see results.</div>';
+                }
+            }
+        }
+
+        async function runCode() {
+            if (!currentProblem) return alert("Select a problem first");
+
+            const code = editor.getValue();
+            const language = document.getElementById('language').value;
+            const panel = document.getElementById('output-view');
+            const tabs = document.querySelectorAll('.panel-tabs .tab');
+
+            tabs[0].classList.remove('active');
+            tabs[1].classList.add('active');
+
+            panel.innerHTML = '<div style="color: var(--accent);"><i class="fas fa-spinner fa-spin"></i> Running on Test Cases...</div>';
+
+            try {
+                const response = await fetch('/api/coding/run', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        code,
+                        language,
+                        problem: currentProblem
+                    })
+                });
+
+                const result = await response.json();
+
+                let html = '';
+                if (result.status === 'success') {
+                    html += `<div style="color: #4ade80; font-weight:bold; margin-bottom:10px;">Accepted</div>`;
+                    html += `<pre style="background:#333; padding:10px; border-radius:5px;">${result.output}</pre>`;
+                } else {
+                    html += `<div style="color: #ff375f; font-weight:bold; margin-bottom:10px;">Wrong Answer / Error</div>`;
+                    html += `<pre style="background:#3a2024; color:#ff8098; padding:10px; border-radius:5px;">${result.error || result.output}</pre>`;
+                }
+
+                if (result.analysis) {
+                    html += `<div style="margin-top:15px; border-top:1px solid #444; padding-top:10px; font-size:0.85rem; color:#aaa;">
+                        <strong>Analysis:</strong> ${result.analysis}
+                    </div>`;
+                }
+
+                panel.innerHTML = html;
+
+            } catch (e) {
+                panel.innerHTML = `<div style="color: #ff375f;">Execution Error: ${e.message}</div>`;
+            }
+        }
+
+        function switchLeftTab(tab) {
+            const tabs = document.querySelectorAll('.left-panel .tab');
+            const pView = document.getElementById('problem-view');
+            const sView = document.getElementById('submissions-view');
+
+            if (tab === 'desc') {
+                tabs[0].classList.add('active');
+                tabs[1].classList.remove('active');
+                pView.style.display = 'block';
+                sView.style.display = 'none';
+            } else {
+                tabs[0].classList.remove('active');
+                tabs[1].classList.add('active');
+                pView.style.display = 'none';
+                sView.style.display = 'block';
+                if (currentProblem) {
+                    loadSubmissions();
+                }
+            }
+        }
+
+        async function loadSubmissions() {
+            if (!currentProblem) return;
+            const container = document.getElementById('submissions-view');
+            container.innerHTML = '<div class="text-center p-3">Loading history...</div>';
+
+            try {
+                const res = await fetch(`/api/coding/submissions?problem=${encodeURIComponent(currentProblem.title)}`);
+                const data = await res.json();
+
+                if (data.length === 0) {
+                    container.innerHTML = '<div class="text-center p-4 text-secondary">No submissions yet for this problem.</div>';
+                    return;
+                }
+
+                container.innerHTML = data.map(sub => `
+                    <div style="background: #333; padding: 10px; border-radius: 6px; margin-bottom: 10px; border-left: 4px solid ${sub.status === 'success' ? '#4ade80' : '#ff375f'};">
+                        <div class="d-flex justify-between">
+                            <span style="font-weight: 600; color: ${sub.status === 'success' ? '#4ade80' : '#ff375f'}">${sub.status.toUpperCase()}</span>
+                            <span style="font-size: 0.8rem; color: #aaa;">${new Date(sub.timestamp).toLocaleString()}</span>
+                        </div>
+                        <div style="font-size: 0.85rem; margin-top: 5px; color: #ccc;">
+                            Type: <span style="background: #444; padding: 2px 6px; border-radius: 4px;">${sub.language}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (e) {
+                container.innerHTML = `<div class="text-danger p-3">Error: ${e.message}</div>`;
+            }
+        }
+
+        function openProblemList() {
+            document.getElementById('listModal').style.display = 'flex';
+        }
+    </script>
+</body>
+
+</html>

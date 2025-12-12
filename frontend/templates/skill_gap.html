@@ -207,10 +207,14 @@
 
                 document.getElementById('courseList').innerHTML = data.recommended_courses.map(c =>
                     `<div style="margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem;">
-                        <p style="color: var(--text-primary); margin-bottom: 4px; font-weight: 600;">${c.title}</p>
-                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary);">
-                            <span>${c.platform}</span>
-                            <span>${c.duration}</span>
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <p style="color: var(--text-primary); margin: 0 0 4px 0; font-weight: 600;">${c.title}</p>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                                    <span>${c.platform}</span> • <span>${c.duration}</span>
+                                </div>
+                            </div>
+                            ${c.link ? `<a href="${c.link}" target="_blank" style="color: var(--accent); text-decoration: none; font-size: 0.9rem; white-space: nowrap; margin-left: 10px;">View <i class="fas fa-external-link-alt"></i></a>` : ''}
                         </div>
                     </div>`
                 ).join('');
