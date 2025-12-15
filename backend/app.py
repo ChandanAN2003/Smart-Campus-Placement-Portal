@@ -52,6 +52,11 @@ def allowed_file(filename):
 
 def extract_text_from_file(file_path):
     """Extract text from PDF or DOCX file"""
+    import os
+    if not os.path.exists(file_path):
+        print(f"[ERROR] Resume file not found: {file_path}")
+        return ""
+        
     try:
         if file_path.endswith('.pdf'):
             with open(file_path, 'rb') as f:
@@ -514,12 +519,17 @@ def analyze_skill_gap_api():
     if not resume:
         return jsonify({'error': 'Please upload a resume first'}), 400
         
-    resume_text = extract_text_from_file(resume['file_path'])
+    if not resume_text:
+        return jsonify({'error': 'Resume file not found on server. Please re-upload your resume.'}), 404
     
     analysis = perform_skill_gap_analysis(resume_text, job_role, job_description)
     
     if not analysis:
-        return jsonify({'error': 'Analysis failed'}), 500
+        # Check if we should suggest using Groq
+        import os
+        if not os.getenv('GROQ_API_KEY'):
+             return jsonify({'error': 'AI Analysis failed. Please ask Admin to configure GROQ_API_KEY.'}), 500
+        return jsonify({'error': 'Analysis failed due to AI limitations.'}), 500
         
     return jsonify(analysis)
 
