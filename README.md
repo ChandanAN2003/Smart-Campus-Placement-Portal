@@ -77,10 +77,12 @@ A next-generation **Campus Placement Automation System** that leverages **Genera
    SECRET_KEY=your_secret_key
    DB_USER=root
    DB_PASSWORD=your_password
-   DB_HOST=localhost
+   DB_HOST=localhost   # Or use TiDB Cloud Host
    DB_NAME=placement_portal
+   DB_PORT=3306        # 4000 for TiDB
    GEMINI_API_KEY=your_gemini_api_key
    ```
+   *Note: The application supports TiDB Cloud with connection pooling for production performance.*
 
 5. **Initialize Database**
    ```bash

@@ -71,9 +71,14 @@
                     <div class="text-center">
                         <p style="color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 0.9rem;">Don't have an
                             account?</p>
-                        <button onclick="toggleForms()"
+                        <button onclick="toggleForms('register')"
                             style="background: none; border: none; color: var(--accent); font-weight: 600; cursor: pointer; font-size: 0.95rem;">
                             Create New Account
+                        </button>
+                        <br>
+                        <button onclick="toggleForms('forgot')"
+                            style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.85rem; margin-top: 10px;">
+                            Forgot Password?
                         </button>
                     </div>
 
@@ -143,9 +148,80 @@
                     <div class="text-center">
                         <p style="color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 0.9rem;">Already have
                             an account?</p>
-                        <button onclick="toggleForms()"
+                        <button onclick="toggleForms('login')"
                             style="background: none; border: none; color: var(--accent); font-weight: 600; cursor: pointer; font-size: 0.95rem;">
                             Sign In Instead
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Forgot Password Form - Email Request -->
+                <div id="forgotPasswordForm" style="display: none;">
+                    <div style="margin-bottom: 2rem; text-align: center;">
+                        <h2
+                            style="color: var(--text-primary); font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem;">
+                            Reset Password</h2>
+                        <p style="color: var(--text-secondary);">Enter your email to receive an OTP</p>
+                    </div>
+
+                    <form action="{{ url_for('request_password_reset') }}" method="POST">
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email" class="form-control" required
+                                placeholder="name@example.com">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mb-4" style="height: 48px;">
+                            Send OTP
+                        </button>
+                    </form>
+
+                    <div class="text-center">
+                        <button onclick="toggleForms('login')"
+                            style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.9rem;">
+                            <i class="fas fa-arrow-left"></i> Back to Login
+                        </button>
+                        <br><br>
+                        <button onclick="toggleForms('verify')"
+                            style="background: none; border: none; color: var(--accent); font-weight: 600; cursor: pointer; font-size: 0.95rem;">
+                            Already have an OTP?
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Forgot Password Form - Verify & Reset -->
+                <div id="verifyOtpForm" style="display: none;">
+                    <div style="margin-bottom: 2rem; text-align: center;">
+                        <h2
+                            style="color: var(--text-primary); font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem;">
+                            New Password</h2>
+                        <p style="color: var(--text-secondary);">Enter OTP and new password</p>
+                    </div>
+
+                    <form action="{{ url_for('reset_password_with_otp') }}" method="POST">
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email" class="form-control" required
+                                placeholder="name@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">OTP</label>
+                            <input type="text" name="otp" class="form-control" required placeholder="123456"
+                                maxlength="6" style="letter-spacing: 5px; font-size: 1.2rem; text-align: center;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">New Password</label>
+                            <input type="password" name="new_password" class="form-control" required
+                                placeholder="••••••••">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 mb-4" style="height: 48px;">
+                            Reset Password
+                        </button>
+                    </form>
+
+                    <div class="text-center">
+                        <button onclick="toggleForms('login')"
+                            style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.9rem;">
+                            <i class="fas fa-arrow-left"></i> Back to Login
                         </button>
                     </div>
                 </div>
@@ -162,22 +238,37 @@
         // Init 3D Background
         document.addEventListener('DOMContentLoaded', () => {
             init3DBackground();
+
+            {% if show_verify %}
+            toggleForms('verify');
+            {% elif show_register %}
+            toggleForms('register');
+            {% endif %}
         });
 
-        function toggleForms() {
+        function toggleForms(target) {
             const loginForm = document.getElementById('loginForm');
             const registerForm = document.getElementById('registerForm');
-            const isLoginVisible = loginForm.style.display !== 'none';
+            const forgotForm = document.getElementById('forgotPasswordForm');
+            const verifyForm = document.getElementById('verifyOtpForm');
 
-            if (isLoginVisible) {
-                loginForm.style.display = 'none';
+            // Hide all first
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'none';
+            forgotForm.style.display = 'none';
+            verifyForm.style.display = 'none';
+
+            if (target === 'register') {
                 registerForm.style.display = 'block';
+            } else if (target === 'forgot') {
+                forgotForm.style.display = 'block';
+            } else if (target === 'verify') {
+                verifyForm.style.display = 'block';
             } else {
                 loginForm.style.display = 'block';
-                registerForm.style.display = 'none';
             }
 
-            // Clear alerts on toggle to avoid confusion
+            // Clear alerts
             document.querySelectorAll('.alert').forEach(el => el.style.display = 'none');
         }
 

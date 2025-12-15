@@ -6,8 +6,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import os
 from pathlib import Path
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import json
+import random
+import string
 from functools import wraps
 import PyPDF2
 from docx import Document
@@ -186,6 +188,94 @@ def logout():
     """User logout"""
     session.clear()
     flash('You have been logged out.', 'info')
+    return redirect(url_for('index'))
+
+@app.route('/request_password_reset', methods=['POST'])
+def request_password_reset():
+    """Handle password reset request"""
+    email = request.form.get('email')
+    
+    user = db.execute_query(
+        "SELECT id, name FROM users WHERE email = %s",
+        (email,),
+        fetch_one=True
+    )
+    
+    if not user:
+        # Security: Don't reveal if email exists, but for UX we often do in casual apps.
+        # Let's show a success message to avoid enumeration, or just say 'If account exists...'
+        flash('If an account exists with that email, an OTP has been sent.', 'info')
+        return redirect(url_for('index'))
+    
+    # Generate 6-digit OTP
+    otp = ''.join(random.choices(string.digits, k=6))
+    expiry = datetime.now() + timedelta(minutes=10)
+    
+    # Save to DB
+    db.execute_query(
+        "UPDATE users SET reset_otp = %s, reset_otp_expiry = %s WHERE id = %s",
+        (otp, expiry, user['id'])
+    )
+    
+    # Send Email
+    from mail_utils import send_email
+    send_email(
+        to=email,
+        subject="Password Reset OTP - Placement Portal",
+        body=f"Hello {user['name']},\n\nYour OTP for password reset is: {otp}\n\nThis OTP is valid for 10 minutes.\n\nIf you did not request this, please ignore.",
+        html_body=f"""
+        <h3>Password Reset Request</h3>
+        <p>Hello {user['name']},</p>
+        <p>Your OTP for password reset is:</p>
+        <h2 style="color: #4A90E2; letter-spacing: 5px;">{otp}</h2>
+        <p>This OTP is valid for 10 minutes.</p>
+        <p>If you did not request this, please ignore.</p>
+        """
+    )
+    
+    flash('OTP sent to your email. Please enter it below.', 'info')
+    # Use a query param or session to trigger the 'verify' form open state if possible, 
+    # but for now user has to manually click "Already have OTP" or we can rely on flash message.
+    # Actually, let's redirect to home but maybe with a clear indication? 
+    # The user will see the flash and stay on index. They must navigate to "Already have OTP".
+    return render_template('index.html', show_verify=True)
+
+@app.route('/reset_password_with_otp', methods=['POST'])
+def reset_password_with_otp():
+    """Verify OTP and reset password"""
+    email = request.form.get('email')
+    otp = request.form.get('otp')
+    new_password = request.form.get('new_password')
+    
+    user = db.execute_query(
+        "SELECT id, reset_otp, reset_otp_expiry FROM users WHERE email = %s",
+        (email,),
+        fetch_one=True
+    )
+    
+    if not user:
+        flash('Invalid email or OTP.', 'error')
+        return redirect(url_for('index'))
+    
+    # Check OTP
+    if user['reset_otp'] != otp:
+        flash('Invalid OTP.', 'error')
+        return render_template('index.html', show_verify=True)
+    
+    # Check Expiry
+    if user['reset_otp_expiry'] and user['reset_otp_expiry'] < datetime.now():
+        flash('OTP has expired. Please request a new one.', 'error')
+        return redirect(url_for('index'))
+    
+    # Update Password using generate_password_hash from imports
+    password_hash = generate_password_hash(new_password)
+    
+    db.execute_query(
+        "UPDATE users SET password_hash = %s, reset_otp = NULL, reset_otp_expiry = NULL WHERE id = %s",
+        (password_hash, user['id'])
+    )
+    
+    flash('Password reset successful! You can now log in.', 'success')
     return redirect(url_for('index'))
 
 @app.route('/dashboard')
