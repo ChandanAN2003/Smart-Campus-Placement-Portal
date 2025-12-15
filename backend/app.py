@@ -1185,4 +1185,6 @@ if __name__ == '__main__':
     except Exception as e:
         print(f"Database initialization note: {e}")
     
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Get PORT from environment (required for Render)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)
