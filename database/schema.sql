@@ -23,6 +23,8 @@ CREATE TABLE IF NOT EXISTS drives (
     eligibility VARCHAR(200),
     last_date DATE NOT NULL,
     status ENUM('active','closed') DEFAULT 'active',
+    vacancy_count INT DEFAULT 0,
+    departments VARCHAR(255),
     created_by INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(created_by) REFERENCES users(id)
