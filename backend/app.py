@@ -1024,12 +1024,47 @@ def create_drive():
             (company_name, job_role, job_description, eligibility, last_date, session['user_id'], vacancy_count, departments_str)
         )
     except Exception as e:
-        print(f"[WARNING] Extended insert failed, trying legacy insert: {e}")
-        # Fallback for legacy DB schema
-        db.execute_query(
-            "INSERT INTO drives (company_name, job_role, job_description, eligibility, last_date, created_by) VALUES (%s, %s, %s, %s, %s, %s)",
-            (company_name, job_role, job_description, eligibility, last_date, session['user_id'])
-        )
+        print(f"[WARNING] Extended insert failed: {e}")
+        error_msg = str(e).lower()
+        
+        # Check if error is due to missing columns (Error 1054)
+        if "unknown column" in error_msg and ("vacancy_count" in error_msg or "departments" in error_msg):
+            print("[INFO] Attempting Just-In-Time Schema Migration...")
+            try:
+                # Run ALTER TABLE commands to fix the schema on the fly
+                # We catch exceptions here individually in case one column exists but not the other
+                try:
+                    db.execute_query("ALTER TABLE drives ADD COLUMN vacancy_count INT DEFAULT 0")
+                    print(" -> Added vacancy_count column")
+                except Exception as ex: 
+                    print(f" -> vacancy_count add skipped: {ex}")
+                    
+                try:
+                    db.execute_query("ALTER TABLE drives ADD COLUMN departments VARCHAR(255)")
+                    print(" -> Added departments column")
+                except Exception as ex:
+                    print(f" -> departments add skipped: {ex}")
+                
+                # Retry the original insert with new columns
+                db.execute_query(
+                    "INSERT INTO drives (company_name, job_role, job_description, eligibility, last_date, created_by, vacancy_count, departments) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                    (company_name, job_role, job_description, eligibility, last_date, session['user_id'], vacancy_count, departments_str)
+                )
+                print("[SUCCESS] JIT Migration and Insert successful")
+                
+            except Exception as final_e:
+                print(f"[ERROR] JIT Migration failed completely: {final_e}")
+                # Ultimate Fallback: Legacy Insert (Feature degraded but app works)
+                db.execute_query(
+                    "INSERT INTO drives (company_name, job_role, job_description, eligibility, last_date, created_by) VALUES (%s, %s, %s, %s, %s, %s)",
+                    (company_name, job_role, job_description, eligibility, last_date, session['user_id'])
+                )
+                flash('Drive created, but advanced filters may not be saved due to database update issues.', 'warning')
+                return redirect(url_for('tpo_dashboard'))
+        else:
+            # Some other error, re-raise or handle gracefully
+            flash(f'Error creating drive: {e}', 'error')
+            return redirect(url_for('tpo_dashboard'))
     
     flash('Placement drive created successfully!', 'success')
     return redirect(url_for('tpo_dashboard'))
