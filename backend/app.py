@@ -535,26 +535,7 @@ def analyze_skill_gap_api():
             resume_text = "" # File might be deleted on ephemeral storage
     
     if not resume_text:
-        # FALLBACK FOR DEMO: If resume file is deleted by Render (ephemeral), use student profile
-        student = db.execute_query("SELECT * FROM users WHERE id = %s", (session['user_id'],), fetch_one=True)
-        if student:
-            print("[WARN] Resume file missing. Using Database Profile + Dummy Data for Demo robustness.")
-            resume_text = f"""
-            Name: {student['name']}
-            Email: {student['email']}
-            Department: {student['department']}
-            Role: Student
-            
-            Skills: Python, Java, HTML, CSS, JavaScript, SQL, Communication, Teamwork.
-            Education: Bachelor of Technology in {student['department']} (Final Year).
-            Projects: 
-            1. Placement Portal (Web Development) - Built using Flask and MySQL.
-            2. Library Management System - Java Swing application.
-            
-            Experience: Fresher looking for opportunities.
-            """
-        else:
-            return jsonify({'error': 'Resume file not found and user profile missing.'}), 404
+        return jsonify({'error': 'Resume file not found on server. Please re-upload your resume.'}), 404
     
     analysis = perform_skill_gap_analysis(resume_text, job_role, job_description)
     
