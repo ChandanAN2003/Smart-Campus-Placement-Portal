@@ -382,7 +382,7 @@ def analyze_resume(resume_text, job_role, job_description=""):
 
         
 
-        model = _get_generative_model("gemini-2.5-flash")
+        model = _get_generative_model("gemini-1.5-flash")
 
         response = model.generate_content(prompt)
 
@@ -1107,7 +1107,7 @@ def generate_aptitude_questions(count=5):
             }}
         ]
         """
-        model = _get_generative_model("gemini-2.5-flash")
+        model = _get_generative_model("gemini-1.5-flash")
         response = model.generate_content(prompt)
         response_text = response.text.strip()
         
