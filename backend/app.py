@@ -1017,10 +1017,19 @@ def create_drive():
         flash('Company name, job role, and last date are required.', 'error')
         return redirect(url_for('tpo_dashboard'))
     
-    db.execute_query(
-        "INSERT INTO drives (company_name, job_role, job_description, eligibility, last_date, created_by, vacancy_count, departments) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-        (company_name, job_role, job_description, eligibility, last_date, session['user_id'], vacancy_count, departments_str)
-    )
+    # Try inserting with new columns, fallback to old schema if fails (for backward compatibility during migration)
+    try:
+        db.execute_query(
+            "INSERT INTO drives (company_name, job_role, job_description, eligibility, last_date, created_by, vacancy_count, departments) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+            (company_name, job_role, job_description, eligibility, last_date, session['user_id'], vacancy_count, departments_str)
+        )
+    except Exception as e:
+        print(f"[WARNING] Extended insert failed, trying legacy insert: {e}")
+        # Fallback for legacy DB schema
+        db.execute_query(
+            "INSERT INTO drives (company_name, job_role, job_description, eligibility, last_date, created_by) VALUES (%s, %s, %s, %s, %s, %s)",
+            (company_name, job_role, job_description, eligibility, last_date, session['user_id'])
+        )
     
     flash('Placement drive created successfully!', 'success')
     return redirect(url_for('tpo_dashboard'))
