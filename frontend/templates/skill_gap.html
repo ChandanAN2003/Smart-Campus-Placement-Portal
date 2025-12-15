@@ -235,7 +235,7 @@
 
             } catch (err) {
                 console.error(err);
-                alert('Analysis failed. Please try again.');
+                alert('Analysis failed: ' + (err.message || 'Unknown error'));
             } finally {
                 document.getElementById('loading').style.display = 'none';
             }
