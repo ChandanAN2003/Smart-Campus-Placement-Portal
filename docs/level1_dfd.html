@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Level 1 DFD - Smart Placement Portal</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #ecf0f1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        h2 {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: #e2e8f0;
+        }
+
+        #dfd-container {
+            position: relative;
+            width: 1200px;
+            /* Increased width */
+            height: 750px;
+            /* Increased height */
+            margin-top: 40px;
+        }
+
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        line,
+        path {
+            stroke: #94a3b8;
+            stroke-width: 1.5;
+            fill: none;
+        }
+
+        .node {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 2;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s;
+        }
+
+        .node:hover {
+            transform: scale(1.05);
+        }
+
+        /* ENTITIES */
+        .entity {
+            width: 140px;
+            height: 60px;
+            border: 2px solid #38bdf8;
+            color: #38bdf8;
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 4px;
+        }
+
+        /* PROCESSES */
+        .process {
+            width: 160px;
+            height: 50px;
+            border: 2px solid #4ade80;
+            color: #4ade80;
+            background: #022c22;
+            border-radius: 25px;
+        }
+
+        /* DATA STORES */
+        .datastore {
+            width: 120px;
+            height: 40px;
+            border: 2px solid #f472b6;
+            color: #f472b6;
+            background: rgba(80, 7, 36, 0.3);
+            border-left: 6px solid #f472b6;
+        }
+
+        /* RE-POSITIONING FOR CLARITY */
+
+        /* Left Column: Student */
+        #ent-student {
+            top: 45%;
+            left: 30px;
+        }
+
+        /* Center-Left: Auth & Resume */
+        #p1-auth {
+            top: 15%;
+            left: 300px;
+        }
+
+        #p2-resume {
+            top: 45%;
+            left: 300px;
+        }
+
+        #p5-app {
+            bottom: 10%;
+            left: 300px;
+        }
+
+        /* Center-Right: Drives & Stores */
+        #d1-users {
+            top: 15%;
+            left: 550px;
+        }
+
+        #d2-resumes {
+            top: 35%;
+            left: 550px;
+        }
+
+        #d4-apps {
+            bottom: 15%;
+            left: 550px;
+        }
+
+        /* Far Right: TPO, AI, Drive Store */
+        #ent-tpo {
+            top: 10%;
+            right: 50px;
+        }
+
+        #p3-drive {
+            top: 25%;
+            right: 50px;
+        }
+
+        #d3-drives {
+            top: 38%;
+            right: 50px;
+        }
+
+        #p4-ai {
+            top: 55%;
+            left: 600px;
+        }
+
+        #ent-gemini {
+            top: 55%;
+            right: 50px;
+        }
+
+        /* Labels */
+        .label {
+            position: absolute;
+            font-size: 11px;
+            color: #cbd5e1;
+            background: #0f172a;
+            /* Solid bg to hide line crossing */
+            padding: 3px 6px;
+            border-radius: 4px;
+            border: 1px solid #334155;
+            z-index: 3;
+            max-width: 100px;
+            text-align: center;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>4.2.2 Context Diagram Level 1</h2>
+
+    <div id="dfd-container">
+
+        <svg>
+            <defs>
+                <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" />
+                </marker>
+            </defs>
+
+            <!-- 1. AUTH FLOW -->
+            <!-- Student -> Auth -->
+            <path d="M 100 340 L 100 135 L 300 135" marker-end="url(#arrow)" />
+            <!-- Auth <-> D1 Users -->
+            <line x1="460" y1="135" x2="550" y2="135" marker-end="url(#arrow)" />
+
+            <!-- 2. RESUME FLOW -->
+            <!-- Student -> Resume -->
+            <line x1="170" y1="370" x2="300" y2="370" marker-end="url(#arrow)" />
+            <!-- Resume -> D2 Store -->
+            <path d="M 460 370 L 510 370 L 510 290 L 550 290" marker-end="url(#arrow)" />
+            <!-- Resume -> AI Process -->
+            <line x1="460" y1="380" x2="600" y2="430" marker-end="url(#arrow)" />
+
+            <!-- 3. DRIVE FLOW -->
+            <!-- TPO -> P3 Drive -->
+            <line x1="1120" y1="120" x2="1120" y2="190" marker-end="url(#arrow)" />
+            <!-- P3 -> D3 Drives -->
+            <line x1="1120" y1="240" x2="1120" y2="285" marker-end="url(#arrow)" />
+
+            <!-- 4. AI FLOW -->
+            <!-- P4 -> Gemini -->
+            <line x1="760" y1="440" x2="1080" y2="440" marker-end="url(#arrow)" />
+            <!-- Gemini -> P4 (Implicit return shown by line arrow logic? Let's add explicit return) -->
+            <!-- P4 -> D2 Update Score (Line to Store D2) -->
+            <path d="M 680 410 L 680 300 L 660 300" marker-end="url(#arrow)" />
+
+            <!-- FEEDBACK LOOP -->
+            <!-- P4 -> Student -->
+            <path d="M 680 460 L 680 500 L 170 500 L 170 410" marker-end="url(#arrow)" stroke-dasharray="4" />
+
+            <!-- 5. APPLICATION FLOW -->
+            <!-- Student -> P5 App -->
+            <path d="M 100 400 L 100 680 L 300 680" marker-end="url(#arrow)" />
+            <!-- P5 <-> D4 Apps -->
+            <line x1="460" y1="680" x2="550" y2="670" marker-end="url(#arrow)" />
+            <!-- P5 -> TPO List -->
+            <path d="M 460 700 L 1250 700 L 1250 150 L 1190 150" marker-end="url(#arrow)" style="opacity: 0.3" />
+
+        </svg>
+
+        <!-- LABELS -->
+        <div class="label" style="top: 115px; left: 160px;">Login Creds</div>
+        <div class="label" style="top: 115px; left: 490px;">Validate</div>
+
+        <div class="label" style="top: 350px; left: 200px;">Upload PDF</div>
+        <div class="label" style="top: 270px; left: 500px;">Save File</div>
+
+        <div class="label" style="top: 390px; left: 520px;">Extract Text</div>
+        <div class="label" style="top: 420px; left: 850px;">Req: Analysis</div>
+        <div class="label" style="top: 290px; left: 685px;">Update Score</div>
+
+        <div class="label" style="top: 505px; left: 350px;">Feedback & Gaps</div>
+
+        <div class="label" style="top: 155px; right: 80px;">Define Drive</div>
+        <div class="label" style="top: 260px; right: 80px;">Save Data</div>
+
+        <div class="label" style="bottom: 70px; left: 160px;">Apply for Job</div>
+        <div class="label" style="bottom: 80px; left: 490px;">Link StudentID</div>
+
+        <!-- NODES -->
+
+        <!-- Entities -->
+        <div id="ent-student" class="node entity" style="height:80px;">Job Seeker<br>(Student)</div>
+        <div id="ent-tpo" class="node entity">TPO<br>(Admin)</div>
+        <div id="ent-gemini" class="node entity">Gemini AI<br>(Google)</div>
+
+        <!-- Processes -->
+        <div id="p1-auth" class="node process">1.0<br>Manage Access</div>
+        <div id="p2-resume" class="node process">2.0<br>Parse Resume</div>
+        <div id="p3-drive" class="node process">3.0<br>Manage Drives</div>
+        <div id="p4-ai" class="node process">4.0<br>Analyze Gaps</div>
+        <div id="p5-app" class="node process">5.0<br>Application</div>
+
+        <!-- Data Stores -->
+        <div id="d1-users" class="node datastore">D1 User DB</div>
+        <div id="d2-resumes" class="node datastore">D2 Resumes</div>
+        <div id="d3-drives" class="node datastore">D3 Drives</div>
+        <div id="d4-apps" class="node datastore">D4 Activity</div>
+
+    </div>
+
+    <div class="controls">
+        <button onclick="downloadImage()">Download HD Image</button>
+    </div>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        function downloadImage() {
+            const element = document.body;
+            document.querySelector('.controls').style.display = 'none';
+            // Increase scale for better text quality
+            html2canvas(element, { scale: 3 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Level1_DFD_Fixed.png';
+                link.href = canvas.toDataURL();
+                link.click();
+                document.querySelector('.controls').style.display = 'block';
+            });
+        }
+    </script>
+</body>
+
+</html>

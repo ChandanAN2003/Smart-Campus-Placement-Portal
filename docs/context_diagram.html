@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Context Diagram - Level 0 DFD</title>
+    <!-- Import Mermaid -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.0/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 1400px;
+            width: 95%;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .btn-group {
+            margin-top: 20px;
+        }
+
+        .btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 0 5px;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        #diagram-container {
+            margin-top: 30px;
+            overflow-x: auto;
+            border: 1px solid #eee;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="card">
+        <h2>System Context Diagram (DFD Level 0)</h2>
+        <p>Data Flow between External Entities and the Placement Portal</p>
+
+        <div id="diagram-container">
+            <div class="mermaid">
+                %%{init: {'theme': 'base', 'themeVariables': { 'fontSize': '16px', 'fontFamily': 'arial',
+                'primaryColor': '#fff', 'edgeLabelBackground':'#fff'}}}%%
+                flowchart LR
+                %% Define External Entities (Rectangles)
+                Student[Student]
+                TPO[Placement Officer]
+                HOD[HOD]
+                Gemini[Google Gemini AI]
+                Email[Email Server]
+
+                %% Define System (Circle/Rounded)
+                System(((Smart Placement<br />Portal)))
+
+                %% Styles
+                classDef entity fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1,rx:5,ry:5;
+                classDef mainSystem fill:#fff3e0,stroke:#ef6c00,stroke-width:3px,color:#ef6c00,font-weight:bold;
+
+                class Student,TPO,HOD,Gemini,Email entity;
+                class System mainSystem;
+
+                %% Data Flows
+                Student -- Register / Upload Resume --> System
+                System -- Match Score / Feedback --> Student
+
+                TPO -- Post Drives --> System
+                System -- Applicant List --> TPO
+
+                HOD -- Verify Student --> System
+                System -- Dept Reports --> HOD
+
+                System -- Resume Text --> Gemini
+                Gemini -- Analysis Result --> System
+
+                System -- Trigger Mail --> Email
+                Email -- Deliver Mail --> Student
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn" onclick="saveSvg()">Download SVG</button>
+            <button class="btn" onclick="savePng()">Download PNG (High Res)</button>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+
+        function saveSvg() {
+            const svg = document.querySelector(".mermaid svg");
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = "Context_Diagram.svg";
+            link.click();
+        }
+
+        function savePng() {
+            const svg = document.querySelector(".mermaid svg");
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const img = new Image();
+
+            // Convert SVG to Base64 for Image source
+            img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgData)));
+
+            img.onload = function () {
+                const canvas = document.createElement("canvas");
+                // Scale up for high resolution
+                const scale = 3;
+                const width = svg.getBoundingClientRect().width * scale;
+                const height = svg.getBoundingClientRect().height * scale;
+
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext("2d");
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(0, 0, width, height); // White background
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const pngUrl = canvas.toDataURL("image/png");
+                const link = document.createElement("a");
+                link.href = pngUrl;
+                link.download = "Context_Diagram_HD.png";
+                link.click();
+            };
+        }
+    </script>
+
+</body>
+
+</html>

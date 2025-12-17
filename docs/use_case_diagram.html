@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Use Case Diagram</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0d1117;
+            /* Dark GitHub-like background */
+            color: #ecf0f1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        h2 {
+            position: absolute;
+            top: 20px;
+            left: 40px;
+            font-weight: 300;
+            color: #58a6ff;
+            letter-spacing: 2px;
+        }
+
+        #diagram-container {
+            position: relative;
+            width: 1100px;
+            height: 700px;
+            border-radius: 12px;
+        }
+
+        /* SVG Connections Layer */
+        #connections-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        line,
+        path {
+            stroke: #8b949e;
+            stroke-width: 1.5;
+            fill: none;
+        }
+
+        /* SYSTEM BOUNDARY BOX */
+        .system-boundary {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 600px;
+            border: 2px solid #30363d;
+            border-radius: 20px;
+            background: rgba(22, 27, 34, 0.5);
+            z-index: 0;
+        }
+
+        .boundary-label {
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: #0d1117;
+            padding: 0 10px;
+            color: #8b949e;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* ACTORS (SVG) */
+        .actor {
+            position: absolute;
+            width: 80px;
+            height: 120px;
+            z-index: 2;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: #a5d6ff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .actor-svg {
+            width: 50px;
+            height: 80px;
+            margin-bottom: 5px;
+            stroke: #58a6ff;
+            stroke-width: 2.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .actor-svg circle {
+            fill: #0d1117;
+            /* Hide lines behind head */
+        }
+
+        /* USE CASES (Ovals) */
+        .usecase {
+            position: absolute;
+            width: 180px;
+            height: 50px;
+            border: 2px solid #2ea043;
+            /* Green */
+            background: #0d1117;
+            color: #7ee787;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-size: 13px;
+            z-index: 2;
+            box-shadow: 0 0 10px rgba(46, 160, 67, 0.2);
+            transition: all 0.3s;
+        }
+
+        .usecase:hover {
+            background: #2ea043;
+            color: #fff;
+            box-shadow: 0 0 20px #2ea043;
+        }
+
+        /* AI Service Box */
+        .ai-service {
+            position: absolute;
+            width: 90px;
+            height: 60px;
+            right: 50px;
+            top: 50%;
+            border: 2px solid #a371f7;
+            /* Purple */
+            color: #d2a8ff;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(163, 113, 247, 0.3);
+            background: #0d1117;
+            z-index: 2;
+        }
+
+        /* Positioning Actors */
+        #student {
+            top: 50%;
+            left: 50px;
+            transform: translateY(-50%);
+        }
+
+        #tpo {
+            top: 50px;
+            left: 50px;
+        }
+
+        #hod {
+            bottom: 50px;
+            left: 50px;
+        }
+
+        /* Positioning Use Cases (Inside Box) */
+        #uc-manage-drive {
+            top: 80px;
+            left: 350px;
+        }
+
+        #uc-register {
+            top: 150px;
+            left: 350px;
+        }
+
+        #uc-upload {
+            top: 250px;
+            left: 350px;
+        }
+
+        #uc-apply {
+            top: 320px;
+            left: 350px;
+        }
+
+        #uc-mock {
+            top: 390px;
+            left: 350px;
+        }
+
+        #uc-verify {
+            top: 500px;
+            left: 350px;
+        }
+
+        /* AI */
+        #ai-node {
+            top: 320px;
+            right: 80px;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+        }
+
+        button {
+            padding: 10px 24px;
+            background: #238636;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="diagram-container">
+        <!-- System Boundary -->
+        <div class="system-boundary">
+            <div class="boundary-label">Smart Placement Portal</div>
+        </div>
+
+        <!-- SVG Connections Layer -->
+        <svg id="connections-layer">
+            <defs>
+                <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#8b949e" />
+                </marker>
+            </defs>
+
+            <!-- TPO Connections -->
+            <line x1="90" y1="130" x2="350" y2="105" /> <!-- TPO -> Drive -->
+            <line x1="90" y1="130" x2="350" y2="175" /> <!-- TPO -> Login -->
+
+            <!-- Student Connections -->
+            <line x1="120" y1="350" x2="350" y2="175" /> <!-- Student -> Login -->
+            <line x1="120" y1="350" x2="350" y2="275" /> <!-- Student -> Upload -->
+            <line x1="120" y1="350" x2="350" y2="345" /> <!-- Student -> Apply -->
+            <line x1="120" y1="350" x2="350" y2="415" /> <!-- Student -> Mock -->
+
+            <!-- HOD Connections -->
+            <line x1="90" y1="580" x2="350" y2="175" /> <!-- HOD -> Login -->
+            <line x1="90" y1="580" x2="350" y2="525" /> <!-- HOD -> Verify -->
+
+            <!-- AI Includes (Dashed Lines) -->
+            <line x1="530" y1="275" x2="1020" y2="350" stroke-dasharray="5,5" marker-end="url(#arrow)" />
+            <line x1="530" y1="415" x2="1020" y2="350" stroke-dasharray="5,5" marker-end="url(#arrow)" />
+
+        </svg>
+
+        <!-- ACTORS (INLINED SVG TO FIX HTML2CANVAS ISSUE) -->
+        <div id="tpo" class="actor">
+            <svg class="actor-svg" viewBox="0 0 50 100">
+                <circle cx="25" cy="15" r="10" />
+                <line x1="25" y1="25" x2="25" y2="65" />
+                <line x1="25" y1="35" x2="5" y2="55" />
+                <line x1="25" y1="35" x2="45" y2="55" />
+                <line x1="25" y1="65" x2="10" y2="95" />
+                <line x1="25" y1="65" x2="40" y2="95" />
+            </svg>
+            TPO
+        </div>
+
+        <div id="student" class="actor">
+            <svg class="actor-svg" viewBox="0 0 50 100">
+                <circle cx="25" cy="15" r="10" />
+                <line x1="25" y1="25" x2="25" y2="65" />
+                <line x1="25" y1="35" x2="5" y2="55" />
+                <line x1="25" y1="35" x2="45" y2="55" />
+                <line x1="25" y1="65" x2="10" y2="95" />
+                <line x1="25" y1="65" x2="40" y2="95" />
+            </svg>
+            Job Seeker<br>(Student)
+        </div>
+
+        <div id="hod" class="actor">
+            <svg class="actor-svg" viewBox="0 0 50 100">
+                <circle cx="25" cy="15" r="10" />
+                <line x1="25" y1="25" x2="25" y2="65" />
+                <line x1="25" y1="35" x2="5" y2="55" />
+                <line x1="25" y1="35" x2="45" y2="55" />
+                <line x1="25" y1="65" x2="10" y2="95" />
+                <line x1="25" y1="65" x2="40" y2="95" />
+            </svg>
+            HOD
+        </div>
+
+        <!-- AI SERVICE -->
+        <div id="ai-node" class="ai-service">
+            AI Service
+        </div>
+
+        <!-- USE CASES -->
+        <div id="uc-manage-drive" class="usecase">Manage Drives</div>
+        <div id="uc-register" class="usecase">Login / Register</div>
+
+        <div id="uc-upload" class="usecase">Upload Resume</div>
+        <div id="uc-apply" class="usecase">Apply for Job</div>
+        <div id="uc-mock" class="usecase">AI Mock Interview</div>
+
+        <div id="uc-verify" class="usecase">Verify Student</div>
+
+    </div>
+
+    <div class="controls">
+        <button onclick="downloadImage()">Download High Quality</button>
+    </div>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        function downloadImage() {
+            const element = document.body;
+            document.querySelector('.controls').style.display = 'none';
+            // Scale 3 for very high quality
+            html2canvas(element, {
+                scale: 3,
+                useCORS: true,
+                allowTaint: true
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Use_Case_Diagram_SVG.png';
+                link.href = canvas.toDataURL();
+                link.click();
+                document.querySelector('.controls').style.display = 'block';
+            });
+        }
+    </script>
+</body>
+
+</html>

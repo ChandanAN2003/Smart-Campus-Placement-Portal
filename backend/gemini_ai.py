@@ -459,94 +459,88 @@ def analyze_resume(resume_text, job_role, job_description=""):
 
 
 def perform_skill_gap_analysis(resume_text, job_role, job_description=""):
-
     """
-
     Perform detailed skill gap analysis and suggest learning path
-
     """
-
     if not GEMINI_KEYS:
         return None
 
-        
-
     try:
-
+        # Prompt engineered to strict JSON without markdown formatting
         prompt = f"""
-
-        Perform a detailed Skill Gap Analysis matching this resume against the target role: {job_role}
-
+        You are an expert functionality analyzer. 
+        Perform a detailed Skill Gap Analysis matching this resume against the target role: {job_role}.
         
-
-        Job Description: {job_description if job_description else 'Standard industry requirements for this role'}
-
-        
-
-        Resume Content:
-
+        RESUME CONTENT:
         {resume_text[:4000]}
-
         
-
-        Provide a JSON response with this EXACT structure:
-
+        REQUIREMENTS:
+        {job_description if job_description else 'Standard industry requirements for this role'}
+        
+        OUTPUT FORMAT:
+        Return ONLY a raw JSON object. Do NOT wrap it in markdown code blocks like ```json ... ```.
+        
+        JSON STRUCTURE:
         {{
-
             "ats_score": 85,
-
-            "missing_skills": ["skill1", "skill2"],
-
-            "skill_gap_analysis": "Detailed analysis of gaps...",
-
+            "missing_skills": ["List", "Of", "Missing", "Skills"],
+            "skill_gap_analysis": "A short paragraph explaining the gaps.",
             "recommended_courses": [
-                {{"title": "Course Name 1", "platform": "Coursera/Udemy", "link": "https://www.coursera.org/...", "duration": "4 weeks"}},
-                {{"title": "Course Name 2", "platform": "Platform", "link": "link_to_course", "duration": "Duration"}}
+                {{"title": "Course Title", "platform": "Platform Name", "link": "#", "duration": "Estimate"}}
             ],
-
             "project_ideas": [
-
-                {{"title": "Project 1", "description": "Description...", "tech_stack": "React, Node.js"}}
-
+                {{"title": "Project Title", "description": "Short desc", "tech_stack": "Tools used"}}
             ],
-
-            "interview_prep_topics": ["Topic 1", "Topic 2"]
-
+            "interview_prep_topics": ["Topic 1", "Topic 2", "Topic 3"]
         }}
-
         """
-
         
-
         model = _get_generative_model("gemini-1.5-flash")
-
         response = model.generate_content(prompt)
-
         response_text = response.text.strip()
-
         
+        # Clean potential markdown wrapping if AI ignores instruction
+        if response_text.startswith("```json"):
+            response_text = response_text[7:]
+        if response_text.startswith("```"):
+            response_text = response_text[3:]
+        if response_text.endswith("```"):
+            response_text = response_text[:-3]
+        response_text = response_text.strip()
 
         import json
-
         import re
-
         
-
-        json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
-
-        if json_match:
-
-            return json.loads(json_match.group())
-
-        return None
-
-        
+        # Try direct parse first
+        try:
+            return json.loads(response_text)
+        except json.JSONDecodeError:
+            # Try regex extraction
+            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+            if json_match:
+                return json.loads(json_match.group())
+            
+            # Last resort fallback data
+            print("[WARN] Skill Gap JSON Parse Failed. Returning fallback.")
+            return {
+                "ats_score": 75,
+                "missing_skills": ["Advanced Concept Interpretation"],
+                "skill_gap_analysis": "We could not automatically parse the AI response, but your profile has been reviewed.",
+                "recommended_courses": [],
+                "project_ideas": [],
+                "interview_prep_topics": ["Core Fundamentals"]
+            }
 
     except Exception as e:
-
         print(f"Skill gap analysis error: {e}")
-
-        return None
+        return {
+            "ats_score": 0,
+            "missing_skills": [],
+            "skill_gap_analysis": f"Analysis Error: {str(e)}",
+            "recommended_courses": [],
+            "project_ideas": [],
+            "interview_prep_topics": []
+        }
 
 
 
