@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ER Diagram</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap');
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #0f172a;
+            /* Dark Slate */
+            color: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #diagram-container {
+            position: relative;
+            width: 1100px;
+            height: 750px;
+            border-radius: 20px;
+            overflow: hidden;
+            /* Capture clean */
+            background-color: #0f172a;
+            margin-top: 20px;
+        }
+
+        /* Background Grid */
+        .bg-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Entity Box */
+        .entity {
+            position: absolute;
+            width: 140px;
+            background: #1e293b;
+            border: 2px solid #38bdf8;
+            border-radius: 6px;
+            z-index: 2;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .entity-header {
+            background: #0284c7;
+            /* Darker Blue Header */
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-bottom: 2px solid #0f172a;
+        }
+
+        .attributes {
+            padding: 10px;
+            font-size: 13px;
+            color: #cbd5e1;
+            line-height: 1.4;
+        }
+
+        .attr-pk {
+            color: #facc15;
+            font-weight: bold;
+        }
+
+        /* Primary Key Gold */
+        .attr-fk {
+            color: #f472b6;
+            font-style: italic;
+        }
+
+        /* Foreign Key Pink */
+
+        /* Positions */
+        #ent-user {
+            top: 300px;
+            left: 100px;
+        }
+
+        #ent-drive {
+            top: 300px;
+            left: 450px;
+        }
+
+        #ent-app {
+            top: 550px;
+            left: 450px;
+            width: 160px;
+        }
+
+        #ent-resume {
+            top: 70px;
+            left: 100px;
+        }
+
+        #ent-notif {
+            top: 550px;
+            left: 100px;
+        }
+
+        #ent-offer {
+            top: 550px;
+            left: 800px;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            z-index: 10;
+        }
+
+        button {
+            padding: 12px 30px;
+            background: #0284c7;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="diagram-container">
+
+        <div class="bg-grid"></div>
+
+        <!-- Relations SVG -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="1100" height="750"
+            style="position:absolute; top:0; left:0; pointer-events:none; z-index:1;">
+
+            <!-- Crow's Foot Notation Logic (Simplified lines for now) -->
+
+            <!-- Users -> Resumes (1:N) -->
+            <path d="M 170 300 L 170 230" stroke="#94a3b8" stroke-width="2" />
+            <!-- Crow Foot Top -->
+            <path d="M 160 230 L 170 210 L 180 230 M 170 230 L 170 185" stroke="#94a3b8" stroke-width="2" fill="none" />
+            <circle cx="170" cy="200" r="4" fill="#94a3b8" /> needed? No just simple lines for visual
+
+            <!-- Users -> Notifications (1:N) -->
+            <path d="M 170 480 L 170 550" stroke="#94a3b8" stroke-width="2" />
+
+            <!-- Users -> Drives (1:N) - TPO creates Drives -->
+            <path d="M 240 360 L 450 360" stroke="#94a3b8" stroke-width="2" />
+            <text x="320" y="350" fill="#94a3b8" font-size="12">Creats</text>
+
+            <!-- Drives -> Applications (1:N) -->
+            <path d="M 520 480 L 520 550" stroke="#94a3b8" stroke-width="2" />
+
+            <!-- Users (Student) -> Applications (1:N) -->
+            <!-- Curve from User to App -->
+            <path d="M 170 480 Q 170 650 450 650" stroke="#94a3b8" stroke-width="2" fill="none" />
+
+            <!-- Application -> Offer Letter (1:1) -->
+            <path d="M 610 600 L 800 600" stroke="#94a3b8" stroke-width="2" />
+
+        </svg>
+
+        <!-- ENTITIES -->
+
+        <!-- USERS -->
+        <div id="ent-user" class="entity">
+            <div class="entity-header">Users</div>
+            <div class="attributes">
+                <span class="attr-pk">PK id</span><br>
+                name<br>
+                email<br>
+                password_hash<br>
+                role (Enum)<br>
+                department<br>
+                is_approved
+            </div>
+        </div>
+
+        <!-- RESUMES -->
+        <div id="ent-resume" class="entity">
+            <div class="entity-header">Resumes</div>
+            <div class="attributes">
+                <span class="attr-pk">PK id</span><br>
+                <span class="attr-fk">FK user_id</span><br>
+                file_path<br>
+                job_fit_score<br>
+                feedback
+            </div>
+        </div>
+
+        <!-- NOTIFICATIONS -->
+        <div id="ent-notif" class="entity">
+            <div class="entity-header">Notifications</div>
+            <div class="attributes">
+                <span class="attr-pk">PK id</span><br>
+                <span class="attr-fk">FK user_id</span><br>
+                message<br>
+                is_read<br>
+                type
+            </div>
+        </div>
+
+        <!-- DRIVES -->
+        <div id="ent-drive" class="entity">
+            <div class="entity-header">Drives</div>
+            <div class="attributes">
+                <span class="attr-pk">PK id</span><br>
+                <span class="attr-fk">FK created_by</span><br>
+                company_name<br>
+                job_role<br>
+                salary_package<br>
+                status<br>
+                last_date
+            </div>
+        </div>
+
+        <!-- APPLICATIONS -->
+        <div id="ent-app" class="entity">
+            <div class="entity-header">Applications</div>
+            <div class="attributes">
+                <span class="attr-pk">PK id</span><br>
+                <span class="attr-fk">FK student_id</span><br>
+                <span class="attr-fk">FK drive_id</span><br>
+                status (Applied/Selected)<br>
+                applied_at
+            </div>
+        </div>
+
+        <!-- OFFERS -->
+        <div id="ent-offer" class="entity">
+            <div class="entity-header">Offer Letters</div>
+            <div class="attributes">
+                <span class="attr-pk">PK id</span><br>
+                <span class="attr-fk">FK application_id</span><br>
+                file_path<br>
+                issued_date
+            </div>
+        </div>
+
+    </div>
+
+    <div class="controls">
+        <button onclick="downloadImage()">Download ER Diagram</button>
+    </div>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        function downloadImage() {
+            const element = document.body;
+            document.querySelector('.controls').style.display = 'none';
+            html2canvas(element, { scale: 3 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'ER_Diagram.png';
+                link.href = canvas.toDataURL();
+                link.click();
+                document.querySelector('.controls').style.display = 'block';
+            });
+        }
+    </script>
+</body>
+
+</html>
