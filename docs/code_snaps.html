@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Code Snaps</title>
+    <!-- Highlight.js for Syntax Highlighting -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+            color: #38bdf8;
+        }
+
+        /* Container for each snippet */
+        .snippet-container {
+            margin-bottom: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* The 'Carbon' style window */
+        .code-window {
+            background: #1e1e1e;
+            /* VS Code Dark */
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 900px;
+            /* Wider for full lines */
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #333;
+        }
+
+        /* Window Header (Mac style dots) */
+        .window-header {
+            background: #2d2d2d;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .red {
+            background: #ff5f56;
+        }
+
+        .yellow {
+            background: #ffbd2e;
+        }
+
+        .green {
+            background: #27c93f;
+        }
+
+        .filename {
+            margin-left: 20px;
+            color: #999;
+            font-size: 14px;
+            font-family: monospace;
+        }
+
+        /* Code Content */
+        pre {
+            margin: 0;
+            padding: 0;
+        }
+
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            padding: 20px !important;
+            display: block;
+            overflow-x: auto;
+        }
+
+        /* Download Button */
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #7dd3fc;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Project Code Snippets</h1>
+
+    <!-- 1. Resume Analysis -->
+    <div class="snippet-container">
+        <div class="code-window" id="snap-1">
+            <div class="window-header">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+                <span class="filename">backend/gemini_ai.py</span>
+            </div>
+            <pre><code class="language-python">def analyze_resume(resume_text, job_role, job_description=""):
+    if not GEMINI_KEYS:
+        return {'error': 'API key not configured'}
+
+    prompt = f"""
+    Analyze this resume for the role: {job_role}
+    Job Description: {job_description if job_description else 'Not provided'}
+    Resume Content: {resume_text[:5000]}
+    
+    Please provide a JSON response with the following structure:
+    {{
+        "skills": ["skill1", "skill2"],
+        "education": "Summary of education",
+        "job_fit_score": 85,
+        "suggestions": "Improvement suggestions"
+    }}
+    
+    Calculate job_fit_score (0-100) based on:
+    - Relevant skills match
+    - Education alignment
+    - Overall fit for the role
+    """
+
+    model = _get_generative_model("gemini-1.5-flash")
+    response = model.generate_content(prompt)
+    
+    response_text = response.text.strip()
+    import json
+    import re
+    
+    json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
+    if json_match:
+        try:
+            return json.loads(json_match.group())
+        except json.JSONDecodeError:
+            return {'job_fit_score': 0}
+    
+    return {'job_fit_score': 0}</code></pre>
+        </div>
+        <button onclick="downloadSnap('snap-1', '1_AI_Resume_Analysis.png')">Download Image 1</button>
+    </div>
+
+    <!-- 2. Mock Test Generator -->
+    <div class="snippet-container">
+        <div class="code-window" id="snap-2">
+            <div class="window-header">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+                <span class="filename">backend/gemini_ai.py</span>
+            </div>
+            <pre><code class="language-python">def generate_mock_test(job_role, difficulty="Medium"):
+    domain_instruction = "technical coding" if "developer" in job_role.lower() else "aptitude"
+    
+    prompt = f"""
+    Generate a professional mock test for the role: {job_role}
+    Difficulty: {difficulty}
+    
+    Generate 5 {domain_instruction} multiple choice questions (MCQs).
+    Provide JSON response in this format:
+    [
+        {{
+            "id": 1,
+            "question": "Question text...",
+            "options": ["Option A", "Option B", "Option C", "Option D"],
+            "correct_answer": "Option A",
+            "explanation": "Why it is correct..."
+        }}
+    ]
+    """
+    
+    try:
+        model = _get_generative_model("gemini-1.5-flash")
+        response = model.generate_content(prompt)
+        
+        import json
+        import re
+        
+        json_match = re.search(r'\[.*\]', response.text.strip(), re.DOTALL)
+        if json_match:
+             return json.loads(json_match.group())
+        
+        return fallback_questions
+    except Exception:
+        return fallback_questions</code></pre>
+        </div>
+        <button onclick="downloadSnap('snap-2', '2_AI_Mock_Test.png')">Download Image 2</button>
+    </div>
+
+    <!-- 3. Secure Auth Logic -->
+    <div class="snippet-container">
+        <div class="code-window" id="snap-3">
+            <div class="window-header">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+                <span class="filename">backend/app.py</span>
+            </div>
+            <pre><code class="language-python">@app.route('/login', methods=['POST'])
+def login():
+    email = request.form.get('email')
+    password = request.form.get('password')
+    
+    if not email or not password:
+        flash('Email and password are required.', 'error')
+        return redirect(url_for('index'))
+    
+    user = db.execute_query(
+        "SELECT * FROM users WHERE email = %s",
+        (email,),
+        fetch_one=True
+    )
+    
+    if user and check_password_hash(user['password_hash'], password):
+        if not user['is_approved'] and user['role'] != 'tpo':
+            flash('Your account is pending approval from HOD.', 'warning')
+            return redirect(url_for('index'))
+        
+        session['user_id'] = user['id']
+        session['role'] = user['role']
+        
+        flash(f'Welcome, {user["name"]}!', 'success')
+        return redirect(url_for('dashboard'))
+    else:
+        flash('Invalid email or password.', 'error')
+        return redirect(url_for('index'))</code></pre>
+        </div>
+        <button onclick="downloadSnap('snap-3', '3_Secure_Auth.png')">Download Image 3</button>
+    </div>
+
+    <!-- 4. TPO Dashboard Analytics -->
+    <div class="snippet-container">
+        <div class="code-window" id="snap-4">
+            <div class="window-header">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+                <span class="filename">backend/app.py</span>
+            </div>
+            <pre><code class="language-python">@app.route('/tpo/dashboard')
+@login_required
+@role_required('tpo')
+def tpo_dashboard():
+    total_students = db.execute_query(
+        "SELECT COUNT(*) as count FROM users WHERE role = 'student'",
+        fetch_one=True
+    )
+    
+    active_drives = db.execute_query(
+        "SELECT COUNT(*) as count FROM drives WHERE status = 'active' AND last_date >= CURDATE()",
+        fetch_one=True
+    )
+    
+    total_applications = db.execute_query(
+        "SELECT COUNT(*) as count FROM applications",
+        fetch_one=True
+    )
+    
+    selected_count = db.execute_query(
+        "SELECT COUNT(*) as count FROM applications WHERE status = 'Selected'",
+        fetch_one=True
+    )
+
+    drives = db.execute_query(
+        "SELECT * FROM drives ORDER BY created_at DESC LIMIT 5",
+        fetch_all=True
+    )
+
+    return render_template('tpo_dashboard.html',
+                         total_students=total_students['count'],
+                         active_drives=active_drives['count'],
+                         total_applications=total_applications['count'],
+                         selected_count=selected_count['count'],
+                         drives=drives)</code></pre>
+        </div>
+        <button onclick="downloadSnap('snap-4', '4_TPO_Dashboard.png')">Download Image 4</button>
+    </div>
+
+    <!-- 5. Drive Creation -->
+    <div class="snippet-container">
+        <div class="code-window" id="snap-5">
+            <div class="window-header">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+                <span class="filename">backend/app.py</span>
+            </div>
+            <pre><code class="language-python">@app.route('/tpo/create_drive', methods=['POST'])
+@login_required
+@role_required('tpo')
+def create_drive():
+    company_name = request.form.get('company_name')
+    job_role = request.form.get('job_role')
+    last_date = request.form.get('last_date')
+    vacancy_count = request.form.get('vacancy_count', 0)
+    departments = request.form.getlist('departments')
+    
+    if not all([company_name, job_role, last_date]):
+        flash('Company name, job role and last date are required.', 'error')
+        return redirect(url_for('tpo_dashboard'))
+    
+    dept_string = ",".join(departments) if departments else "All"
+    
+    try:
+        db.execute_query(
+            """INSERT INTO drives 
+               (company_name, job_role, job_description, eligibility, 
+                last_date, vacancy_count, departments, created_by) 
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
+            (company_name, job_role, request.form.get('description'), 
+             request.form.get('eligibility'), last_date, 
+             vacancy_count, dept_string, session['user_id'])
+        )
+        flash('Placement drive created successfully!', 'success')
+    except Exception as e:
+        flash(f'Error creating drive: {e}', 'error')
+        
+    return redirect(url_for('tpo_dashboard'))</code></pre>
+        </div>
+        <button onclick="downloadSnap('snap-5', '5_Drive_Creation.png')">Download Image 5</button>
+    </div>
+
+    <!-- 6. Database Connection -->
+    <div class="snippet-container">
+        <div class="code-window" id="snap-6">
+            <div class="window-header">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+                <span class="filename">backend/database.py</span>
+            </div>
+            <pre><code class="language-python">class Database:
+    def __init__(self):
+        self.host = os.getenv("MYSQL_HOST", "localhost")
+        self.user = os.getenv("MYSQL_USER", "root")
+        self.password = os.getenv("MYSQL_PASSWORD", "")
+        self.database = os.getenv("MYSQL_DB", "placement_portal")
+        self.port = int(os.getenv("MYSQL_PORT", 3306))
+        self.ssl = None
+        
+        if os.getenv("DB_HOST"):
+            self.host = os.getenv("DB_HOST")
+            self.user = os.getenv("DB_USER")
+            self.password = os.getenv("DB_PASS")
+            self.database = os.getenv("DB_NAME")
+            self.port = int(os.getenv("DB_PORT", 4000))
+            self.ssl = {"ca": certifi.where()}
+
+        db_url = f"mysql+pymysql://{self.user}:{parse.quote_plus(self.password)}@{self.host}:{self.port}/{self.database}"
+        
+        self.engine = create_engine(
+            db_url,
+            poolclass=QueuePool,
+            pool_size=10,
+            pool_recycle=1800,
+            connect_args={"ssl": self.ssl} if self.ssl else {}
+        )</code></pre>
+        </div>
+        <button onclick="downloadSnap('snap-6', '6_DB_Connection.png')">Download Image 6</button>
+    </div>
+
+    <!-- 7. Email Automation -->
+    <div class="snippet-container">
+        <div class="code-window" id="snap-7">
+            <div class="window-header">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+                <span class="filename">backend/mail_utils.py</span>
+            </div>
+            <pre><code class="language-python">def send_application_update_email(student_email, student_name, company_name, job_role, status, offer_letter_path=None):
+    from gemini_ai import generate_email_content
+    
+    email_type = 'offer' if status == 'Selected' else ('shortlist' if status == 'Shortlisted' else 'rejection')
+    
+    email_content = generate_email_content(
+        email_type=email_type,
+        recipient_name=student_name,
+        company_name=company_name,
+        job_role=job_role
+    )
+    
+    html_body = f"""
+    <html>
+    <body>
+        <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h2 style="color: #2c3e50;">Application Update</h2>
+            <div style="background-color: #f4f4f4; padding: 15px;">
+                {email_content['body'].replace(chr(10), '<br>')}
+            </div>
+            <p><strong>Status:</strong> {status}</p>
+        </div>
+    </body>
+    </html>
+    """
+    
+    attachments = [offer_letter_path] if offer_letter_path and os.path.exists(offer_letter_path) else None
+    
+    return send_email(
+        to=student_email,
+        subject=email_content['subject'],
+        body=email_content['body'],
+        html_body=html_body,
+        attachments=attachments
+    )</code></pre>
+        </div>
+        <button onclick="downloadSnap('snap-7', '7_Email_Automation.png')">Download Image 7</button>
+    </div>
+
+    <!-- 8. Schema -->
+    <div class="snippet-container">
+        <div class="code-window" id="snap-8">
+            <div class="window-header">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+                <span class="filename">database/schema.sql</span>
+            </div>
+            <pre><code class="language-sql">CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role ENUM('student','hod','tpo') NOT NULL,
+    department VARCHAR(100),
+    is_approved BOOLEAN DEFAULT FALSE,
+    score INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS applications (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    drive_id INT NOT NULL,
+    status ENUM('Applied','Shortlisted','Selected','Rejected') DEFAULT 'Applied',
+    applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(student_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(drive_id) REFERENCES drives(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_application (student_id, drive_id)
+);</code></pre>
+        </div>
+        <button onclick="downloadSnap('snap-8', '8_Schema.png')">Download Image 8</button>
+    </div>
+
+    <!-- 9. Frontend Fetch -->
+    <div class="snippet-container">
+        <div class="code-window" id="snap-9">
+            <div class="window-header">
+                <div class="dot red"></div>
+                <div class="dot yellow"></div>
+                <div class="dot green"></div>
+                <span class="filename">static/js/script.js</span>
+            </div>
+            <pre><code class="language-javascript">async function fetchData(url, options = {}) {
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            },
+            ...options
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Fetch error:', error);
+        throw error;
+    }
+}
+
+function markNotificationAsRead(notifId) {
+    fetchData(`/api/notifications/mark_read/${notifId}`, {
+        method: 'POST'
+    }).then(data => {
+        if (data.success) {
+            const notifElement = document.getElementById(`notification-${notifId}`);
+            if (notifElement) {
+                notifElement.style.opacity = '0.5';
+            }
+        }
+    });
+}</code></pre>
+        </div>
+        <button onclick="downloadSnap('snap-9', '9_Frontend_Fetch.png')">Download Image 9</button>
+    </div>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        hljs.highlightAll();
+
+        function downloadSnap(elementId, filename) {
+            const element = document.getElementById(elementId);
+            html2canvas(element, { scale: 3 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+    </script>
+</body>
+
+</html>
