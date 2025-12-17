@@ -42,6 +42,25 @@
             /* background: rgba(255,255,255,0.01); */
             border-radius: 20px;
             margin-top: 20px;
+            overflow: hidden;
+            /* Contain grid */
+            background-color: #0f172a;
+            /* Ensure bg color is captured */
+        }
+
+        /* Background Grid (Moved Inside) */
+        .bg-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
         }
 
         /* SVG Layer */
@@ -49,8 +68,8 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            width: 1100px;
+            height: 750px;
             pointer-events: none;
             z-index: 1;
         }
@@ -182,67 +201,69 @@
 
 <body>
 
-    <div class="bg-grid"></div>
-
     <div id="diagram-container">
 
-        <svg>
-            <defs>
-                <!-- Small Triangle Arrowhead for Links -->
-                <marker id="arrow-small" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
-                    <polygon points="0 0, 8 3, 0 6" fill="#475569" />
-                </marker>
-            </defs>
+        <div class="bg-grid"></div>
 
-            <!-- 1. LINKS (Structural Connections) -->
-            <!-- Student --- Frontend -->
-            <line x1="160" y1="385" x2="350" y2="385" stroke="#64748b" stroke-width="3" />
+        <svg xmlns="http://www.w3.org/2000/svg" width="1100" height="750"
+            style="position:absolute; top:0; left:0; pointer-events:none; z-index:1;">
 
-            <!-- Frontend --- Controller -->
-            <line x1="510" y1="385" x2="700" y2="385" stroke="#64748b" stroke-width="3" />
+            <!-- 1. STRUCTURAL LINKS (Thick Grey Lines) -->
+            <!-- Student to Frontend -->
+            <path d="M 160 385 L 350 385" stroke="#64748b" stroke-width="3" fill="none" />
 
-            <!-- Controller --- Database -->
-            <line x1="780" y1="350" x2="780" y2="170" stroke="#64748b" stroke-width="3" />
+            <!-- Frontend to Controller -->
+            <path d="M 510 385 L 700 385" stroke="#64748b" stroke-width="3" fill="none" />
 
-            <!-- Controller --- AI -->
-            <line x1="780" y1="420" x2="780" y2="650" stroke="#64748b" stroke-width="3" />
+            <!-- Controller to Database -->
+            <path d="M 780 350 L 780 170" stroke="#64748b" stroke-width="3" fill="none" />
 
-            <!-- 2. MESSAGE 1: Upload -->
-            <!-- Arrow -->
-            <polygon points="240,375 250,375 245,380" class="msg-arrow" transform="translate(10, -5)" />
-            <!-- Move arrow next to line pointing right -->
-            <path d="M 220 375 L 250 375" stroke="#4ade80" stroke-width="2" marker-end="url(#arrow-small-green)" />
-            <!-- We draw custom small arrows for distinct "flow" look -->
-            <!-- Arrow 1: Right -->
-            <path d="M 230 375 L 250 375 L 245 370 M 250 375 L 245 380" stroke="#4ade80" stroke-width="2" fill="none" />
-            <text x="180" y="370" class="msg-text">1: Upload Resume</text>
+            <!-- Controller to AI -->
+            <path d="M 780 420 L 780 650" stroke="#64748b" stroke-width="3" fill="none" />
 
-            <!-- 3. MESSAGE 2: POST -->
-            <!-- Arrow 2: Right -->
-            <path d="M 580 375 L 600 375 L 595 370 M 600 375 L 595 380" stroke="#4ade80" stroke-width="2" fill="none" />
-            <text x="530" y="370" class="msg-text">2: POST Data</text>
+            <!-- 2. MESSAGE ARROWS (Green/Blue Flow) -->
 
-            <!-- 4. MESSAGE 7: Render -->
-            <!-- Arrow 7: Left (Below line) -->
-            <path d="M 600 400 L 580 400 L 585 395 M 580 400 L 585 405" stroke="#38bdf8" stroke-width="2" fill="none" />
-            <text x="530" y="415" class="msg-text" fill="#38bdf8">7: Render View</text>
+            <!-- 1: Upload Resume (Right) -->
+            <path d="M 220 375 L 250 375" stroke="#4ade80" stroke-width="2" fill="none" />
+            <path d="M 240 370 L 250 375 L 240 380" fill="none" stroke="#4ade80" stroke-width="2" />
+            <text x="180" y="370" fill="#cbd5e1" font-size="14" font-family="sans-serif" font-weight="bold">1: Upload
+                Resume</text>
 
-            <!-- 5. MESSAGE 5: Save DB (Upward) -->
-            <!-- Next to vertical line, right side -->
-            <path d="M 790 280 L 790 260 L 785 265 M 790 260 L 795 265" stroke="#4ade80" stroke-width="2" fill="none" />
-            <text x="800" y="275" class="msg-text">5: Save Record</text>
+            <!-- 2: POST Data (Right) -->
+            <path d="M 570 375 L 600 375" stroke="#4ade80" stroke-width="2" fill="none" />
+            <path d="M 590 370 L 600 375 L 590 380" fill="none" stroke="#4ade80" stroke-width="2" />
+            <text x="520" y="370" fill="#cbd5e1" font-size="14" font-family="sans-serif" font-weight="bold">2: POST
+                Data</text>
 
-            <!-- 6. MESSAGE 6: Confirm DB (Downward) -->
-            <path d="M 770 260 L 770 280 L 765 275 M 770 280 L 775 275" stroke="#38bdf8" stroke-width="2" fill="none" />
-            <text x="690" y="275" class="msg-text" fill="#38bdf8">6: Confirm</text>
+            <!-- 7: Render View (Left - Blue) -->
+            <path d="M 600 400 L 570 400" stroke="#38bdf8" stroke-width="2" fill="none" />
+            <path d="M 580 395 L 570 400 L 580 405" fill="none" stroke="#38bdf8" stroke-width="2" />
+            <text x="520" y="415" fill="#38bdf8" font-size="14" font-family="sans-serif" font-weight="bold">7: Render
+                View</text>
 
-            <!-- 7. MESSAGE 3: Analyze AI (Downward) -->
-            <path d="M 790 500 L 790 520 L 785 515 M 790 520 L 795 515" stroke="#4ade80" stroke-width="2" fill="none" />
-            <text x="800" y="515" class="msg-text">3: Analyze(Text)</text>
+            <!-- 5: Save Record (Up - Green) -->
+            <path d="M 790 280 L 790 250" stroke="#4ade80" stroke-width="2" fill="none" />
+            <path d="M 785 260 L 790 250 L 795 260" fill="none" stroke="#4ade80" stroke-width="2" />
+            <text x="800" y="270" fill="#cbd5e1" font-size="14" font-family="sans-serif" font-weight="bold">5: Save
+                Record</text>
 
-            <!-- 8. MESSAGE 4: Score (Upward) -->
-            <path d="M 770 520 L 770 500 L 765 505 M 770 500 L 775 505" stroke="#38bdf8" stroke-width="2" fill="none" />
-            <text x="680" y="515" class="msg-text" fill="#38bdf8">4: JSON Score</text>
+            <!-- 6: Confirm (Down - Blue) -->
+            <path d="M 770 250 L 770 280" stroke="#38bdf8" stroke-width="2" fill="none" />
+            <path d="M 765 270 L 770 280 L 775 270" fill="none" stroke="#38bdf8" stroke-width="2" />
+            <text x="690" y="270" fill="#38bdf8" font-size="14" font-family="sans-serif" font-weight="bold">6:
+                Confirm</text>
+
+            <!-- 3: Analyze (Down - Green) -->
+            <path d="M 790 500 L 790 530" stroke="#4ade80" stroke-width="2" fill="none" />
+            <path d="M 785 520 L 790 530 L 795 520" fill="none" stroke="#4ade80" stroke-width="2" />
+            <text x="800" y="520" fill="#cbd5e1" font-size="14" font-family="sans-serif" font-weight="bold">3:
+                Analyze(Text)</text>
+
+            <!-- 4: Score (Up - Blue) -->
+            <path d="M 770 530 L 770 500" stroke="#38bdf8" stroke-width="2" fill="none" />
+            <path d="M 765 510 L 770 500 L 775 510" fill="none" stroke="#38bdf8" stroke-width="2" />
+            <text x="680" y="520" fill="#38bdf8" font-size="14" font-family="sans-serif" font-weight="bold">4: JSON
+                Score</text>
 
         </svg>
 
