@@ -224,7 +224,7 @@ def request_password_reset():
     
     # Send Email
     from mail_utils import send_email
-    send_email(
+    if send_email(
         to=email,
         subject="Password Reset OTP - Placement Portal",
         body=f"Hello {user['name']},\n\nYour OTP for password reset is: {otp}\n\nThis OTP is valid for 10 minutes.\n\nIf you did not request this, please ignore.",
@@ -236,14 +236,16 @@ def request_password_reset():
         <p>This OTP is valid for 10 minutes.</p>
         <p>If you did not request this, please ignore.</p>
         """
-    )
-    
-    flash('OTP sent to your email. Please enter it below.', 'info')
-    # Use a query param or session to trigger the 'verify' form open state if possible, 
-    # but for now user has to manually click "Already have OTP" or we can rely on flash message.
-    # Actually, let's redirect to home but maybe with a clear indication? 
-    # The user will see the flash and stay on index. They must navigate to "Already have OTP".
-    return render_template('index.html', show_verify=True)
+    ):
+        flash('OTP sent to your email. Please enter it below.', 'info')
+        # Use a query param or session to trigger the 'verify' form open state if possible, 
+        # but for now user has to manually click "Already have OTP" or we can rely on flash message.
+        # Actually, let's redirect to home but maybe with a clear indication? 
+        # The user will see the flash and stay on index. They must navigate to "Already have OTP".
+        return render_template('index.html', show_verify=True)
+    else:
+        flash('Failed to send OTP. Please check email configuration.', 'error')
+        return redirect(url_for('index'))
 
 @app.route('/reset_password_with_otp', methods=['POST'])
 def reset_password_with_otp():
