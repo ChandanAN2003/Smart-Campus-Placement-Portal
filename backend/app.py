@@ -26,7 +26,7 @@ backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
 
 from database import db
-from gemini_ai import analyze_resume, generate_email_content, perform_skill_gap_analysis, generate_mock_test
+from gemini_ai import analyze_resume, generate_email_content, perform_skill_gap_analysis, generate_mock_test, chat_with_placement_ai
 from mail_utils import init_mail, send_application_update_email
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
@@ -1337,6 +1337,23 @@ def internal_error(error):
     return render_template('index.html', error='Internal server error'), 500
 
 # ==================== Main ====================
+
+@app.route('/api/general_chat', methods=['POST'])
+@login_required
+def general_chat_api():
+    """API for General Placement Chat"""
+    data = request.json
+    user_message = data.get('message')
+    history = data.get('history', [])
+    language = data.get('language', 'en-US')
+    
+    user_role = session.get('role', 'Student').capitalize()
+    
+    from gemini_ai import chat_with_placement_ai
+    response = chat_with_placement_ai(user_message, history, user_role, language)
+    
+    return jsonify({'response': response})
+
 
 if __name__ == '__main__':
     # Initialize database on first run
