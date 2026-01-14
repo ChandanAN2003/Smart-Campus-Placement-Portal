@@ -151,10 +151,14 @@ def register():
 @app.route('/login', methods=['POST'])
 def login():
     """User login"""
+    print("[DEBUG] Login Request Received")
     email = request.form.get('email')
     password = request.form.get('password')
     
+    print(f"[DEBUG] Email: {email}")
+    
     if not email or not password:
+        print("[DEBUG] Missing email or password")
         flash('Email and password are required.', 'error')
         return redirect(url_for('index'))
     
@@ -164,20 +168,32 @@ def login():
         fetch_one=True
     )
     
-    if user and check_password_hash(user['password_hash'], password):
-        if not user['is_approved'] and user['role'] != 'tpo':
-            flash('Your account is pending approval from HOD.', 'warning')
+    if user:
+        print(f"[DEBUG] User found: {user['id']} - {user['role']}")
+        is_valid = check_password_hash(user['password_hash'], password)
+        print(f"[DEBUG] Password valid: {is_valid}")
+        
+        if is_valid:
+            if not user['is_approved'] and user['role'] != 'tpo':
+                print("[DEBUG] User not approved")
+                flash('Your account is pending approval from HOD.', 'warning')
+                return redirect(url_for('index'))
+            
+            print("[DEBUG] Login successful")
+            session['user_id'] = user['id']
+            session['name'] = user['name']
+            session['email'] = user['email']
+            session['role'] = user['role']
+            session['department'] = user.get('department', '')
+            
+            flash(f'Welcome, {user["name"]}!', 'success')
+            return redirect(url_for('dashboard'))
+        else:
+            print("[DEBUG] Invalid password")
+            flash('Invalid email or password.', 'error')
             return redirect(url_for('index'))
-        
-        session['user_id'] = user['id']
-        session['name'] = user['name']
-        session['email'] = user['email']
-        session['role'] = user['role']
-        session['department'] = user.get('department', '')
-        
-        flash(f'Welcome, {user["name"]}!', 'success')
-        return redirect(url_for('dashboard'))
     else:
+        print("[DEBUG] User not found")
         flash('Invalid email or password.', 'error')
         return redirect(url_for('index'))
 
@@ -1181,10 +1197,27 @@ if __name__ == '__main__':
     # Initialize database on first run
     try:
         from init_db import init_database
-        init_database()
+        # init_database() # Commented out to prevent startup hang on DB error
+        pass
     except Exception as e:
         print(f"Database initialization note: {e}")
     
     # Get PORT from environment (required for Render)
-    port = int(os.environ.get("PORT", 5000))
-    app.run(debug=True, host='0.0.0.0', port=port)
+    port = int(os.environ.get("PORT", 5001))
+    print(f"🚀 Starting Flask server on http://localhost:{port} ...")
+    try:
+        app.run(debug=False, host='0.0.0.0', port=port, threaded=True)
+    except Exception as e:
+        print(f"❌ Failed to start Flask server: {e}")
+
+@app.route('/health')
+def health_check():
+    """Health check endpoint"""
+    status = {'status': 'ok', 'database': 'unknown'}
+    try:
+        db.execute_query("SELECT 1", fetch_one=True)
+        status['database'] = 'connected'
+    except Exception as e:
+        status['database'] = f'error: {str(e)}'
+        status['status'] = 'degraded'
+    return jsonify(status)

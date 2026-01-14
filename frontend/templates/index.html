@@ -7,15 +7,87 @@
     <title>Placement Portal - Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .split-card {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        @media (min-width: 992px) {
+            .split-card {
+                flex-direction: row;
+                max-width: 1100px !important;
+            }
+            .feature-side {
+                flex: 1.2;
+                border-right: 1px solid rgba(0, 212, 255, 0.1);
+            }
+            .form-side {
+                flex: 1;
+            }
+        }
+        
+        .feature-item:hover {
+            transform: translateX(5px);
+            background: rgba(255,255,255,0.02);
+        }
+    </style>
 </head>
 
 <body>
     <div class="auth-container">
-        <div class="card"
+        <div class="card split-card"
             style="max-width: 450px; width: 100%; padding: 0; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); background: rgba(10, 25, 41, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(0, 212, 255, 0.2);">
 
-            <!-- Auth Forms -->
-            <div
+            <!-- Left Side: Feature Showcase (Visible on larger screens) -->
+            <div class="feature-side" style="padding: 3rem; background: rgba(0, 10, 20, 0.3); display: flex; flex-direction: column; justify-content: center;">
+                <div style="margin-bottom: 2.5rem;">
+                    <div style="display: inline-block; padding: 6px 12px; background: rgba(0, 212, 255, 0.15); border-radius: 20px; color: var(--accent); font-size: 0.8rem; font-weight: 700; margin-bottom: 1rem; border: 1px solid rgba(0, 212, 255, 0.3);">
+                        🚀 AI-POWERED PLACEMENT
+                    </div>
+                    <h1 style="font-size: 2.5rem; font-weight: 800; line-height: 1.2; margin-bottom: 1rem; background: linear-gradient(135deg, #fff 0%, var(--primary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        Your Career, <br>Accelerated.
+                    </h1>
+                    <p style="color: var(--text-secondary); font-size: 1.05rem; line-height: 1.6;">
+                        Experience the future of campus placements with our intelligent platform designed to bridge the gap between skills and opportunities.
+                    </p>
+                </div>
+
+                <div class="feature-list" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div class="feature-item" style="display: flex; gap: 1rem; align-items: flex-start; transition: all 0.3s ease; padding: 10px; border-radius: 12px;">
+                        <div style="background: rgba(0, 212, 255, 0.1); width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--accent); flex-shrink: 0;">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <div>
+                            <h3 style="color: var(--text-primary); margin-bottom: 0.25rem; font-size: 1.1rem; font-weight: 600;">Smart Resume Analysis</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Get instant ATS feedback, job fit scores, and improvement tips powered by Gemini AI.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item" style="display: flex; gap: 1rem; align-items: flex-start; transition: all 0.3s ease; padding: 10px; border-radius: 12px;">
+                        <div style="background: rgba(16, 185, 129, 0.1); width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--success); flex-shrink: 0;">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div>
+                            <h3 style="color: var(--text-primary); margin-bottom: 0.25rem; font-size: 1.1rem; font-weight: 600;">Skill Gap Analysis</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Analyze your skills against target roles to generate personalized learning roadmaps.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item" style="display: flex; gap: 1rem; align-items: flex-start; transition: all 0.3s ease; padding: 10px; border-radius: 12px;">
+                        <div style="background: rgba(245, 158, 11, 0.1); width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--warning); flex-shrink: 0;">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>
+                            <h3 style="color: var(--text-primary); margin-bottom: 0.25rem; font-size: 1.1rem; font-weight: 600;">AI Mock Interviews</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Practice with our voice-enabled AI interviewer to gain confidence before the real deal.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Auth Forms -->
+            <div class="form-side"
                 style="padding: 3rem 2.5rem; display: flex; flex-direction: column; justify-content: center; position: relative;">
 
                 {% with messages = get_flashed_messages(with_categories=true) %}
@@ -81,7 +153,7 @@
                         style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--glass-border); text-align: center; color: var(--text-muted); font-size: 0.8rem;">
                         <p style="margin-bottom: 5px;">Demo Credentials:</p>
                         <code
-                            style="background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; color: var(--text-secondary);">student@gmail.com / student123</code>
+                            style="background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; color: var(--text-secondary);">alice@college.edu / student123</code>
                     </div>
                 </div>
 

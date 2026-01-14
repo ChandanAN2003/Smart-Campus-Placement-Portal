@@ -40,8 +40,12 @@ def init_database():
         print("[OK] Database initialized successfully")
 
     except Exception as e:
-        print(f"[ERROR] Database initialization error: {e}")
-        raise
+        print(f"[WARN] Database schema initialization note (ignoring): {e}")
+        # Proceed to create users even if schema exists
+        try:
+            create_default_users()
+        except Exception as e2:
+             print(f"[ERROR] Could not create users: {e2}")
 
 def create_default_users():
     """Create default admin, HOD, and student users"""
