@@ -109,6 +109,13 @@ A next-generation **Campus Placement Automation System** that leverages **Genera
 
 ---
 
+## 🔄 Recent Updates (Jan 2026)
+- **New Login UI**: Redesigned authentication experience with Split-Screen layout and immediate access to AI feature highlights.
+- **Resilient Startup**: Enhanced backend robustness to handle database connectivity issues gracefully during startup.
+- **Deployment Ready**: Configured for Render/TiDB Cloud deployment with optimized settings.
+
+---
+
 ## 🔮 Future Scope
 - **Mobile App**: React Native application for students.
 - **Automated Emailing**: SMTP integration for offer letter dispatch.
@@ -116,4 +123,5 @@ A next-generation **Campus Placement Automation System** that leverages **Genera
 
 ---
 
-**Developed for Final Year Project 2025**
+**Developed for Final Year Project 2026**
+**Authors:** Chandan & Team
