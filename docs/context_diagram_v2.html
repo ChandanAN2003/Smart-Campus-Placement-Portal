@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Context Diagram - Smart Placement Portal</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        h2 {
+            position: absolute;
+            top: 20px;
+            left: 30px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            color: #00fff2;
+            text-shadow: 0 0 10px rgba(0, 255, 242, 0.5);
+        }
+
+        #diagram-container {
+            position: relative;
+            width: 1000px;
+            height: 600px;
+            /* background: rgba(255, 255, 255, 0.02); */
+            border-radius: 20px;
+        }
+
+        /* Connecting Lines (SVG) */
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        line {
+            stroke: rgba(255, 255, 255, 0.3);
+            stroke-width: 2;
+        }
+
+        /* Central System Node */
+        .system-node {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 180px;
+            height: 180px;
+            background: rgba(0, 20, 0, 0.8);
+            border: 3px solid #00ff88;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 0 30px #00ff88;
+            z-index: 2;
+        }
+
+        .system-node span {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ccffdd;
+            text-shadow: 0 0 5px #00ff88;
+        }
+
+        /* Entity Nodes */
+        .entity-node {
+            position: absolute;
+            width: 160px;
+            padding: 15px;
+            background: rgba(0, 20, 40, 0.8);
+            border: 2px solid #00d2ff;
+            border-radius: 10px;
+            text-align: center;
+            color: #e0f7fa;
+            font-weight: 600;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+            z-index: 2;
+            transition: transform 0.3s;
+        }
+
+        .entity-node:hover {
+            transform: scale(1.05);
+            background: rgba(0, 40, 80, 0.9);
+        }
+
+        /* Positioning Entities */
+        #ent-student {
+            top: 10%;
+            left: 10%;
+        }
+
+        #ent-tpo {
+            top: 10%;
+            right: 10%;
+        }
+
+        #ent-hod {
+            bottom: 10%;
+            left: 10%;
+        }
+
+        #ent-gemini {
+            bottom: 10%;
+            right: 10%;
+        }
+
+        #ent-email {
+            top: 50%;
+            right: 5%;
+            transform: translateY(-50%);
+        }
+
+        /* Labels on lines */
+        .label {
+            position: absolute;
+            background: #111;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: #aaa;
+            border: 1px solid #333;
+            z-index: 2;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: transparent;
+            border: 1px solid #00d2ff;
+            color: #00d2ff;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #00d2ff;
+            color: #000;
+            box-shadow: 0 0 20px #00d2ff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>4.2 CONTEXT DIAGRAM</h2>
+
+    <div id="diagram-container">
+
+        <!-- SVG Lines with Arrows -->
+        <svg id="connections">
+            <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#00d2ff" />
+                </marker>
+                <marker id="arrowhead-reverse" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                    <polygon points="10 0, 0 3.5, 10 7" fill="#00d2ff" />
+                </marker>
+            </defs>
+
+            <!-- Student <-> System (Bi-directional) -->
+            <!-- Student to System (Upload) -->
+            <line x1="280" y1="180" x2="430" y2="250" stroke="#00d2ff" stroke-width="2" marker-end="url(#arrowhead)" />
+            <!-- System to Student (Feedback) -->
+            <line x1="450" y1="230" x2="310" y2="150" stroke="#00ff88" stroke-width="2" marker-end="url(#arrowhead)"
+                style="stroke-dasharray: 5,5;" />
+
+            <!-- TPO <-> System -->
+            <!-- TPO to System (Post Drive) -->
+            <line x1="800" y1="180" x2="650" y2="250" stroke="#00d2ff" stroke-width="2" marker-end="url(#arrowhead)" />
+
+            <!-- HOD -> System -->
+            <line x1="280" y1="520" x2="430" y2="400" stroke="#00d2ff" stroke-width="2" marker-end="url(#arrowhead)" />
+
+            <!-- System <-> Gemini -->
+            <!-- System to Gemini (Request) -->
+            <line x1="600" y1="400" x2="750" y2="520" stroke="#00d2ff" stroke-width="2" marker-end="url(#arrowhead)" />
+            <!-- Gemini to System (Response) -->
+            <line x1="780" y1="500" x2="630" y2="380" stroke="#00ff88" stroke-width="2" marker-end="url(#arrowhead)"
+                style="stroke-dasharray: 5,5;" />
+
+            <!-- System -> Email -->
+            <line x1="680" y1="300" x2="840" y2="300" stroke="#00d2ff" stroke-width="2" marker-end="url(#arrowhead)" />
+        </svg>
+
+        <!-- Labels -->
+        <div class="label" style="top: 200px; left: 300px; color:#00d2ff;">1. Upload / Apply</div>
+        <div class="label" style="top: 150px; left: 360px; color:#00ff88; border-color:#00ff88;">2. Feedback</div>
+
+        <div class="label" style="top: 200px; right: 280px;">3. Post Drive</div>
+
+        <div class="label" style="bottom: 230px; left: 280px;">4. Verify Student</div>
+
+        <div class="label" style="bottom: 220px; right: 280px; color:#00d2ff;">5. Resume Text</div>
+        <div class="label" style="bottom: 160px; right: 340px; color:#00ff88; border-color:#00ff88;">6. Risk Scoe</div>
+
+        <div class="label" style="top: 275px; right: 250px;">7. Trigger Mail</div>
+
+        <!-- Nodes -->
+        <div id="ent-student" class="entity-node">
+            STUDENT<br>
+            <span style="font-size: 11px; font-weight: normal; color: #8ecae6;">(User)</span>
+        </div>
+
+        <div id="ent-tpo" class="entity-node">
+            PLACEMENT OFFICER<br>
+            <span style="font-size: 11px; font-weight: normal; color: #8ecae6;">(Admin)</span>
+        </div>
+
+        <div id="ent-email" class="entity-node">
+            EMAIL SERVICE<br>
+            <span style="font-size: 11px; font-weight: normal; color: #8ecae6;">(SMTP)</span>
+        </div>
+
+        <div id="ent-hod" class="entity-node">
+            HOD<br>
+            <span style="font-size: 11px; font-weight: normal; color: #8ecae6;">(Verifier)</span>
+        </div>
+
+        <div id="ent-gemini" class="entity-node">
+            GOOGLE GEMINI<br>
+            <span style="font-size: 11px; font-weight: normal; color: #8ecae6;">(AI Engine)</span>
+        </div>
+
+        <div class="system-node">
+            <span>SMART CAMPUS<br>PLACEMENT PORTAL</span>
+        </div>
+
+    </div>
+
+    <div class="controls">
+        <button onclick="downloadImage()">Download HD Image</button>
+    </div>
+
+    <!-- Script for download (using html2canvas primarily, or canvas drawing) -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        function downloadImage() {
+            const element = document.body; // Capture full body to get background
+
+            // Temporarily hide buttons for screenshot
+            document.querySelector('.controls').style.display = 'none';
+
+            html2canvas(element, {
+                backgroundColor: null, // Keep gradients
+                scale: 2 // High Res
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Context_Diagram_Dark_Theme.png';
+                link.href = canvas.toDataURL();
+                link.click();
+
+                // Restore buttons
+                document.querySelector('.controls').style.display = 'flex';
+            });
+        }
+    </script>
+</body>
+
+</html>

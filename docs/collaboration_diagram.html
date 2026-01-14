@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaboration Diagram</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap');
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #0f172a;
+            /* Dark Slate */
+            color: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Background Grid */
+        .bg-grid {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        #diagram-container {
+            position: relative;
+            width: 1100px;
+            height: 750px;
+            /* background: rgba(255,255,255,0.01); */
+            border-radius: 20px;
+            margin-top: 20px;
+            overflow: hidden;
+            /* Contain grid */
+            background-color: #0f172a;
+            /* Ensure bg color is captured */
+        }
+
+        /* Background Grid (Moved Inside) */
+        .bg-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* SVG Layer */
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1100px;
+            height: 750px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Object Nodes */
+        .obj-node {
+            position: absolute;
+            width: 160px;
+            height: 70px;
+            background: rgba(30, 41, 59, 1);
+            border: 2px solid #38bdf8;
+            /* Sky Blue */
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #e0f2fe;
+            font-weight: bold;
+            font-size: 16px;
+            z-index: 2;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+        }
+
+        .obj-title {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 2px;
+            margin-bottom: 2px;
+        }
+
+        .obj-type {
+            font-size: 12px;
+            color: #94a3b8;
+            font-weight: normal;
+        }
+
+        /* Actor Node */
+        #obj-student {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            color: #38bdf8;
+        }
+
+        .actor-icon {
+            width: 40px;
+            height: 60px;
+            stroke: #38bdf8;
+            stroke-width: 2.5;
+            fill: none;
+            filter: drop-shadow(0 0 5px #38bdf8);
+        }
+
+        /* Positions - Star Topology */
+        #obj-student {
+            top: 350px;
+            left: 100px;
+        }
+
+        #obj-ui {
+            top: 350px;
+            left: 350px;
+        }
+
+        #obj-ctrl {
+            top: 350px;
+            left: 700px;
+        }
+
+        /* Center Hub - shifted right */
+
+        #obj-db {
+            top: 100px;
+            left: 700px;
+        }
+
+        /* Top */
+        #obj-ai {
+            bottom: 100px;
+            left: 700px;
+        }
+
+        /* Bottom */
+
+        /* Message Labels Styles */
+        .msg-text {
+            fill: #cbd5e1;
+            font-size: 14px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+        }
+
+        .msg-bg {
+            fill: #0f172a;
+            opacity: 0.9;
+        }
+
+        /* Arrow Styling */
+        .msg-arrow {
+            fill: #4ade80;
+            /* Green */
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            z-index: 10;
+        }
+
+        button {
+            padding: 12px 30px;
+            background: #0284c7;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="diagram-container">
+
+        <div class="bg-grid"></div>
+
+        <svg xmlns="http://www.w3.org/2000/svg" width="1100" height="750"
+            style="position:absolute; top:0; left:0; pointer-events:none; z-index:1;">
+
+            <!-- 1. STRUCTURAL LINKS (Thick Grey Lines) -->
+            <!-- Student to Frontend -->
+            <path d="M 160 385 L 350 385" stroke="#64748b" stroke-width="3" fill="none" />
+
+            <!-- Frontend to Controller -->
+            <path d="M 510 385 L 700 385" stroke="#64748b" stroke-width="3" fill="none" />
+
+            <!-- Controller to Database -->
+            <path d="M 780 350 L 780 170" stroke="#64748b" stroke-width="3" fill="none" />
+
+            <!-- Controller to AI -->
+            <path d="M 780 420 L 780 650" stroke="#64748b" stroke-width="3" fill="none" />
+
+            <!-- 2. MESSAGE ARROWS (Green/Blue Flow) -->
+
+            <!-- 1: Upload Resume (Right) -->
+            <path d="M 220 375 L 250 375" stroke="#4ade80" stroke-width="2" fill="none" />
+            <path d="M 240 370 L 250 375 L 240 380" fill="none" stroke="#4ade80" stroke-width="2" />
+            <text x="180" y="370" fill="#cbd5e1" font-size="14" font-family="sans-serif" font-weight="bold">1: Upload
+                Resume</text>
+
+            <!-- 2: POST Data (Right) -->
+            <path d="M 570 375 L 600 375" stroke="#4ade80" stroke-width="2" fill="none" />
+            <path d="M 590 370 L 600 375 L 590 380" fill="none" stroke="#4ade80" stroke-width="2" />
+            <text x="520" y="370" fill="#cbd5e1" font-size="14" font-family="sans-serif" font-weight="bold">2: POST
+                Data</text>
+
+            <!-- 7: Render View (Left - Blue) -->
+            <path d="M 600 400 L 570 400" stroke="#38bdf8" stroke-width="2" fill="none" />
+            <path d="M 580 395 L 570 400 L 580 405" fill="none" stroke="#38bdf8" stroke-width="2" />
+            <text x="520" y="415" fill="#38bdf8" font-size="14" font-family="sans-serif" font-weight="bold">7: Render
+                View</text>
+
+            <!-- 5: Save Record (Up - Green) -->
+            <path d="M 790 280 L 790 250" stroke="#4ade80" stroke-width="2" fill="none" />
+            <path d="M 785 260 L 790 250 L 795 260" fill="none" stroke="#4ade80" stroke-width="2" />
+            <text x="800" y="270" fill="#cbd5e1" font-size="14" font-family="sans-serif" font-weight="bold">5: Save
+                Record</text>
+
+            <!-- 6: Confirm (Down - Blue) -->
+            <path d="M 770 250 L 770 280" stroke="#38bdf8" stroke-width="2" fill="none" />
+            <path d="M 765 270 L 770 280 L 775 270" fill="none" stroke="#38bdf8" stroke-width="2" />
+            <text x="690" y="270" fill="#38bdf8" font-size="14" font-family="sans-serif" font-weight="bold">6:
+                Confirm</text>
+
+            <!-- 3: Analyze (Down - Green) -->
+            <path d="M 790 500 L 790 530" stroke="#4ade80" stroke-width="2" fill="none" />
+            <path d="M 785 520 L 790 530 L 795 520" fill="none" stroke="#4ade80" stroke-width="2" />
+            <text x="800" y="520" fill="#cbd5e1" font-size="14" font-family="sans-serif" font-weight="bold">3:
+                Analyze(Text)</text>
+
+            <!-- 4: Score (Up - Blue) -->
+            <path d="M 770 530 L 770 500" stroke="#38bdf8" stroke-width="2" fill="none" />
+            <path d="M 765 510 L 770 500 L 775 510" fill="none" stroke="#38bdf8" stroke-width="2" />
+            <text x="680" y="520" fill="#38bdf8" font-size="14" font-family="sans-serif" font-weight="bold">4: JSON
+                Score</text>
+
+        </svg>
+
+        <!-- NODES -->
+        <!-- Student -->
+        <div id="obj-student" class="obj-node" style="border:none; background:none; box-shadow:none;">
+            <svg class="actor-icon" viewBox="0 0 50 100" style="position:static; width:50px; height:80px;">
+                <circle cx="25" cy="15" r="10" stroke="#38bdf8" />
+                <line x1="25" y1="25" x2="25" y2="65" stroke="#38bdf8" />
+                <line x1="25" y1="35" x2="5" y2="55" stroke="#38bdf8" />
+                <line x1="25" y1="35" x2="45" y2="55" stroke="#38bdf8" />
+                <line x1="25" y1="65" x2="10" y2="95" stroke="#38bdf8" />
+                <line x1="25" y1="65" x2="40" y2="95" stroke="#38bdf8" />
+            </svg>
+            <div style="color:#38bdf8; margin-top:5px;">Student</div>
+        </div>
+
+        <!-- Frontend -->
+        <div id="obj-ui" class="obj-node">
+            <div class="obj-title">:Frontend</div>
+            <div class="obj-type">UI View</div>
+        </div>
+
+        <!-- Controller -->
+        <div id="obj-ctrl" class="obj-node" style="border-color:#4ade80;">
+            <div class="obj-title">:MainController</div>
+            <div class="obj-type">Flask Backend</div>
+        </div>
+
+        <!-- Database -->
+        <div id="obj-db" class="obj-node">
+            <div class="obj-title">:Database</div>
+            <div class="obj-type">TiDB Cloud</div>
+        </div>
+
+        <!-- AI -->
+        <div id="obj-ai" class="obj-node" style="border-color:#a855f7;">
+            <div class="obj-title">:GeminiAI</div>
+            <div class="obj-type">External Service</div>
+        </div>
+
+    </div>
+
+    <div class="controls">
+        <button onclick="downloadImage()">Download Collaboration Diagram</button>
+    </div>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        function downloadImage() {
+            const element = document.body;
+            document.querySelector('.controls').style.display = 'none';
+            html2canvas(element, { scale: 3 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Collaboration_Diagram_Fixed.png';
+                link.href = canvas.toDataURL();
+                link.click();
+                document.querySelector('.controls').style.display = 'block';
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ER Diagram - Conceptual Style</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap');
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #0f172a;
+            /* Dark Slate */
+            color: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #diagram-container {
+            position: relative;
+            width: 1300px;
+            height: 900px;
+            background-color: #0f172a;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        /* Bg Grid */
+        .bg-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 0;
+        }
+
+        /* ENTITY (Rectangles) */
+        .entity {
+            position: absolute;
+            width: 170px;
+            height: 100px;
+            background: #1e293b;
+            border: 2px solid #38bdf8;
+            color: #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+        }
+
+        .entity-title {
+            font-weight: bold;
+            font-size: 16px;
+            text-transform: uppercase;
+            text-decoration: underline;
+            text-decoration-color: #38bdf8;
+            margin-bottom: 5px;
+        }
+
+        .entity-attrs {
+            font-size: 11px;
+            text-align: center;
+            color: #94a3b8;
+            line-height: 1.4;
+        }
+
+        .pk {
+            color: #fbbf24;
+            font-weight: bold;
+        }
+
+        /* Distinct Colors for Roles */
+        .ent-tpo {
+            border-color: #f472b6;
+        }
+
+        /* Pink for TPO */
+        .ent-hod {
+            border-color: #a855f7;
+        }
+
+        /* Purple for HOD */
+        .ent-student {
+            border-color: #38bdf8;
+        }
+
+        /* Blue for Student */
+
+        /* RELATIONSHIP (Diamonds) */
+        .relation {
+            position: absolute;
+            width: 90px;
+            height: 90px;
+            z-index: 2;
+        }
+
+        .diamond-shape {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: #0f172a;
+            border: 2px solid #4ade80;
+            /* Green highlight */
+            transform: rotate(45deg);
+            top: 10px;
+            left: 10px;
+            box-shadow: 0 0 10px rgba(74, 222, 128, 0.1);
+        }
+
+        .rel-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #4ade80;
+            font-weight: bold;
+            font-size: 10px;
+            text-transform: uppercase;
+            text-align: center;
+            width: 100px;
+        }
+
+        /* Cardinality Labels */
+        .card-label {
+            position: absolute;
+            color: #cbd5e1;
+            font-size: 13px;
+            background: #0f172a;
+            padding: 0 4px;
+            z-index: 3;
+            font-weight: bold;
+        }
+
+        /* === POSITIONS === */
+
+        /* Roles spread out */
+
+        /* HOD (Top Left) */
+        #ent-hod {
+            top: 100px;
+            left: 100px;
+        }
+
+        /* TPO (Top Right) */
+        #ent-tpo {
+            top: 100px;
+            left: 1000px;
+        }
+
+        /* STUDENT (Bottom Left - Center) */
+        #ent-student {
+            top: 400px;
+            left: 100px;
+        }
+
+        /* DRIVE (Top Right - Below TPO) */
+        #ent-drive {
+            top: 350px;
+            left: 1000px;
+        }
+
+        /* RESUME (Bottom Center) */
+        #ent-resume {
+            top: 700px;
+            left: 400px;
+        }
+
+        /* APPLICATION (Mid Center) */
+        #ent-app {
+            top: 550px;
+            left: 700px;
+        }
+
+        /* OFFER (Bottom Right) */
+        #ent-offer {
+            top: 750px;
+            left: 1000px;
+        }
+
+
+        /* RELATIONSHIPS */
+
+        /* HOD --(Verifies)--> Student */
+        #rel-verifies {
+            top: 250px;
+            left: 140px;
+        }
+
+        /* TPO --(Posts)--> Drive */
+        #rel-posts {
+            top: 225px;
+            left: 1040px;
+        }
+
+        /* Student --(Uploads)--> Resume */
+        #rel-uploads {
+            top: 600px;
+            left: 200px;
+        }
+
+        /* Student --(Applies)--> Application */
+        #rel-applies {
+            top: 450px;
+            left: 450px;
+        }
+
+        /* Drive --(Receives)--> Application */
+        #rel-receives {
+            top: 450px;
+            left: 900px;
+        }
+
+        /* Resume --(UsedIn)--> Application */
+        #rel-usedin {
+            top: 580px;
+            left: 500px;
+        }
+
+        /* Application --(Generates)--> Offer */
+        #rel-generates {
+            top: 650px;
+            left: 850px;
+        }
+
+
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            z-index: 10;
+        }
+
+        button {
+            padding: 12px 30px;
+            background: #0284c7;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="diagram-container">
+
+        <div class="bg-grid"></div>
+
+        <!-- LINE CONNECTIONS -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="1300" height="900"
+            style="position:absolute; top:0; left:0; pointer-events:none; z-index:1;">
+
+            <!-- HOD - verifies - Student -->
+            <path d="M 185 200 L 185 400" stroke="#64748b" stroke-width="2" />
+
+            <!-- TPO - posts - Drive -->
+            <path d="M 1085 200 L 1085 350" stroke="#64748b" stroke-width="2" />
+
+            <!-- Drive - receives - App -->
+            <path d="M 1040 450 L 830 550" stroke="#64748b" stroke-width="2" /> <!-- Diagonal -->
+
+            <!-- Student - applies - App -->
+            <path d="M 270 450 L 700 600" stroke="#64748b" stroke-width="2" />
+
+            <!-- Student - uploads - Resume -->
+            <path d="M 185 500 L 185 620 L 400 750" stroke="#64748b" stroke-width="2" fill="none" />
+
+            <!-- Resume - used_in - App -->
+            <path d="M 570 750 L 750 650" stroke="#64748b" stroke-width="2" />
+
+            <!-- App - generates - Offer -->
+            <path d="M 870 600 L 1000 800" stroke="#64748b" stroke-width="2" />
+
+        </svg>
+
+        <!-- === ENTITIES === -->
+
+        <!-- HOD -->
+        <div id="ent-hod" class="entity ent-hod">
+            <div class="entity-title">HOD</div>
+            <div class="entity-attrs">
+                <span class="pk">PK HodID</span><br>
+                Name, Dept
+            </div>
+            <div class="card-label" style="bottom:-20px; left:48%;">1</div>
+        </div>
+
+        <!-- TPO -->
+        <div id="ent-tpo" class="entity ent-tpo">
+            <div class="entity-title">TPO</div>
+            <div class="entity-attrs">
+                <span class="pk">PK TpoID</span><br>
+                Name, Email
+            </div>
+            <div class="card-label" style="bottom:-20px; left:48%;">1</div>
+        </div>
+
+        <!-- STUDENT -->
+        <div id="ent-student" class="entity ent-student">
+            <div class="entity-title">STUDENT</div>
+            <div class="entity-attrs">
+                <span class="pk">PK StudentID</span><br>
+                Name, CGPA<br>
+                Dept
+            </div>
+            <div class="card-label" style="top:-20px; left:48%;">M</div>
+            <div class="card-label" style="right:-20px; top:40%;">1</div>
+        </div>
+
+        <!-- DRIVE -->
+        <div id="ent-drive" class="entity">
+            <div class="entity-title">DRIVE</div>
+            <div class="entity-attrs">
+                <span class="pk">PK DriveID</span><br>
+                Company, Role<br>
+                Pkg, Criteria
+            </div>
+            <div class="card-label" style="top:-20px; left:48%;">M</div>
+            <div class="card-label" style="bottom:-20px; left:48%;">1</div>
+        </div>
+
+        <!-- RESUME -->
+        <div id="ent-resume" class="entity">
+            <div class="entity-title">RESUME</div>
+            <div class="entity-attrs">
+                <span class="pk">PK ResumeID</span><br>
+                FilePath<br>
+                AIScore
+            </div>
+        </div>
+
+        <!-- APPLICATION -->
+        <div id="ent-app" class="entity">
+            <div class="entity-title">APPLICATION</div>
+            <div class="entity-attrs">
+                <span class="pk">PK AppID</span><br>
+                Status<br>
+                Date
+            </div>
+        </div>
+
+        <!-- OFFER -->
+        <div id="ent-offer" class="entity">
+            <div class="entity-title">OFFER</div>
+            <div class="entity-attrs">
+                <span class="pk">PK OfferID</span><br>
+                File, Date
+            </div>
+        </div>
+
+
+        <!-- === RELATIONSHIPS === -->
+
+        <div id="rel-verifies" class="relation">
+            <div class="diamond-shape"></div>
+            <div class="rel-text">VERIFIES</div>
+        </div>
+
+        <div id="rel-posts" class="relation">
+            <div class="diamond-shape"></div>
+            <div class="rel-text">POSTS</div>
+        </div>
+
+        <div id="rel-uploads" class="relation">
+            <div class="diamond-shape"></div>
+            <div class="rel-text">UPLOADS</div>
+        </div>
+
+        <div id="rel-applies" class="relation">
+            <div class="diamond-shape"></div>
+            <div class="rel-text">APPLIES</div>
+        </div>
+
+        <div id="rel-receives" class="relation">
+            <div class="diamond-shape"></div>
+            <div class="rel-text">RECEIVES</div>
+        </div>
+
+        <div id="rel-usedin" class="relation">
+            <div class="diamond-shape"></div>
+            <div class="rel-text">CONTAINS</div>
+        </div>
+
+        <div id="rel-generates" class="relation">
+            <div class="diamond-shape"></div>
+            <div class="rel-text">RESULTS IN</div>
+        </div>
+
+    </div>
+
+    <div class="controls">
+        <button onclick="downloadImage()">Download ER Diagram</button>
+    </div>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        function downloadImage() {
+            const element = document.body;
+            document.querySelector('.controls').style.display = 'none';
+            html2canvas(element, { scale: 3 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Conceptual_ER_Diagram_TPO_HOD.png';
+                link.href = canvas.toDataURL();
+                link.click();
+                document.querySelector('.controls').style.display = 'block';
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,7 +1,7 @@
-CREATE DATABASE IF NOT EXISTS placement_portal;
-USE placement_portal;
+-- Database selection handled by connection
 
-CREATE TABLE users (
+
+CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
@@ -10,10 +10,12 @@ CREATE TABLE users (
     department VARCHAR(100),
     is_approved BOOLEAN DEFAULT FALSE,
     score INT DEFAULT 0,
+    reset_otp VARCHAR(6),
+    reset_otp_expiry DATETIME,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE drives (
+CREATE TABLE IF NOT EXISTS drives (
     id INT AUTO_INCREMENT PRIMARY KEY,
     company_name VARCHAR(100) NOT NULL,
     job_role VARCHAR(100) NOT NULL,
@@ -21,12 +23,14 @@ CREATE TABLE drives (
     eligibility VARCHAR(200),
     last_date DATE NOT NULL,
     status ENUM('active','closed') DEFAULT 'active',
+    vacancy_count INT DEFAULT 0,
+    departments VARCHAR(255),
     created_by INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(created_by) REFERENCES users(id)
 );
 
-CREATE TABLE applications (
+CREATE TABLE IF NOT EXISTS applications (
     id INT AUTO_INCREMENT PRIMARY KEY,
     student_id INT NOT NULL,
     drive_id INT NOT NULL,
@@ -38,7 +42,7 @@ CREATE TABLE applications (
     UNIQUE KEY unique_application (student_id, drive_id)
 );
 
-CREATE TABLE resumes (
+CREATE TABLE IF NOT EXISTS resumes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     file_path VARCHAR(255) NOT NULL,
@@ -49,7 +53,7 @@ CREATE TABLE resumes (
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE offer_letters (
+CREATE TABLE IF NOT EXISTS offer_letters (
     id INT AUTO_INCREMENT PRIMARY KEY,
     application_id INT NOT NULL,
     file_path VARCHAR(255) NOT NULL,
@@ -59,7 +63,7 @@ CREATE TABLE offer_letters (
     FOREIGN KEY(uploaded_by) REFERENCES users(id)
 );
 
-CREATE TABLE notifications (
+CREATE TABLE IF NOT EXISTS notifications (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     message TEXT NOT NULL,

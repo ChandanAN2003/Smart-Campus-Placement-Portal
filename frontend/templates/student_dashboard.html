@@ -264,19 +264,41 @@
                     content.innerHTML = `
                         <div class="text-center mb-4">
                             <div style="font-size: 3rem; font-weight: 800; color: var(--primary);">${data.job_fit_score}%</div>
-                            <p class="text-secondary">Job Fit Score</p>
+                            <p class="text-secondary">ATS Score</p>
+                            ${data.eligibility_status ?
+                            `<span class="badge badge-${data.eligibility_status === 'Eligible' ? 'success' : 'danger'}" style="font-size: 1.1rem; margin-top: 10px; display: inline-block;">
+                                    ${data.eligibility_status}
+                                </span>` : ''}
                         </div>
+
+                        ${data.reason ? `
+                        <div class="mb-4 p-3" style="background: rgba(255,255,255,0.02); border-left: 3px solid var(--info);">
+                            <h5 class="mb-2 text-info">Verdict</h5>
+                            <p class="text-secondary small">${data.reason}</p>
+                        </div>` : ''}
+
                         <div class="mb-4">
-                            <h4 class="mb-2">Skills Matched</h4>
+                            <h5 class="mb-2 text-success">Matching Skills</h5>
                             <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                                ${(data.skills || []).map(s => `<span class="badge badge-success">${s}</span>`).join('')}
+                                ${(data.matching_skills || data.skills || []).map(s => `<span class="badge badge-success">${s}</span>`).join('')}
                             </div>
                         </div>
+
+                        ${data.missing_skills && data.missing_skills.length > 0 ? `
+                        <div class="mb-4">
+                            <h5 class="mb-2 text-danger">Missing / Weak Skills</h5>
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                ${data.missing_skills.map(s => `<span class="badge badge-danger">${s}</span>`).join('')}
+                            </div>
+                        </div>` : ''}
+
                          <div class="mb-4">
-                            <h4 class="mb-2">AI Suggestions</h4>
-                            <p class="text-secondary" style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 0.5rem;">
-                                ${data.suggestions || 'No suggestions.'}
-                            </p>
+                            <h4 class="mb-2">Improvement Plan</h4>
+                            <div class="text-secondary" style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 0.5rem;">
+                                ${Array.isArray(data.improvement_suggestions) ?
+                            `<ul style="padding-left: 20px; text-align: left;">${data.improvement_suggestions.map(s => `<li style="margin-bottom: 5px;">${s}</li>`).join('')}</ul>` :
+                            (data.suggestions || 'No suggestions.')}
+                            </div>
                         </div>
                     `;
                 })
@@ -293,6 +315,7 @@
             if (e.target === document.getElementById('analysisModal')) closeModal();
         });
     </script>
+    <script src="{{ url_for('static', filename='js/chat_widget.js') }}?v=2.0"></script>
 </body>
 
 </html>

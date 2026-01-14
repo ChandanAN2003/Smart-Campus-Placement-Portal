@@ -6,8 +6,10 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import os
 from pathlib import Path
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import json
+import random
+import string
 from functools import wraps
 import PyPDF2
 from docx import Document
@@ -24,7 +26,7 @@ backend_dir = Path(__file__).parent
 sys.path.insert(0, str(backend_dir))
 
 from database import db
-from gemini_ai import analyze_resume, generate_email_content, perform_skill_gap_analysis, generate_mock_test
+from gemini_ai import analyze_resume, generate_email_content, perform_skill_gap_analysis, generate_mock_test, chat_with_placement_ai
 from mail_utils import init_mail, send_application_update_email
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
@@ -50,6 +52,11 @@ def allowed_file(filename):
 
 def extract_text_from_file(file_path):
     """Extract text from PDF or DOCX file"""
+    import os
+    if not os.path.exists(file_path):
+        print(f"[ERROR] Resume file not found: {file_path}")
+        return ""
+        
     try:
         if file_path.endswith('.pdf'):
             with open(file_path, 'rb') as f:
@@ -202,6 +209,96 @@ def logout():
     """User logout"""
     session.clear()
     flash('You have been logged out.', 'info')
+    return redirect(url_for('index'))
+
+@app.route('/request_password_reset', methods=['POST'])
+def request_password_reset():
+    """Handle password reset request"""
+    email = request.form.get('email')
+    
+    user = db.execute_query(
+        "SELECT id, name FROM users WHERE email = %s",
+        (email,),
+        fetch_one=True
+    )
+    
+    if not user:
+        # Security: Don't reveal if email exists, but for UX we often do in casual apps.
+        # Let's show a success message to avoid enumeration, or just say 'If account exists...'
+        flash('If an account exists with that email, an OTP has been sent.', 'info')
+        return redirect(url_for('index'))
+    
+    # Generate 6-digit OTP
+    otp = ''.join(random.choices(string.digits, k=6))
+    expiry = datetime.now() + timedelta(minutes=10)
+    
+    # Save to DB
+    db.execute_query(
+        "UPDATE users SET reset_otp = %s, reset_otp_expiry = %s WHERE id = %s",
+        (otp, expiry, user['id'])
+    )
+    
+    # Send Email
+    from mail_utils import send_email
+    if send_email(
+        to=email,
+        subject="Password Reset OTP - Placement Portal",
+        body=f"Hello {user['name']},\n\nYour OTP for password reset is: {otp}\n\nThis OTP is valid for 10 minutes.\n\nIf you did not request this, please ignore.",
+        html_body=f"""
+        <h3>Password Reset Request</h3>
+        <p>Hello {user['name']},</p>
+        <p>Your OTP for password reset is:</p>
+        <h2 style="color: #4A90E2; letter-spacing: 5px;">{otp}</h2>
+        <p>This OTP is valid for 10 minutes.</p>
+        <p>If you did not request this, please ignore.</p>
+        """
+    ):
+        flash('OTP sent to your email. Please enter it below.', 'info')
+        # Use a query param or session to trigger the 'verify' form open state if possible, 
+        # but for now user has to manually click "Already have OTP" or we can rely on flash message.
+        # Actually, let's redirect to home but maybe with a clear indication? 
+        # The user will see the flash and stay on index. They must navigate to "Already have OTP".
+        return render_template('index.html', show_verify=True)
+    else:
+        flash('Failed to send OTP. Please check email configuration.', 'error')
+        return redirect(url_for('index'))
+
+@app.route('/reset_password_with_otp', methods=['POST'])
+def reset_password_with_otp():
+    """Verify OTP and reset password"""
+    email = request.form.get('email')
+    otp = request.form.get('otp')
+    new_password = request.form.get('new_password')
+    
+    user = db.execute_query(
+        "SELECT id, reset_otp, reset_otp_expiry FROM users WHERE email = %s",
+        (email,),
+        fetch_one=True
+    )
+    
+    if not user:
+        flash('Invalid email or OTP.', 'error')
+        return redirect(url_for('index'))
+    
+    # Check OTP
+    if user['reset_otp'] != otp:
+        flash('Invalid OTP.', 'error')
+        return render_template('index.html', show_verify=True)
+    
+    # Check Expiry
+    if user['reset_otp_expiry'] and user['reset_otp_expiry'] < datetime.now():
+        flash('OTP has expired. Please request a new one.', 'error')
+        return redirect(url_for('index'))
+    
+    # Update Password using generate_password_hash from imports
+    password_hash = generate_password_hash(new_password)
+    
+    db.execute_query(
+        "UPDATE users SET password_hash = %s, reset_otp = NULL, reset_otp_expiry = NULL WHERE id = %s",
+        (password_hash, user['id'])
+    )
+    
+    flash('Password reset successful! You can now log in.', 'success')
     return redirect(url_for('index'))
 
 @app.route('/dashboard')
@@ -440,12 +537,32 @@ def analyze_skill_gap_api():
     if not resume:
         return jsonify({'error': 'Please upload a resume first'}), 400
         
-    resume_text = extract_text_from_file(resume['file_path'])
+    import os
+    # Assuming resume_text is extracted earlier, but might be empty if file is missing
+    # Need to ensure resume_text is defined before this block.
+    # Let's assume `resume_text` is extracted from `resume['file_path']` before this check.
+    # For the purpose of this edit, I will assume `resume_text` is already defined and potentially empty.
+    
+    # Extract resume text (this part is missing in the provided context, but implied)
+    # For the sake of making the change syntactically correct, I'll add a placeholder for resume_text extraction
+    resume_text = "" # Placeholder, actual extraction should happen here
+    if resume:
+        try:
+            resume_text = extract_text_from_file(resume['file_path'])
+        except FileNotFoundError:
+            resume_text = "" # File might be deleted on ephemeral storage
+    
+    if not resume_text:
+        return jsonify({'error': 'Resume file not found on server. Please re-upload your resume.'}), 404
     
     analysis = perform_skill_gap_analysis(resume_text, job_role, job_description)
     
     if not analysis:
-        return jsonify({'error': 'Analysis failed'}), 500
+        # Check if we should suggest using Groq
+        import os
+        if not os.getenv('GROQ_API_KEY'):
+             return jsonify({'error': 'AI Analysis failed. Please ask Admin to configure GROQ_API_KEY.'}), 500
+        return jsonify({'error': 'Analysis failed due to AI limitations.'}), 500
         
     return jsonify(analysis)
 
@@ -943,10 +1060,54 @@ def create_drive():
         flash('Company name, job role, and last date are required.', 'error')
         return redirect(url_for('tpo_dashboard'))
     
-    db.execute_query(
-        "INSERT INTO drives (company_name, job_role, job_description, eligibility, last_date, created_by, vacancy_count, departments) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-        (company_name, job_role, job_description, eligibility, last_date, session['user_id'], vacancy_count, departments_str)
-    )
+    # Try inserting with new columns, fallback to old schema if fails (for backward compatibility during migration)
+    try:
+        db.execute_query(
+            "INSERT INTO drives (company_name, job_role, job_description, eligibility, last_date, created_by, vacancy_count, departments) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+            (company_name, job_role, job_description, eligibility, last_date, session['user_id'], vacancy_count, departments_str)
+        )
+    except Exception as e:
+        print(f"[WARNING] Extended insert failed: {e}")
+        error_msg = str(e).lower()
+        
+        # Check if error is due to missing columns (Error 1054)
+        if "unknown column" in error_msg and ("vacancy_count" in error_msg or "departments" in error_msg):
+            print("[INFO] Attempting Just-In-Time Schema Migration...")
+            try:
+                # Run ALTER TABLE commands to fix the schema on the fly
+                # We catch exceptions here individually in case one column exists but not the other
+                try:
+                    db.execute_query("ALTER TABLE drives ADD COLUMN vacancy_count INT DEFAULT 0")
+                    print(" -> Added vacancy_count column")
+                except Exception as ex: 
+                    print(f" -> vacancy_count add skipped: {ex}")
+                    
+                try:
+                    db.execute_query("ALTER TABLE drives ADD COLUMN departments VARCHAR(255)")
+                    print(" -> Added departments column")
+                except Exception as ex:
+                    print(f" -> departments add skipped: {ex}")
+                
+                # Retry the original insert with new columns
+                db.execute_query(
+                    "INSERT INTO drives (company_name, job_role, job_description, eligibility, last_date, created_by, vacancy_count, departments) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                    (company_name, job_role, job_description, eligibility, last_date, session['user_id'], vacancy_count, departments_str)
+                )
+                print("[SUCCESS] JIT Migration and Insert successful")
+                
+            except Exception as final_e:
+                print(f"[ERROR] JIT Migration failed completely: {final_e}")
+                # Ultimate Fallback: Legacy Insert (Feature degraded but app works)
+                db.execute_query(
+                    "INSERT INTO drives (company_name, job_role, job_description, eligibility, last_date, created_by) VALUES (%s, %s, %s, %s, %s, %s)",
+                    (company_name, job_role, job_description, eligibility, last_date, session['user_id'])
+                )
+                flash('Drive created, but advanced filters may not be saved due to database update issues.', 'warning')
+                return redirect(url_for('tpo_dashboard'))
+        else:
+            # Some other error, re-raise or handle gracefully
+            flash(f'Error creating drive: {e}', 'error')
+            return redirect(url_for('tpo_dashboard'))
     
     flash('Placement drive created successfully!', 'success')
     return redirect(url_for('tpo_dashboard'))
@@ -1192,6 +1353,23 @@ def internal_error(error):
     return render_template('index.html', error='Internal server error'), 500
 
 # ==================== Main ====================
+
+@app.route('/api/general_chat', methods=['POST'])
+@login_required
+def general_chat_api():
+    """API for General Placement Chat"""
+    data = request.json
+    user_message = data.get('message')
+    history = data.get('history', [])
+    language = data.get('language', 'en-US')
+    
+    user_role = session.get('role', 'Student').capitalize()
+    
+    from gemini_ai import chat_with_placement_ai
+    response = chat_with_placement_ai(user_message, history, user_role, language)
+    
+    return jsonify({'response': response})
+
 
 if __name__ == '__main__':
     # Initialize database on first run

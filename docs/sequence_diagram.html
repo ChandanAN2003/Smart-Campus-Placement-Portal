@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sequence Diagram - AI Resume Analysis</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            /* Dark Navy */
+            color: #ecf0f1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        h2 {
+            position: absolute;
+            top: 20px;
+            left: 40px;
+            font-weight: 300;
+            color: #38bdf8;
+            /* Light Blue */
+            letter-spacing: 2px;
+        }
+
+        #diagram-container {
+            position: relative;
+            width: 1200px;
+            height: 700px;
+            border-radius: 12px;
+            margin-top: 50px;
+        }
+
+        /* SVG Layer */
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Lifeline Styles */
+        .lifeline-head {
+            position: absolute;
+            top: 20px;
+            width: 120px;
+            height: 40px;
+            border: 2px solid #38bdf8;
+            background: #1e293b;
+            color: #38bdf8;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            z-index: 2;
+        }
+
+        .lifeline-dash {
+            stroke: #475569;
+            stroke-width: 2;
+            stroke-dasharray: 6, 4;
+        }
+
+        /* Activation Bars */
+        .activation {
+            fill: #334155;
+            stroke: #475569;
+            stroke-width: 1;
+        }
+
+        /* Message Arrows */
+        .arrow-line {
+            stroke: #94a3b8;
+            stroke-width: 2;
+        }
+
+        .arrow-text {
+            fill: #cbd5e1;
+            font-size: 13px;
+            font-family: monospace;
+        }
+
+        /* Actors specific */
+        #actor-student {
+            left: 50px;
+        }
+
+        #actor-ui {
+            left: 300px;
+        }
+
+        #actor-server {
+            left: 550px;
+        }
+
+        #actor-ai {
+            left: 800px;
+        }
+
+        #actor-db {
+            left: 1050px;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+        }
+
+        button {
+            padding: 10px 24px;
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #0284c7;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>5.5.1 SEQUENCE DIAGRAM: AI RESUME ANALYSIS</h2>
+
+    <div id="diagram-container">
+
+        <svg id="svg-layer">
+            <defs>
+                <!-- Arrowhead Marker -->
+                <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" />
+                </marker>
+                <!-- Open Arrowhead for return -->
+                <marker id="arrow-open" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polyline points="0 0, 10 3.5, 0 7" fill="none" stroke="#94a3b8" stroke-width="1.5" />
+                </marker>
+            </defs>
+
+            <!-- Vertical Lifelines (Dashed) -->
+            <line x1="110" y1="60" x2="110" y2="650" class="lifeline-dash" /> <!-- Student -->
+            <line x1="360" y1="60" x2="360" y2="650" class="lifeline-dash" /> <!-- UI -->
+            <line x1="610" y1="60" x2="610" y2="650" class="lifeline-dash" /> <!-- Server -->
+            <line x1="860" y1="60" x2="860" y2="650" class="lifeline-dash" /> <!-- AI -->
+            <line x1="1110" y1="60" x2="1110" y2="650" class="lifeline-dash" /> <!-- DB -->
+
+            <!-- Activation Boxes (Rectangles on lifelines) -->
+            <rect x="350" y="100" width="20" height="450" class="activation" /> <!-- UI Active -->
+            <rect x="600" y="140" width="20" height="350" class="activation" /> <!-- Server Active -->
+            <rect x="850" y="220" width="20" height="100" class="activation" /> <!-- AI Active -->
+            <rect x="1100" y="350" width="20" height="50" class="activation" /> <!-- DB Active -->
+
+            <!-- MESSAGES -->
+
+            <!-- 1. Upload Resume -->
+            <line x1="110" y1="100" x2="350" y2="100" class="arrow-line" marker-end="url(#arrow)" />
+            <text x="160" y="90" class="arrow-text">1. Upload Resume(file)</text>
+
+            <!-- 2. POST /analyze -->
+            <line x1="370" y1="140" x2="600" y2="140" class="arrow-line" marker-end="url(#arrow)" />
+            <text x="400" y="130" class="arrow-text">2. POST /api/analyze</text>
+
+            <!-- 3. Extract Text (Self Call) - Optional or simplified -->
+            <path d="M 620 160 Q 650 160, 650 175 Q 650 190, 620 190" fill="none" class="arrow-line"
+                marker-end="url(#arrow)" />
+            <text x="660" y="180" class="arrow-text">3. Extract Text</text>
+
+            <!-- 4. Analyze Prompt -->
+            <line x1="620" y1="220" x2="850" y2="220" class="arrow-line" marker-end="url(#arrow)" />
+            <text x="650" y="210" class="arrow-text">4. generate_content(prompt)</text>
+
+            <!-- 5. Return JSON (Dashed) -->
+            <line x1="850" y1="300" x2="620" y2="300" class="arrow-line" marker-end="url(#arrow-open)"
+                stroke-dasharray="4" />
+            <text x="670" y="290" class="arrow-text">5. JSON {score, gaps}</text>
+
+            <!-- 6. Save Data -->
+            <line x1="620" y1="350" x2="1100" y2="350" class="arrow-line" marker-end="url(#arrow)" />
+            <text x="890" y="340" class="arrow-text">6. Save Result</text>
+
+            <!-- 7. Confirm Call (Dashed) -->
+            <line x1="1100" y1="400" x2="620" y2="400" class="arrow-line" marker-end="url(#arrow-open)"
+                stroke-dasharray="4" />
+            <text x="920" y="390" class="arrow-text">7. Success</text>
+
+            <!-- 8. Return UI Data (Dashed) -->
+            <line x1="600" y1="450" x2="370" y2="450" class="arrow-line" marker-end="url(#arrow-open)"
+                stroke-dasharray="4" />
+            <text x="420" y="440" class="arrow-text">8. 200 OK (Data)</text>
+
+            <!-- 9. Display Dashboard -->
+            <line x1="350" y1="500" x2="110" y2="500" class="arrow-line" marker-end="url(#arrow-open)"
+                stroke-dasharray="4" />
+            <text x="160" y="490" class="arrow-text">9. Show Gap Chart</text>
+
+        </svg>
+
+        <!-- LIFELINE HEADERS -->
+        <div id="actor-student" class="lifeline-head">Student</div>
+        <div id="actor-ui" class="lifeline-head">Frontend UI</div>
+        <div id="actor-server" class="lifeline-head">Backend</div>
+        <div id="actor-ai" class="lifeline-head">Gemini AI</div>
+        <div id="actor-db" class="lifeline-head">Database</div>
+
+    </div>
+
+    <div class="controls">
+        <button onclick="downloadImage()">Download Sequence Diagram</button>
+    </div>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        function downloadImage() {
+            const element = document.body;
+            document.querySelector('.controls').style.display = 'none';
+            html2canvas(element, { scale: 3 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Sequence_Diagram_AI.png';
+                link.href = canvas.toDataURL();
+                link.click();
+                document.querySelector('.controls').style.display = 'block';
+            });
+        }
+    </script>
+</body>
+
+</html>
