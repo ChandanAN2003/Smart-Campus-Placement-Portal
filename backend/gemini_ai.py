@@ -55,12 +55,14 @@ configure_gemini()
 
 class SafeGenerativeModel:
     def __init__(self, primary_model_name, fallback_models=None):
+        if primary_model_name == "gemini-1.5-flash":
+            primary_model_name = "gemini-2.5-flash"
         self.primary_model_name = primary_model_name
         self.fallback_models = fallback_models or [
             "llama-3.3-70b-versatile", 
             "mixtral-8x7b-32768", 
             "llama3-70b-8192", 
-            "gemini-1.5-flash"
+            "gemini-2.5-flash"
         ]
         self.current_model = genai.GenerativeModel(primary_model_name)
         self.groq_client = None
@@ -111,6 +113,8 @@ class SafeGenerativeModel:
             raise e
 
 def _get_generative_model(model_name="gemini-1.5-flash"):
+    if model_name == "gemini-1.5-flash":
+        model_name = "gemini-2.5-flash"
     return SafeGenerativeModel(model_name)
 
 # ==========================================

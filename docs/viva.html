@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viva Voce - The Ultimate 50 Questions Guide</title>
+    <style>
+        :root {
+            --primary: #0f172a;
+            --accent: #3b82f6;
+            --bg: #f1f5f9;
+            --text: #334155;
+            --card-bg: #ffffff;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: white;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 40px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            margin-top: 10px;
+            font-size: 1.2rem;
+        }
+
+        .category-header {
+            background: var(--accent);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            margin: 40px 0 20px 0;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid transparent;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card.priority-high {
+            border-left-color: var(--danger);
+        }
+
+        .card.priority-med {
+            border-left-color: var(--warning);
+        }
+
+        .card.priority-low {
+            border-left-color: var(--success);
+        }
+
+        .q-num {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #64748b;
+            font-weight: bold;
+        }
+
+        .question {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 8px 0 12px 0;
+        }
+
+        .answer {
+            font-size: 0.95rem;
+            color: #475569;
+            position: relative;
+        }
+
+        .code-ref {
+            display: inline-block;
+            background: #f1f5f9;
+            color: #d946ef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .badge {
+            float: right;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            color: white;
+            font-weight: bold;
+        }
+
+        .b-critical {
+            background: var(--danger);
+        }
+
+        .b-technical {
+            background: var(--accent);
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .grid {
+                display: block;
+            }
+
+            .card {
+                break-inside: avoid;
+                border: 1px solid #ddd;
+                box-shadow: none;
+                margin-bottom: 15px;
+            }
+
+            .category-header {
+                background: #eee;
+                color: black;
+                border-bottom: 2px solid black;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>🎓 The Ultimate Viva Guide (50 Questions)</h1>
+        <div class="subtitle">Smart Campus Placement Portal | Final Year Project Defense</div>
+        <div style="margin-top: 20px; font-size: 0.9rem; color: #fbbf24;">
+            ⚠️ Memorize the "Critical" questions. Read the "Technical" ones twice.
+        </div>
+    </header>
+
+    <!-- PROJECT OVERVIEW -->
+    <div class="category-header">🔹 1. Project Overview & Scope</div>
+    <div class="grid">
+        <div class="card priority-high">
+            <span class="badge b-critical">Critical</span>
+            <div class="q-num">Q1</div>
+            <div class="question">What is your project about? (The Elevator Pitch)</div>
+            <div class="answer">"It is an <strong>AI-Integrated Smart Placement Portal</strong>. Unlike traditional
+                portals that only store data, ours actively <strong>bridges the skill gap</strong> using Gemini 1.5 Pro
+                to analyze resumes, recommend courses, and conduct voice-based mock interviews for students."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q2</div>
+            <div class="question">What are the main modules?</div>
+            <div class="answer">"We have three core modules: <strong>Student</strong> (Apply, AI Analysis, Mock Test),
+                <strong>TPO</strong> (Manage Drives, Analytics), and <strong>HOD</strong> (Verify Students, Dept
+                Analytics)."</div>
+        </div>
+        <div class="card priority-high">
+            <div class="q-num">Q3</div>
+            <div class="question">What makes your project 'Smart' or 'Innovative'?</div>
+            <div class="answer">"Three things: 1. <strong>Context-Aware AI</strong> that acts as different personas
+                (Interviewer/Counselor). 2. <strong>Auto-Healing API</strong> mechanism that switches keys if Google
+                blocks one. 3. <strong>Voice Interaction</strong> using Web Speech API."</div>
+        </div>
+        <div class="card priority-low">
+            <div class="q-num">Q4</div>
+            <div class="question">Is this a live project?</div>
+            <div class="answer">"It is designed as a production-grade prototype. It utilizes industry standards like
+                connection pooling and parameterized queries, ready for cloud deployment on platforms like Render."
+            </div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q5</div>
+            <div class="question">What methodology did you follow?</div>
+            <div class="answer">"We followed the **Agile Methodology**. We built the core Database first, then the Auth
+                system, then iterated on the AI features based on testing feedback."</div>
+        </div>
+    </div>
+
+    <!-- TECH STACK -->
+    <div class="category-header">🔹 2. Tech Stack & Architecture</div>
+    <div class="grid">
+        <div class="card priority-high">
+            <span class="badge b-critical">Critical</span>
+            <div class="q-num">Q6</div>
+            <div class="question">Why Flask and not Django/Node.js?</div>
+            <div class="answer">"Django is too heavy/opinionated. I needed <strong>Flask's flexibility</strong> to write
+                custom AI wrappers and manage asynchronous API calls without the overhead of a large framework."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q7</div>
+            <div class="question">Explain the MVC Architecture.</div>
+            <div class="answer">"<strong>Model:</strong> <span class="code-ref">database.py</span> (Data Layer).
+                <strong>View:</strong> <span class="code-ref">templates/*.html</span> (User Interface).
+                <strong>Controller:</strong> <span class="code-ref">app.py</span> (Business Logic & Routing)."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q8</div>
+            <div class="question">Why MySQL? Why not MongoDB?</div>
+            <div class="answer">"Placement data is <strong>highly relational</strong> (Students -> Applications ->
+                Drives). SQL ensures Data Integrity and ACID compliance, which is critical for official academic
+                records. NoSQL is better for unstructured data, which is only a small part of our app."</div>
+        </div>
+        <div class="card priority-low">
+            <div class="q-num">Q9</div>
+            <div class="question">What frontend library did you use?</div>
+            <div class="answer">"I used <strong>Bootstrap 5</strong> for responsive layout and <strong>Vanilla
+                    JavaScript</strong> for logic. For the 3D effect, I used <strong>Three.js</strong>, and for charts,
+                I used <strong>Chart.js</strong>."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q10</div>
+            <div class="question">How does the application run? (Entry Point)</div>
+            <div class="answer">"The entry point is <span class="code-ref">app.py</span>. When executed, it initializes
+                the Flask server, connects to the DB pool, and starts listening on port 5000."</div>
+        </div>
+    </div>
+
+    <!-- ARTIFICIAL INTELLIGENCE -->
+    <div class="category-header">🔹 3. AI & Logic (The Engine)</div>
+    <div class="grid">
+        <div class="card priority-high">
+            <span class="badge b-technical">Technical</span>
+            <div class="q-num">Q11</div>
+            <div class="question">How exactly does the AI analyze a resume?</div>
+            <div class="answer">"We extract text using <span class="code-ref">PyPDF2</span>. Then we construct a
+                **Prompt** containing the text + Job Description + Strict JSON Output rules. We send this to Gemini Pro,
+                which returns a structured JSON assessing the match."</div>
+        </div>
+        <div class="card priority-high">
+            <span class="badge b-critical">Critical</span>
+            <div class="q-num">Q12</div>
+            <div class="question">What happens if the AI Hallucinates?</div>
+            <div class="answer">"We limit hallucination by using a <strong>Low Temperature (0.1 - 0.3)</strong> in our
+                API calls for analytical tasks. We also instruct the AI to 'Only output attributes found in the text' in
+                the System Prompt."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q13</div>
+            <div class="question">Explain the "Key Rotation" logic.</div>
+            <div class="answer">"In <span class="code-ref">gemini_ai.py</span>, I have a list of API keys. If a request
+                returns a '429 Quota Exceeded' error, the <span class="code-ref">rotate_key()</span> function
+                instantaneously switches the global client to the next key and retries the request."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q14</div>
+            <div class="question">What is "Persona-Based Prompting"?</div>
+            <div class="answer">"It's when we tell the AI 'You are a Strict HR' or 'You are a Helpful Career Guide'.
+                This changes the tone and strictness of the response. See <span
+                    class="code-ref">PLACEMENT_AI_SYSTEM_PROMPT</span> in code."</div>
+        </div>
+        <div class="card priority-high">
+            <div class="q-num">Q15</div>
+            <div class="question">Does it support local LLMs?</div>
+            <div class="answer">"Code-wise, yes. The <span class="code-ref">SafeGenerativeModel</span> class can be
+                extended to point to a local Ollama endpoint, but for performance on this laptop, we use Cloud APIs."
+            </div>
+        </div>
+        <div class="card priority-low">
+            <div class="q-num">Q16</div>
+            <div class="question">How is the Mock Interview stored?</div>
+            <div class="answer">"We store the conversation context in the <strong>Session</strong> memory during the
+                interview. Once finished, we can choose to save the final feedback to the database."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q17</div>
+            <div class="question">How do you parse complex PDFs?</div>
+            <div class="answer">"We use <span class="code-ref">PyPDF2</span>. For multi-column resumes, we rely on the
+                LLM's natural language understanding to figure out the flow of text, rather than writing complex regex
+                parsing logic."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q18</div>
+            <div class="question">What is the "Skill Gap"?</div>
+            <div class="answer">"It is the set difference: {Job Required Skills} minus {Resume Skills}. The AI
+                identifies this and then maps the missing skills to recommended courses."</div>
+        </div>
+    </div>
+
+    <!-- DATABASE -->
+    <div class="category-header">🔹 4. Database & Backend</div>
+    <div class="grid">
+        <div class="card priority-high">
+            <span class="badge b-technical">Technical</span>
+            <div class="q-num">Q19</div>
+            <div class="question">Explain Connection Pooling.</div>
+            <div class="answer">"Opening a DB connection is expensive (handshake, auth). <span
+                    class="code-ref">QueuePool</span> keeps a set of open connections (e.g., 10). When a user requests
+                data, we give them an existing connection. This increases throughput by 10x."</div>
+        </div>
+        <div class="card priority-high">
+            <div class="q-num">Q20</div>
+            <div class="question">How do you handle Passwords?</div>
+            <div class="answer">"We use <span class="code-ref">werkzeug.security.generate_password_hash</span> with
+                SHA-256. We NEVER store plain text passwords. We salt and hash them."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q21</div>
+            <div class="question">What are the key tables?</div>
+            <div class="answer">"Users, Drives, Applications, Resumes, Notifications, CodingSubmissions. The central
+                table is <strong>Applications</strong>."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q22</div>
+            <div class="question">How do you prevent duplicate applications?</div>
+            <div class="answer">"We query the database: `SELECT id FROM applications WHERE student_id=X AND drive_id=Y`.
+                If a record exists, we block the request."</div>
+        </div>
+        <div class="card priority-low">
+            <div class="q-num">Q23</div>
+            <div class="question">How are files stored?</div>
+            <div class="answer">"Files are stored in the filesystem under <span class="code-ref">static/uploads/</span>.
+                The Database only stores the <strong>File Path</strong> string. Storing blobs in DB makes backups huge
+                and slow."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q24</div>
+            <div class="question">Explain the "Notifications" logic.</div>
+            <div class="answer">"When a TPO posts a drive, we trigger an insert into the <span
+                    class="code-ref">notifications</span> table for all eligible students. The frontend polls this
+                table."</div>
+        </div>
+        <div class="card priority-low">
+            <div class="q-num">Q25</div>
+            <div class="question">What is "ACID"?</div>
+            <div class="answer">"Atomicity, Consistency, Isolation, Durability. Our MySQL transactions ensure that if an
+                application fails halfway, no partial data is saved."</div>
+        </div>
+    </div>
+
+    <!-- SECURITY & DEPLOYMENT -->
+    <div class="category-header">🔹 5. Security & Deployment</div>
+    <div class="grid">
+        <div class="card priority-high">
+            <span class="badge b-critical">Critical</span>
+            <div class="q-num">Q26</div>
+            <div class="question">What is SQL Injection? How did you fix it?</div>
+            <div class="answer">"It's when a user inputs SQL code (e.g., `' OR 1=1`) to hack the DB. I fixed it by using
+                <strong>Parameterized Queries</strong> (%s) which treats input strictly as data, not executable code."
+            </div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q27</div>
+            <div class="question">What is XSS (Cross Site Scripting)?</div>
+            <div class="answer">"Injecting malicious JS into pages. Flask's <strong>Jinja2</strong> engine automatically
+                <strong>Escapes</strong> all variables `{{ var }}`, converting scripts to harmless text strings."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q28</div>
+            <div class="question">Where are your API Keys?</div>
+            <div class="answer">"In a <span class="code-ref">.env</span> file. They are loaded at runtime using
+                `os.getenv`. They are NOT committed to GitHub."</div>
+        </div>
+        <div class="card priority-high">
+            <div class="q-num">Q29</div>
+            <div class="question">What if the server restarts? (Session)</div>
+            <div class="answer">"We use client-side signed cookies for sessions. So if the server restarts, the user
+                stays logged in as long as the <strong>SECRET_KEY</strong> remains the same."</div>
+        </div>
+        <div class="card priority-low">
+            <div class="q-num">Q30</div>
+            <div class="question">How would you deploy this to AWS?</div>
+            <div class="answer">"I would use an EC2 instance or Elastic Beanstalk. I'd wrap the app in
+                <strong>Gunicorn</strong> (Production WSGI server) behind an <strong>Nginx</strong> reverse proxy."
+            </div>
+        </div>
+    </div>
+
+    <!-- FRONTEND & UX -->
+    <div class="category-header">🔹 6. Frontend & User Experience</div>
+    <div class="grid">
+        <div class="card priority-med">
+            <div class="q-num">Q31</div>
+            <div class="question">How does the Voice Chat work?</div>
+            <div class="answer">"<strong>Web Speech API</strong>. The browser handles the heavy lifting of converting
+                Speech-to-Text. We just get the text string and send it to our backend."</div>
+        </div>
+        <div class="card priority-low">
+            <div class="q-num">Q32</div>
+            <div class="question">Is the site responsive?</div>
+            <div class="answer">"Yes, we used Bootstrap Grid system (col-md-*, col-sm-*). It works on mobile, tablet,
+                and desktop."</div>
+        </div>
+        <div class="card priority-low">
+            <div class="q-num">Q33</div>
+            <div class="question">Why Glassmorphism?</div>
+            <div class="answer">"It's a modern UI trend (frosted glass effect). It gives a premium feel suitable for a
+                'Smart' AI application."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q34</div>
+            <div class="question">How do charts work?</div>
+            <div class="answer">"Chart.js. We fetch JSON data from the backend (Flask) and render it into HTML Canvas
+                elements."</div>
+        </div>
+        <div class="card priority-high">
+            <div class="q-num">Q35</div>
+            <div class="question">Explain the "Three.js" background.</div>
+            <div class="answer">"It renders a particle wave in a standard HTML5 Canvas using WebGL. It creates a
+                'Digital Mainframe' aesthetic."</div>
+        </div>
+    </div>
+
+    <!-- SCENARIOS -->
+    <div class="category-header">🔹 7. Scenario Based (Tricky)</div>
+    <div class="grid">
+        <div class="card priority-high">
+            <span class="badge b-critical">Critical</span>
+            <div class="q-num">Q36</div>
+            <div class="question">"Your project looks simple. What was the hardest part?"</div>
+            <div class="answer">"Handling the <strong>Inconsistency of LLM outputs</strong>. Sometimes the JSON was
+                broken. I had to write Regex parsers to 'clean' the AI response before using it."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q37</div>
+            <div class="question">"If I delete a Student, what happens to their Applications?"</div>
+            <div class="answer">"In a real system, we'd use <strong>Cascade Delete</strong>. Currently, we do a Soft
+                Delete (mark as inactive) to preserve history."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q38</div>
+            <div class="question">"Why not use a Ready-made ATS?"</div>
+            <div class="answer">"Commercial ATS systems are expensive and don't offer <strong>Student-Centric
+                    Coaching</strong> features like Skill Gap Analysis. Ours is a Learning Platform, not just a
+                Filtering tool."</div>
+        </div>
+        <div class="card priority-high">
+            <div class="q-num">Q39</div>
+            <div class="question">"How accurate is the Analysis?"</div>
+            <div class="answer">"It uses semantic matching (meaning-based), so it's approx 85-90% accurate compared to
+                detailed human review, but 100x faster."</div>
+        </div>
+        <div class="card priority-low">
+            <div class="q-num">Q40</div>
+            <div class="question">"Can TPO see private student chats?"</div>
+            <div class="answer">"No. Mentorship chats are private. TPO only sees aggregated analytics (e.g., 'Common
+                missing skill: Python')."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q41</div>
+            <div class="question">"What if internet connection is lost?"</div>
+            <div class="answer">"The basic database features (Login, View Drives) assume connectivity. The AI features
+                will fail gracefully with a 'Connection Error' message."</div>
+        </div>
+    </div>
+
+    <!-- MISCELLANEOUS -->
+    <div class="category-header">🔹 8. Future & Closing</div>
+    <div class="grid">
+        <div class="card priority-low">
+            <div class="q-num">Q42</div>
+            <div class="question">What are the limitations?</div>
+            <div class="answer">"1. Dependency on External APIs (Latency). 2. No OCR for image resumes yet. 3. No Mobile
+                App version."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q43</div>
+            <div class="question">Future Scope?</div>
+            <div class="answer">"Blockchain verification for certificates, Automated LinkedIn scraping for alumni data,
+                and a Native Android App."</div>
+        </div>
+        <div class="card priority-low">
+            <div class="q-num">Q44</div>
+            <div class="question">How many lines of code?</div>
+            <div class="answer">"Approximately 3,000+ lines across Python and JavaScript."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q45</div>
+            <div class="question">Did you do Unit Testing?</div>
+            <div class="answer">"Yes, we manually tested edge cases (e.g., uploading .exe files, weak passwords) and
+                verified the AI fallback mechanism."</div>
+        </div>
+        <div class="card priority-low">
+            <div class="q-num">Q46</div>
+            <div class="question">Who owns the data?</div>
+            <div class="answer">"The College (Institution) owns the data. We have strict privacy roles defined."</div>
+        </div>
+        <div class="card priority-med">
+            <div class="q-num">Q47</div>
+            <div class="question">How much time did it take?</div>
+            <div class="answer">"Around 6-8 weeks of iterative development."</div>
+        </div>
+        <div class="card priority-low">
+            <div class="q-num">Q48</div>
+            <div class="question">Any paid tools used?</div>
+            <div class="answer">"No, we utilized the <strong>Free Tier</strong> of Gemini API and standard open-source
+                libraries."</div>
+        </div>
+        <div class="card priority-high">
+            <div class="q-num">Q49</div>
+            <div class="question">Conclusion line?</div>
+            <div class="answer">"This system transforms the Placement Cell from a 'Post Office' to a 'Career
+                Intelligence Hub'."</div>
+        </div>
+        <div class="card priority-high">
+            <span class="badge b-critical">Exam Tip</span>
+            <div class="q-num">Q50</div>
+            <div class="question">"Any questions for us?"</div>
+            <div class="answer">"Sir/Ma'am, based on your industry experience, what is the one feature you think is
+                missing in current placement systems that we could add in version 2?" (Shows willingness to learn).
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

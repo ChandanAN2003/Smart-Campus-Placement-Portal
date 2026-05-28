@@ -10,9 +10,8 @@
 
         body {
             font-family: 'Rajdhani', sans-serif;
-            background-color: #0f172a;
-            /* Dark Slate */
-            color: #f1f5f9;
+            background-color: #ffffff;
+            color: #111;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -28,9 +27,9 @@
             height: 750px;
             border-radius: 20px;
             overflow: hidden;
-            /* Capture clean */
-            background-color: #0f172a;
+            background-color: #ffffff;
             margin-top: 20px;
+            border: 1px solid #e2e8f0;
         }
 
         /* Background Grid */
@@ -41,8 +40,8 @@
             width: 100%;
             height: 100%;
             background-image:
-                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+                linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
             background-size: 50px 50px;
             pointer-events: none;
             z-index: 0;
@@ -52,39 +51,39 @@
         .entity {
             position: absolute;
             width: 140px;
-            background: #1e293b;
-            border: 2px solid #38bdf8;
+            background: #ffffff;
+            border: 2px solid #0ea5e9;
             border-radius: 6px;
             z-index: 2;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         .entity-header {
-            background: #0284c7;
-            /* Darker Blue Header */
+            background: #0ea5e9;
+            /* Blue Header */
             color: white;
             padding: 8px;
             text-align: center;
             font-weight: bold;
             text-transform: uppercase;
-            border-bottom: 2px solid #0f172a;
+            border-bottom: 2px solid #0284c7;
         }
 
         .attributes {
             padding: 10px;
             font-size: 13px;
-            color: #cbd5e1;
+            color: #334155;
             line-height: 1.4;
         }
 
         .attr-pk {
-            color: #facc15;
+            color: #d97706;
             font-weight: bold;
         }
 
-        /* Primary Key Gold */
+        /* Primary Key Gold/Orange */
         .attr-fk {
-            color: #f472b6;
+            color: #db2777;
             font-style: italic;
         }
 
@@ -130,7 +129,7 @@
 
         button {
             padding: 12px 30px;
-            background: #0284c7;
+            background: #0ea5e9;
             color: white;
             border: none;
             border-radius: 6px;
@@ -140,7 +139,7 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             transition: transform 0.2s;
         }
     </style>
@@ -156,36 +155,31 @@
         <svg xmlns="http://www.w3.org/2000/svg" width="1100" height="750"
             style="position:absolute; top:0; left:0; pointer-events:none; z-index:1;">
 
-            <!-- Crow's Foot Notation Logic (Simplified lines for now) -->
-
             <!-- Users -> Resumes (1:N) -->
-            <path d="M 170 300 L 170 230" stroke="#94a3b8" stroke-width="2" />
+            <path d="M 170 300 L 170 230" stroke="#64748b" stroke-width="2" />
             <!-- Crow Foot Top -->
-            <path d="M 160 230 L 170 210 L 180 230 M 170 230 L 170 185" stroke="#94a3b8" stroke-width="2" fill="none" />
-            <circle cx="170" cy="200" r="4" fill="#94a3b8" /> needed? No just simple lines for visual
+            <path d="M 160 230 L 170 210 L 180 230 M 170 230 L 170 185" stroke="#64748b" stroke-width="2" fill="none" />
 
             <!-- Users -> Notifications (1:N) -->
-            <path d="M 170 480 L 170 550" stroke="#94a3b8" stroke-width="2" />
+            <path d="M 170 480 L 170 550" stroke="#64748b" stroke-width="2" />
 
             <!-- Users -> Drives (1:N) - TPO creates Drives -->
-            <path d="M 240 360 L 450 360" stroke="#94a3b8" stroke-width="2" />
-            <text x="320" y="350" fill="#94a3b8" font-size="12">Creats</text>
+            <path d="M 240 360 L 450 360" stroke="#64748b" stroke-width="2" />
+            <text x="320" y="350" fill="#64748b" font-size="12">Creates</text>
 
             <!-- Drives -> Applications (1:N) -->
-            <path d="M 520 480 L 520 550" stroke="#94a3b8" stroke-width="2" />
+            <path d="M 520 480 L 520 550" stroke="#64748b" stroke-width="2" />
 
             <!-- Users (Student) -> Applications (1:N) -->
-            <!-- Curve from User to App -->
-            <path d="M 170 480 Q 170 650 450 650" stroke="#94a3b8" stroke-width="2" fill="none" />
+            <path d="M 170 480 Q 170 650 450 650" stroke="#64748b" stroke-width="2" fill="none" />
 
             <!-- Application -> Offer Letter (1:1) -->
-            <path d="M 610 600 L 800 600" stroke="#94a3b8" stroke-width="2" />
+            <path d="M 610 600 L 800 600" stroke="#64748b" stroke-width="2" />
 
         </svg>
 
         <!-- ENTITIES -->
 
-        <!-- USERS -->
         <div id="ent-user" class="entity">
             <div class="entity-header">Users</div>
             <div class="attributes">
@@ -199,7 +193,6 @@
             </div>
         </div>
 
-        <!-- RESUMES -->
         <div id="ent-resume" class="entity">
             <div class="entity-header">Resumes</div>
             <div class="attributes">
@@ -211,7 +204,6 @@
             </div>
         </div>
 
-        <!-- NOTIFICATIONS -->
         <div id="ent-notif" class="entity">
             <div class="entity-header">Notifications</div>
             <div class="attributes">
@@ -223,7 +215,6 @@
             </div>
         </div>
 
-        <!-- DRIVES -->
         <div id="ent-drive" class="entity">
             <div class="entity-header">Drives</div>
             <div class="attributes">
@@ -237,7 +228,6 @@
             </div>
         </div>
 
-        <!-- APPLICATIONS -->
         <div id="ent-app" class="entity">
             <div class="entity-header">Applications</div>
             <div class="attributes">
@@ -249,7 +239,6 @@
             </div>
         </div>
 
-        <!-- OFFERS -->
         <div id="ent-offer" class="entity">
             <div class="entity-header">Offer Letters</div>
             <div class="attributes">
@@ -271,9 +260,9 @@
         function downloadImage() {
             const element = document.body;
             document.querySelector('.controls').style.display = 'none';
-            html2canvas(element, { scale: 3 }).then(canvas => {
+            html2canvas(element, { backgroundColor: "#ffffff", scale: 3 }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'ER_Diagram.png';
+                link.download = 'ER_Diagram_Light_Theme.png';
                 link.href = canvas.toDataURL();
                 link.click();
                 document.querySelector('.controls').style.display = 'block';

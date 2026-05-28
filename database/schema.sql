@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS applications (
     student_id INT NOT NULL,
     drive_id INT NOT NULL,
     status ENUM('Applied','Shortlisted','Selected','Rejected') DEFAULT 'Applied',
+    mock_test_score VARCHAR(50),
     applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY(student_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -72,4 +73,36 @@ CREATE TABLE IF NOT EXISTS notifications (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS badges (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) UNIQUE NOT NULL,
+    icon VARCHAR(50) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    min_score INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS user_badges (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    badge_id INT NOT NULL,
+    awarded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY(badge_id) REFERENCES badges(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_user_badge (user_id, badge_id)
+);
+
+CREATE TABLE IF NOT EXISTS coding_submissions (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    problem_title VARCHAR(255) NOT NULL,
+    language VARCHAR(50) NOT NULL,
+    code TEXT NOT NULL,
+    status VARCHAR(50) DEFAULT 'failed',
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+
 

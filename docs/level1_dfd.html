@@ -8,8 +8,8 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #0f172a;
-            color: #ecf0f1;
+            background-color: #ffffff;
+            color: #333;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -23,18 +23,20 @@
             position: absolute;
             top: 20px;
             left: 30px;
-            font-weight: 300;
+            font-weight: 600;
             letter-spacing: 1px;
-            color: #e2e8f0;
+            color: #0f172a;
         }
 
         #dfd-container {
             position: relative;
             width: 1200px;
-            /* Increased width */
             height: 750px;
-            /* Increased height */
             margin-top: 40px;
+            background-color: #f8fafc;
+            /* Very light gray bg for container */
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
         }
 
         svg {
@@ -49,7 +51,7 @@
 
         line,
         path {
-            stroke: #94a3b8;
+            stroke: #475569;
             stroke-width: 1.5;
             fill: none;
         }
@@ -63,7 +65,7 @@
             font-size: 13px;
             font-weight: 600;
             z-index: 2;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s;
         }
 
@@ -75,9 +77,9 @@
         .entity {
             width: 140px;
             height: 60px;
-            border: 2px solid #38bdf8;
-            color: #38bdf8;
-            background: rgba(15, 23, 42, 0.9);
+            border: 2px solid #0284c7;
+            color: #0369a1;
+            background: #e0f2fe;
             border-radius: 4px;
         }
 
@@ -85,9 +87,9 @@
         .process {
             width: 160px;
             height: 50px;
-            border: 2px solid #4ade80;
-            color: #4ade80;
-            background: #022c22;
+            border: 2px solid #16a34a;
+            color: #15803d;
+            background: #dcfce7;
             border-radius: 25px;
         }
 
@@ -95,14 +97,13 @@
         .datastore {
             width: 120px;
             height: 40px;
-            border: 2px solid #f472b6;
-            color: #f472b6;
-            background: rgba(80, 7, 36, 0.3);
-            border-left: 6px solid #f472b6;
+            border: 2px solid #db2777;
+            color: #be185d;
+            background: #fce7f3;
+            border-left: 6px solid #db2777;
         }
 
-        /* RE-POSITIONING FOR CLARITY */
-
+        /* Re-positioning kept same as previous logic */
         /* Left Column: Student */
         #ent-student {
             top: 45%;
@@ -171,12 +172,12 @@
         .label {
             position: absolute;
             font-size: 11px;
-            color: #cbd5e1;
-            background: #0f172a;
+            color: #475569;
+            background: #ffffff;
             /* Solid bg to hide line crossing */
             padding: 3px 6px;
             border-radius: 4px;
-            border: 1px solid #334155;
+            border: 1px solid #cbd5e1;
             z-index: 3;
             max-width: 100px;
             text-align: center;
@@ -207,47 +208,33 @@
         <svg>
             <defs>
                 <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                    <polygon points="0 0, 10 3.5, 0 7" fill="#94a3b8" />
+                    <polygon points="0 0, 10 3.5, 0 7" fill="#475569" />
                 </marker>
             </defs>
 
             <!-- 1. AUTH FLOW -->
-            <!-- Student -> Auth -->
             <path d="M 100 340 L 100 135 L 300 135" marker-end="url(#arrow)" />
-            <!-- Auth <-> D1 Users -->
             <line x1="460" y1="135" x2="550" y2="135" marker-end="url(#arrow)" />
 
             <!-- 2. RESUME FLOW -->
-            <!-- Student -> Resume -->
             <line x1="170" y1="370" x2="300" y2="370" marker-end="url(#arrow)" />
-            <!-- Resume -> D2 Store -->
             <path d="M 460 370 L 510 370 L 510 290 L 550 290" marker-end="url(#arrow)" />
-            <!-- Resume -> AI Process -->
             <line x1="460" y1="380" x2="600" y2="430" marker-end="url(#arrow)" />
 
             <!-- 3. DRIVE FLOW -->
-            <!-- TPO -> P3 Drive -->
             <line x1="1120" y1="120" x2="1120" y2="190" marker-end="url(#arrow)" />
-            <!-- P3 -> D3 Drives -->
             <line x1="1120" y1="240" x2="1120" y2="285" marker-end="url(#arrow)" />
 
             <!-- 4. AI FLOW -->
-            <!-- P4 -> Gemini -->
             <line x1="760" y1="440" x2="1080" y2="440" marker-end="url(#arrow)" />
-            <!-- Gemini -> P4 (Implicit return shown by line arrow logic? Let's add explicit return) -->
-            <!-- P4 -> D2 Update Score (Line to Store D2) -->
             <path d="M 680 410 L 680 300 L 660 300" marker-end="url(#arrow)" />
 
             <!-- FEEDBACK LOOP -->
-            <!-- P4 -> Student -->
             <path d="M 680 460 L 680 500 L 170 500 L 170 410" marker-end="url(#arrow)" stroke-dasharray="4" />
 
             <!-- 5. APPLICATION FLOW -->
-            <!-- Student -> P5 App -->
             <path d="M 100 400 L 100 680 L 300 680" marker-end="url(#arrow)" />
-            <!-- P5 <-> D4 Apps -->
             <line x1="460" y1="680" x2="550" y2="670" marker-end="url(#arrow)" />
-            <!-- P5 -> TPO List -->
             <path d="M 460 700 L 1250 700 L 1250 150 L 1190 150" marker-end="url(#arrow)" style="opacity: 0.3" />
 
         </svg>
@@ -303,9 +290,9 @@
             const element = document.body;
             document.querySelector('.controls').style.display = 'none';
             // Increase scale for better text quality
-            html2canvas(element, { scale: 3 }).then(canvas => {
+            html2canvas(element, { backgroundColor: "#ffffff", scale: 3 }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'Level1_DFD_Fixed.png';
+                link.download = 'Level1_DFD_Light_Theme.png';
                 link.href = canvas.toDataURL();
                 link.click();
                 document.querySelector('.controls').style.display = 'block';

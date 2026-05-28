@@ -17,6 +17,8 @@ import openpyxl
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from io import BytesIO
+from authlib.integrations.flask_client import OAuth
+
 
 import sys
 from pathlib import Path
@@ -45,6 +47,53 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # Initialize mail
 init_mail(app)
+
+# Initialize OAuth
+oauth = OAuth(app)
+
+# Google OAuth
+if os.getenv('GOOGLE_CLIENT_ID') and os.getenv('GOOGLE_CLIENT_SECRET'):
+    oauth.register(
+        name='google',
+        client_id=os.getenv('GOOGLE_CLIENT_ID'),
+        client_secret=os.getenv('GOOGLE_CLIENT_SECRET'),
+        access_token_url='https://accounts.google.com/o/oauth2/token',
+        access_token_params=None,
+        authorize_url='https://accounts.google.com/o/oauth2/auth',
+        authorize_params=None,
+        api_base_url='https://www.googleapis.com/oauth2/v1/',
+        userinfo_endpoint='https://openidconnect.googleapis.com/v1/userinfo',  # This is only needed if using openid,
+        # otherwise userinfo_endpoint='https://www.googleapis.com/oauth2/v1/userinfo',
+        client_kwargs={'scope': 'openid email profile'},
+        jwks_uri="https://www.googleapis.com/oauth2/v3/certs",
+    )
+
+# GitHub OAuth
+if os.getenv('GITHUB_CLIENT_ID') and os.getenv('GITHUB_CLIENT_SECRET'):
+    oauth.register(
+        name='github',
+        client_id=os.getenv('GITHUB_CLIENT_ID'),
+        client_secret=os.getenv('GITHUB_CLIENT_SECRET'),
+        access_token_url='https://github.com/login/oauth/access_token',
+        access_token_params=None,
+        authorize_url='https://github.com/login/oauth/authorize',
+        authorize_params=None,
+        api_base_url='https://api.github.com/',
+        client_kwargs={'scope': 'user:email'},
+    )
+
+# Microsoft OAuth
+if os.getenv('MICROSOFT_CLIENT_ID') and os.getenv('MICROSOFT_CLIENT_SECRET'):
+    oauth.register(
+        name='microsoft',
+        client_id=os.getenv('MICROSOFT_CLIENT_ID'),
+        client_secret=os.getenv('MICROSOFT_CLIENT_SECRET'),
+        access_token_url='https://login.microsoftonline.com/common/oauth2/v2.0/token',
+        authorize_url='https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
+        api_base_url='https://graph.microsoft.com/v1.0/',
+        client_kwargs={'scope': 'User.Read'},
+    )
+
 
 def allowed_file(filename):
     """Check if file extension is allowed"""
@@ -195,14 +244,119 @@ def login():
             
             flash(f'Welcome, {user["name"]}!', 'success')
             return redirect(url_for('dashboard'))
-        else:
-            print("[DEBUG] Invalid password")
-            flash('Invalid email or password.', 'error')
-            return redirect(url_for('index'))
-    else:
-        print("[DEBUG] User not found")
+        print("[DEBUG] Invalid password")
         flash('Invalid email or password.', 'error')
         return redirect(url_for('index'))
+        
+    print("[DEBUG] User not found")
+    flash('Invalid email or password.', 'error')
+    return redirect(url_for('index'))
+
+@app.route('/login/<provider>')
+def oauth_login(provider):
+    """Login with OAuth provider"""
+    # Check if real config exists
+    client_id_key = f"{provider.upper()}_CLIENT_ID"
+    
+    if not os.getenv(client_id_key):
+        # --- DEMO MODE: SIMULATE LOGIN ---
+        print(f"[INFO] {provider} keys not found. Using Mock/Demo mode.")
+        return redirect(url_for('auth_callback', provider=provider, mock='true'))
+
+    if not oauth.create_client(provider):
+        flash(f'{provider.capitalize()} login is not configured.', 'error')
+        return redirect(url_for('index'))
+        
+    return oauth.create_client(provider).authorize_redirect(url_for('auth_callback', provider=provider, _external=True))
+
+@app.route('/auth/callback/<provider>')
+def auth_callback(provider):
+    """OAuth callback"""
+    
+    # --- HANDLE MOCK LOGIN ---
+    if request.args.get('mock') == 'true':
+        # Simulate data from provider
+        email = f"demo.{provider}@example.com"
+        name = f"Demo {provider.capitalize()} User"
+        flash(f'⚠️ DEMO MODE: Simulating login for {email}', 'info')
+    
+    else:
+        # --- REAL OAUTH LOGIN ---
+        client = oauth.create_client(provider)
+        if not client:
+            flash(f'{provider.capitalize()} login not configured.', 'error')
+            return redirect(url_for('index'))
+
+        try:
+            token = client.authorize_access_token()
+            resp = None
+            
+            if provider == 'google':
+                user_info = token.get('userinfo')
+                if not user_info:
+                    user_info = client.get('userinfo').json()
+                email = user_info.get('email')
+                name = user_info.get('name')
+                
+            elif provider == 'github':
+                resp = client.get('user').json()
+                name = resp.get('name') or resp.get('login')
+                # Fetch email separately if private
+                email_resp = client.get('user/emails').json()
+                if isinstance(email_resp, list):
+                    for e in email_resp:
+                        if e.get('primary'):
+                            email = e.get('email')
+                            break
+                else:
+                    email = resp.get('email')
+                    
+            elif provider == 'microsoft':
+                resp = client.get('me').json()
+                email = resp.get('mail') or resp.get('userPrincipalName')
+                name = resp.get('displayName')
+
+        except Exception as e:
+            print(f"OAuth Error: {e}")
+            flash('Authentication failed. Please try again.', 'error')
+            return redirect(url_for('index'))
+
+    # --- COMMON OAUTH/MOCK LOGIN LOGIC ---
+    if not email:
+        flash('Could not retrieve email from provider.', 'error')
+        return redirect(url_for('index'))
+
+    # Check if user exists
+    user = db.execute_query(
+        "SELECT * FROM users WHERE email = %s",
+        (email,),
+        fetch_one=True
+    )
+
+    if user:
+        # Login successful
+        if not user['is_approved'] and user['role'] != 'tpo':
+            flash('Your account is pending approval from HOD.', 'warning')
+            return redirect(url_for('index'))
+        
+        session['user_id'] = user['id']
+        session['name'] = user['name']
+        session['email'] = user['email']
+        session['role'] = user['role']
+        session['department'] = user.get('department', '')
+        
+        flash(f'Welcome back, {user["name"]}!', 'success')
+        return redirect(url_for('dashboard'))
+        
+    else:
+        # Redirect to Register with prefilled info
+        flash(f'Please complete your registration.', 'info')
+        return render_template('index.html', 
+                             show_register=True, 
+                             prefill_name=name, 
+                             prefill_email=email,
+                             oauth_provider=provider)
+
 
 @app.route('/logout')
 def logout():
@@ -1382,11 +1536,11 @@ if __name__ == '__main__':
     
     # Get PORT from environment (required for Render)
     port = int(os.environ.get("PORT", 5001))
-    print(f"🚀 Starting Flask server on http://localhost:{port} ...")
+    print(f"[*] Starting Flask server on http://localhost:{port} ...")
     try:
-        app.run(debug=False, host='0.0.0.0', port=port, threaded=True)
+        app.run(debug=True, host='0.0.0.0', port=port, threaded=True)
     except Exception as e:
-        print(f"❌ Failed to start Flask server: {e}")
+        print(f"[ERROR] Failed to start Flask server: {e}")
 
 @app.route('/health')
 def health_check():

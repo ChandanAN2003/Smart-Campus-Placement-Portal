@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Literature Review - Additional Papers</title>
+    <style>
+        body {
+            background-color: #1a1a2e;
+            /* Dark background like the slide */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .slide-container {
+            width: 1280px;
+            /* Fixed width for PPT */
+            padding: 40px;
+            box-sizing: border-box;
+            background-color: #1a1a2e;
+            position: relative;
+        }
+
+        h2 {
+            color: white;
+            text-transform: uppercase;
+            font-size: 24px;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #e6f3ff;
+            font-size: 13px;
+        }
+
+        th {
+            background-color: #9dc3e6;
+            /* Light Blue header */
+            color: #000;
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #fff;
+            vertical-align: top;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 10px;
+            border: 1px solid #fff;
+            vertical-align: top;
+            color: #000;
+            line-height: 1.4;
+        }
+
+        tr:nth-child(even) {
+            background-color: #d0e1f5;
+            /* Slightly darker blue for alternating rows */
+        }
+
+        tr:nth-child(odd) {
+            background-color: #e6f3ff;
+        }
+
+        /* Numbering column width */
+        td:first-child,
+        th:first-child {
+            width: 15%;
+            font-weight: bold;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 12px 30px;
+            background: #0ea5e9;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Segoe UI', sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            background: #0284c7;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="capture-target" class="slide-container">
+        <h2>LITERATURE REVIEW (CONTINUED)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>PAPER</th>
+                    <th>PROBLEM STATEMENT / OBJECTIVE</th>
+                    <th>METHODOLOGY / APPROACH</th>
+                    <th>KEY FINDINGS / RESULTS</th>
+                    <th>LIMITATIONS / WEAKNESSES</th>
+                    <th>RELEVANCE TO YOUR PROJECT</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>6. "Automated Interview System using Speech Analysis" (Li & Chen, 2023)</td>
+                    <td>To simulate technical interviews and reduce student anxiety using voice agents.</td>
+                    <td>Used Speech-to-Text (STT) and NLP to analyze candidate spoken responses for sentiment and
+                        keyword
+                        accuracy.</td>
+                    <td>Reduced candidate anxiety by 40% before real interviews; provided immediate feedback on
+                        confidence.</td>
+                    <td>High latency in voice processing; struggled with heavy accents; ignored non-verbal cues.</td>
+                    <td>Validates our Voice-Interactive Interview module. We improve on this by using Gemini 1.5 Flash
+                        for
+                        lower latency interactions.</td>
+                </tr>
+                <tr>
+                    <td>7. "Skill Gap Analysis using Ontology Mapping" (Rao et al., 2022)</td>
+                    <td>To recommend learning paths based on specific deficits in a student's resume.</td>
+                    <td>Used Collaborative Filtering on course data to map resume keywords to missing standard skills.
+                    </td>
+                    <td>Accurate recommendation of standard technical courses (e.g., recommend SQL if Database is
+                        missing).</td>
+                    <td>Suffered from "Cold Start" problem; could not handle new niche modern technologies dynamically.
+                    </td>
+                    <td>Supports our "Skill Gap Analysis" feature. We use Generative AI to solve the Cold Start problem,
+                        allowing instant recommendations for any tech.</td>
+                </tr>
+                <tr>
+                    <td>8. "Bias Mitigation in AI Recruitment" (Wilson, 2021)</td>
+                    <td>To identify and remove gender or demographic bias in automated CV parsing systems.</td>
+                    <td>Tested BERT models on anonymized vs. non-anonymized datasets to measure scoring variance.</td>
+                    <td>Found that standard models retained bias towards male-dominated keywords even without names.
+                    </td>
+                    <td>Anonymization reduced the accuracy of context detection; hard to balance fairness and accuracy.
+                    </td>
+                    <td>Highlights the need for our "Explainable AI". We explicitly show *why* a score is low (e.g.,
+                        "Missing Java"), preventing hidden bias.</td>
+                </tr>
+                <tr>
+                    <td>9. "Scalability of E-Governance Portals using Distributed SQL" (Kumar, 2024)</td>
+                    <td>To handle massive traffic spikes during result declaration and placement drive registrations.
+                    </td>
+                    <td>Compared traditional MySQL performance vs. TiDB and CockroachDB under simulated high load.</td>
+                    <td>Distributed SQL maintained 100% uptime and data consistency while MySQL crashed under concurrent
+                        writes.</td>
+                    <td>Higher infrastructure complexity and initial setup time compared to single-node databases.</td>
+                    <td>Directly justifies our architectural choice of TiDB Serverless to ensure the portal never
+                        crashes during placement drives.</td>
+                </tr>
+                <tr>
+                    <td>10. "Gamification in Engineering Education" (Suresh & Patel, 2023)</td>
+                    <td>To improve student engagement in non-academic career preparation activities.</td>
+                    <td>Implemented leaderboards, badges, and point systems for completing extra-curricular tasks.</td>
+                    <td>Observed a 60% increase in voluntary student participation and daily logins.</td>
+                    <td>Students sometimes focused on "gaming the system" for points rather than actual learning
+                        quality.</td>
+                    <td>Supports our "Leaderboard" feature. We mitigate the limitation by tying points strictly to
+                        verified test scores, not just participation.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="controls">
+        <button onclick="downloadImage()">Download Table Image</button>
+    </div>
+
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script>
+        function downloadImage() {
+            const element = document.getElementById('capture-target');
+            // Hide controls temporarily if they were inside? No they are outside.
+            // Scale up for quality
+            html2canvas(element, {
+                scale: 2,
+                backgroundColor: "#1a1a2e" // Ensure background color is captured
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Literature_Review_Table_v2.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+    </script>
+</body>
+
+</html>

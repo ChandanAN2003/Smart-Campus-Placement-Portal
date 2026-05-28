@@ -10,9 +10,8 @@
 
         body {
             font-family: 'Rajdhani', sans-serif;
-            background-color: #0f172a;
-            /* Dark Slate */
-            color: #f1f5f9;
+            background-color: #ffffff;
+            color: #111;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -26,10 +25,11 @@
             position: relative;
             width: 1300px;
             height: 900px;
-            background-color: #0f172a;
+            background-color: #ffffff;
             border-radius: 20px;
             overflow: hidden;
             margin-top: 20px;
+            border: 1px solid #e2e8f0;
         }
 
         /* Bg Grid */
@@ -39,8 +39,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-image: linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
             background-size: 50px 50px;
             z-index: 0;
         }
@@ -50,15 +50,15 @@
             position: absolute;
             width: 170px;
             height: 100px;
-            background: #1e293b;
-            border: 2px solid #38bdf8;
-            color: #e2e8f0;
+            background: #ffffff;
+            border: 2px solid #0ea5e9;
+            color: #334155;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 2;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .entity-title {
@@ -66,35 +66,44 @@
             font-size: 16px;
             text-transform: uppercase;
             text-decoration: underline;
-            text-decoration-color: #38bdf8;
+            text-decoration-color: #0ea5e9;
             margin-bottom: 5px;
+            color: #0f172a;
         }
 
         .entity-attrs {
             font-size: 11px;
             text-align: center;
-            color: #94a3b8;
+            color: #64748b;
             line-height: 1.4;
         }
 
         .pk {
-            color: #fbbf24;
+            color: #d97706;
             font-weight: bold;
         }
 
         /* Distinct Colors for Roles */
         .ent-tpo {
-            border-color: #f472b6;
+            border-color: #db2777;
+        }
+
+        .ent-tpo .entity-title {
+            text-decoration-color: #db2777;
         }
 
         /* Pink for TPO */
         .ent-hod {
-            border-color: #a855f7;
+            border-color: #9333ea;
+        }
+
+        .ent-hod .entity-title {
+            text-decoration-color: #9333ea;
         }
 
         /* Purple for HOD */
         .ent-student {
-            border-color: #38bdf8;
+            border-color: #0ea5e9;
         }
 
         /* Blue for Student */
@@ -111,13 +120,13 @@
             position: absolute;
             width: 70px;
             height: 70px;
-            background: #0f172a;
-            border: 2px solid #4ade80;
+            background: #ffffff;
+            border: 2px solid #22c55e;
             /* Green highlight */
             transform: rotate(45deg);
             top: 10px;
             left: 10px;
-            box-shadow: 0 0 10px rgba(74, 222, 128, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .rel-text {
@@ -125,7 +134,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: #4ade80;
+            color: #15803d;
             font-weight: bold;
             font-size: 10px;
             text-transform: uppercase;
@@ -136,9 +145,9 @@
         /* Cardinality Labels */
         .card-label {
             position: absolute;
-            color: #cbd5e1;
+            color: #334155;
             font-size: 13px;
-            background: #0f172a;
+            background: #ffffff;
             padding: 0 4px;
             z-index: 3;
             font-weight: bold;
@@ -244,7 +253,7 @@
 
         button {
             padding: 12px 30px;
-            background: #0284c7;
+            background: #0ea5e9;
             color: white;
             border: none;
             border-radius: 6px;
@@ -417,9 +426,9 @@
         function downloadImage() {
             const element = document.body;
             document.querySelector('.controls').style.display = 'none';
-            html2canvas(element, { scale: 3 }).then(canvas => {
+            html2canvas(element, { backgroundColor: "#ffffff", scale: 3 }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'Conceptual_ER_Diagram_TPO_HOD.png';
+                link.download = 'Conceptual_ER_Diagram_Light_Theme.png';
                 link.href = canvas.toDataURL();
                 link.click();
                 document.querySelector('.controls').style.display = 'block';

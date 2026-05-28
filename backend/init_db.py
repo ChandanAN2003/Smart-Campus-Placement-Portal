@@ -24,13 +24,38 @@ def init_database():
                 schema_sql = f.read()
 
             statements = [s.strip() for s in schema_sql.split(';') if s.strip()]
+            
+            # SQLite compatibility translations
+            if db.is_sqlite:
+                import re
+                translated_statements = []
+                for statement in statements:
+                    # Convert INT AUTO_INCREMENT PRIMARY KEY to INTEGER PRIMARY KEY AUTOINCREMENT
+                    statement = re.sub(r'INT\s+AUTO_INCREMENT\s+PRIMARY\s+KEY', 'INTEGER PRIMARY KEY AUTOINCREMENT', statement, flags=re.IGNORECASE)
+                    # Convert ENUM(...) to VARCHAR(100)
+                    statement = re.sub(r'ENUM\([^)]+\)', 'VARCHAR(100)', statement, flags=re.IGNORECASE)
+                    # Remove ON UPDATE CURRENT_TIMESTAMP
+                    statement = re.sub(r'ON\s+UPDATE\s+CURRENT_TIMESTAMP', '', statement, flags=re.IGNORECASE)
+                    # Convert UNIQUE KEY name (cols) to UNIQUE(cols)
+                    statement = re.sub(r'UNIQUE\s+KEY\s+\w+\s+\(([^)]+)\)', r'UNIQUE (\1)', statement, flags=re.IGNORECASE)
+                    
+                    translated_statements.append(statement)
+                statements = translated_statements
+
             conn = db.connect()
             try:
-                with conn.cursor() as cursor:
-                    for statement in statements:
-                        if statement:
-                            cursor.execute(statement)
-                conn.commit()
+                if db.is_sqlite:
+                    try:
+                        raw_conn = conn.driver_connection
+                    except AttributeError:
+                        raw_conn = conn.connection
+                    cursor = raw_conn.cursor()
+                else:
+                    cursor = conn.cursor()
+                    
+                for statement in statements:
+                    if statement:
+                        cursor.execute(statement)
                 conn.commit()
                 print("[OK] Database schema created successfully")
             finally:
