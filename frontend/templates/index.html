@@ -160,31 +160,7 @@
                             SIGN IN
                         </button>
 
-                        <div style="margin-bottom: 1.5rem; text-align: center; position: relative;">
-                            <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 0;">
-                            <span
-                                style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #0f172a; padding: 0 10px; color: var(--text-secondary); font-size: 0.85rem;">Or
-                                continue with</span>
-                        </div>
 
-                        <div
-                            style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 1.5rem;">
-                            <a href="{{ url_for('oauth_login', provider='google') }}" class="btn oauth-btn"
-                                style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; height: 40px; border-radius: 8px; transition: all 0.3s; text-decoration: none;"
-                                title="Sign in with Google">
-                                <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="20" alt="Google">
-                            </a>
-                            <a href="{{ url_for('oauth_login', provider='github') }}" class="btn oauth-btn"
-                                style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; height: 40px; border-radius: 8px; transition: all 0.3s; text-decoration: none;"
-                                title="Sign in with GitHub">
-                                <i class="fab fa-github" style="font-size: 1.2rem;"></i>
-                            </a>
-                            <a href="{{ url_for('oauth_login', provider='microsoft') }}" class="btn oauth-btn"
-                                style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; height: 40px; border-radius: 8px; transition: all 0.3s; text-decoration: none;"
-                                title="Sign in with Microsoft">
-                                <i class="fab fa-microsoft" style="color: #00a4ef; font-size: 1.2rem;"></i>
-                            </a>
-                        </div>
                     </form>
 
                     <div class="text-center">
@@ -269,31 +245,7 @@
                             Sign Up
                         </button>
 
-                        <div style="margin-bottom: 1.5rem; text-align: center; position: relative;">
-                            <hr style="border: 0; border-top: 1px solid var(--glass-border); margin: 0;">
-                            <span
-                                style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #0f172a; padding: 0 10px; color: var(--text-secondary); font-size: 0.85rem;">Or
-                                register with</span>
-                        </div>
 
-                        <div
-                            style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 1.5rem;">
-                            <a href="{{ url_for('oauth_login', provider='google') }}" class="btn oauth-btn"
-                                style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; height: 40px; border-radius: 8px; transition: all 0.3s; text-decoration: none;"
-                                title="Sign up with Google">
-                                <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="20" alt="Google">
-                            </a>
-                            <a href="{{ url_for('oauth_login', provider='github') }}" class="btn oauth-btn"
-                                style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; height: 40px; border-radius: 8px; transition: all 0.3s; text-decoration: none;"
-                                title="Sign up with GitHub">
-                                <i class="fab fa-github" style="font-size: 1.2rem;"></i>
-                            </a>
-                            <a href="{{ url_for('oauth_login', provider='microsoft') }}" class="btn oauth-btn"
-                                style="background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: #fff; display: flex; align-items: center; justify-content: center; height: 40px; border-radius: 8px; transition: all 0.3s; text-decoration: none;"
-                                title="Sign up with Microsoft">
-                                <i class="fab fa-microsoft" style="color: #00a4ef; font-size: 1.2rem;"></i>
-                            </a>
-                        </div>
                     </form>
 
                     <div class="text-center">
