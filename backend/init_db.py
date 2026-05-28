@@ -76,37 +76,47 @@ def create_default_users():
     """Create default admin, HOD, and student users"""
     conn = db.get_connection()
     try:
-        result = db.execute_query(
-            "SELECT COUNT(*) as count FROM users WHERE role = 'tpo'",
-            fetch_one=True
-        )
-        if result and result['count'] > 0:
-            print("[INFO] Default users already exist")
-            return
+        # Helper to create a user safely if not exists
+        def create_user_if_not_exists(name, email, plain_password, role, department, is_approved):
+            exists = db.execute_query(
+                "SELECT id FROM users WHERE email = %s",
+                (email,),
+                fetch_one=True
+            )
+            if not exists:
+                password_hash = generate_password_hash(plain_password)
+                db.execute_query(
+                    "INSERT INTO users (name, email, password_hash, role, department, is_approved) VALUES (%s,%s,%s,%s,%s,%s)",
+                    (name, email, password_hash, role, department, is_approved)
+                )
+                print(f"[OK] Created default user: {email} ({role} - {department})")
+            else:
+                # Update department short-code if needed (e.g. Computer Science -> CS)
+                db.execute_query(
+                    "UPDATE users SET department = %s WHERE email = %s",
+                    (department, email)
+                )
+                print(f"[INFO] User already exists: {email} (updated department to {department})")
 
-        # Default users
-        tpo_password = generate_password_hash('admin123')
-        db.execute_query(
-            "INSERT INTO users (name, email, password_hash, role, department, is_approved) VALUES (%s,%s,%s,%s,%s,%s)",
-            ('Admin TPO', 'tpo@college.edu', tpo_password, 'tpo', 'Placement', True)
-        )
+        # 1. Create TPO
+        create_user_if_not_exists('Admin TPO', 'tpo@college.edu', 'admin123', 'tpo', 'Placement', True)
 
-        hod_password = generate_password_hash('hod123')
-        db.execute_query(
-            "INSERT INTO users (name, email, password_hash, role, department, is_approved) VALUES (%s,%s,%s,%s,%s,%s)",
-            ('Dr. John Smith', 'hod.cs@college.edu', hod_password, 'hod', 'Computer Science', True)
-        )
+        # 2. Create Student
+        create_user_if_not_exists('Alice Johnson', 'alice@college.edu', 'student123', 'student', 'CS', True)
 
-        student_password = generate_password_hash('student123')
-        db.execute_query(
-            "INSERT INTO users (name, email, password_hash, role, department, is_approved) VALUES (%s,%s,%s,%s,%s,%s)",
-            ('Alice Johnson', 'alice@college.edu', student_password, 'student', 'Computer Science', True)
-        )
+        # 3. Create HODs for all departments
+        hods = [
+            ('HOD CS', 'hod.cs@college.edu', 'hod123', 'hod', 'CS', True),
+            ('HOD EC', 'hod.ec@college.edu', 'hod123', 'hod', 'EC', True),
+            ('HOD EEE', 'hod.eee@college.edu', 'hod123', 'hod', 'EEE', True),
+            ('HOD IS', 'hod.is@college.edu', 'hod123', 'hod', 'IS', True),
+            ('HOD MCA', 'hod.mca@college.edu', 'hod123', 'hod', 'MCA', True),
+            ('HOD MBA', 'hod.mba@college.edu', 'hod123', 'hod', 'MBA', True),
+            ('HOD MTECH', 'hod.mtech@college.edu', 'hod123', 'hod', 'MTECH', True)
+        ]
 
-        print("[OK] Default users created:")
-        print("  TPO: tpo@college.edu / admin123")
-        print("  HOD: hod.cs@college.edu / hod123")
-        print("  Student: alice@college.edu / student123")
+        for name, email, pwd, role, dept, approved in hods:
+            create_user_if_not_exists(name, email, pwd, role, dept, approved)
 
     except Exception as e:
         print(f"[ERROR] Error creating default users: {e}")
