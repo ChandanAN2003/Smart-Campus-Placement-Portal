@@ -157,7 +157,18 @@ def index():
         return redirect(url_for('dashboard'))
     return render_template('index.html')
 
+@app.route('/init-db')
+def init_db_route():
+    """Safely initialize the database on Render Free tier without shell access"""
+    from init_db import init_database
+    try:
+        init_database()
+        return "<h3>Database initialized successfully!</h3>You can now go to <a href='/'>Home</a> and log in with default credentials."
+    except Exception as e:
+        return f"Failed to initialize database: {e}"
+
 @app.route('/register', methods=['GET', 'POST'])
+
 def register():
     """User registration"""
     if request.method == 'POST':
