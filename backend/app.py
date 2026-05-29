@@ -34,6 +34,18 @@ from mail_utils import init_mail, send_application_update_email
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 app.secret_key = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
 
+# Cloudinary Integration (Configured dynamically from Environment Variables)
+import cloudinary
+import cloudinary.uploader
+
+cloudinary.config(
+    cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME', ''),
+    api_key = os.getenv('CLOUDINARY_API_KEY', ''),
+    api_secret = os.getenv('CLOUDINARY_API_SECRET', ''),
+    secure = True
+)
+
+
 # Configuration
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'frontend', 'static', 'uploads')
 ALLOWED_EXTENSIONS = {'pdf', 'docx', 'doc'}
@@ -100,27 +112,49 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def extract_text_from_file(file_path):
-    """Extract text from PDF or DOCX file"""
+    """Extract text from PDF or DOCX file (local path or URL)"""
     import os
-    if not os.path.exists(file_path):
-        print(f"[ERROR] Resume file not found: {file_path}")
-        return ""
-        
+    import requests
+    import tempfile
+    
+    temp_file_path = None
     try:
-        if file_path.endswith('.pdf'):
-            with open(file_path, 'rb') as f:
+        # Check if file_path is a URL
+        if file_path.startswith('http://') or file_path.startswith('https://'):
+            # Download the file to a temporary file
+            suffix = '.pdf' if '.pdf' in file_path.lower() else ('.docx' if '.docx' in file_path.lower() else '.doc')
+            with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as temp_file:
+                response = requests.get(file_path, timeout=15)
+                response.raise_for_status()
+                temp_file.write(response.content)
+                temp_file_path = temp_file.name
+            file_to_parse = temp_file_path
+        else:
+            file_to_parse = file_path
+            if not os.path.exists(file_to_parse):
+                print(f"[ERROR] Resume file not found: {file_to_parse}")
+                return ""
+        
+        if file_to_parse.endswith('.pdf'):
+            with open(file_to_parse, 'rb') as f:
                 pdf_reader = PyPDF2.PdfReader(f)
                 text = ''
                 for page in pdf_reader.pages:
                     text += page.extract_text()
                 return text
-        elif file_path.endswith('.docx') or file_path.endswith('.doc'):
-            doc = Document(file_path)
+        elif file_to_parse.endswith('.docx') or file_to_parse.endswith('.doc'):
+            doc = Document(file_to_parse)
             text = '\n'.join([para.text for para in doc.paragraphs])
             return text
     except Exception as e:
         print(f"Error extracting text: {e}")
         return ""
+    finally:
+        if temp_file_path and os.path.exists(temp_file_path):
+            try:
+                os.remove(temp_file_path)
+            except:
+                pass
     return ""
 
 def login_required(f):
@@ -571,8 +605,32 @@ def upload_resume():
     resume_text = extract_text_from_file(file_path)
     
     if not resume_text:
+        if os.path.exists(file_path):
+            try:
+                os.remove(file_path)
+            except:
+                pass
         flash('Could not extract text from resume. Please ensure the file is not corrupted.', 'error')
         return redirect(url_for('student_dashboard'))
+        
+    # Upload to Cloudinary with local fallback
+    db_file_path = file_path
+    if os.getenv('CLOUDINARY_CLOUD_NAME'):
+        try:
+            print("[INFO] Uploading resume to Cloudinary...")
+            upload_result = cloudinary.uploader.upload(
+                file_path,
+                resource_type="raw",
+                folder="placement_portal/resumes"
+            )
+            db_file_path = upload_result.get('secure_url', file_path)
+            print(f"[OK] Uploaded to Cloudinary: {db_file_path}")
+            
+            # Clean up local file since it's uploaded to cloud
+            if os.path.exists(file_path):
+                os.remove(file_path)
+        except Exception as e:
+            print(f"[WARN] Cloudinary upload failed, using local storage: {e}")
     
     # Analyze with Gemini (basic analysis for now)
     analysis = analyze_resume(resume_text, "General")
@@ -583,11 +641,12 @@ def upload_resume():
     
     db.execute_query(
         "INSERT INTO resumes (user_id, file_path, original_filename, job_fit_score, feedback) VALUES (%s, %s, %s, %s, %s)",
-        (session['user_id'], file_path, file.filename, job_fit_score, feedback)
+        (session['user_id'], db_file_path, file.filename, job_fit_score, feedback)
     )
     
     flash('Resume uploaded and analyzed successfully!', 'success')
     return redirect(url_for('student_dashboard'))
+
 
 @app.route('/student/apply/<int:drive_id>', methods=['POST'])
 @login_required
@@ -1365,6 +1424,25 @@ def upload_offer_letter(app_id):
     file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'offers', filename)
     file.save(file_path)
     
+    # Upload to Cloudinary with local fallback
+    db_file_path = file_path
+    if os.getenv('CLOUDINARY_CLOUD_NAME'):
+        try:
+            print("[INFO] Uploading offer letter to Cloudinary...")
+            upload_result = cloudinary.uploader.upload(
+                file_path,
+                resource_type="raw",
+                folder="placement_portal/offers"
+            )
+            db_file_path = upload_result.get('secure_url', file_path)
+            print(f"[OK] Uploaded to Cloudinary: {db_file_path}")
+            
+            # Clean up local file since it's uploaded to cloud
+            if os.path.exists(file_path):
+                os.remove(file_path)
+        except Exception as e:
+            print(f"[WARN] Cloudinary upload failed, using local storage: {e}")
+            
     # Update application status to Selected
     db.execute_query(
         "UPDATE applications SET status = 'Selected' WHERE id = %s",
@@ -1374,7 +1452,7 @@ def upload_offer_letter(app_id):
     # Save offer letter record
     db.execute_query(
         "INSERT INTO offer_letters (application_id, file_path, uploaded_by) VALUES (%s, %s, %s)",
-        (app_id, file_path, session['user_id'])
+        (app_id, db_file_path, session['user_id'])
     )
     
     # Send email with offer letter
@@ -1384,8 +1462,9 @@ def upload_offer_letter(app_id):
         company_name=application['company_name'],
         job_role=application['job_role'],
         status='Selected',
-        offer_letter_path=file_path
+        offer_letter_path=db_file_path
     )
+
     
     # Create notification
     db.execute_query(

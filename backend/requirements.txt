@@ -14,3 +14,5 @@ pymysql
 sqlalchemy
 cryptography
 flask-mail
+cloudinary
+

@@ -41,13 +41,26 @@ def send_email(to, subject, body, html_body=None, attachments=None):
         )
         
         if attachments:
+            import requests
             for attachment_path in attachments:
-                with current_app.open_resource(attachment_path) as f:
+                if attachment_path.startswith('http://') or attachment_path.startswith('https://'):
+                    print(f"[INFO] Downloading attachment from Cloudinary URL: {attachment_path}")
+                    filename = os.path.basename(attachment_path.split('?')[0])
+                    response = requests.get(attachment_path, timeout=20)
+                    response.raise_for_status()
                     msg.attach(
-                        filename=os.path.basename(attachment_path),
+                        filename=filename,
                         content_type='application/octet-stream',
-                        data=f.read()
+                        data=response.content
                     )
+                else:
+                    with current_app.open_resource(attachment_path) as f:
+                        msg.attach(
+                            filename=os.path.basename(attachment_path),
+                            content_type='application/octet-stream',
+                            data=f.read()
+                        )
+
         
         mail.send(msg)
         return True
