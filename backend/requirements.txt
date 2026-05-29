@@ -10,3 +10,6 @@ openpyxl
 authlib
 requests
 gunicorn
+pymysql
+sqlalchemy
+cryptography
