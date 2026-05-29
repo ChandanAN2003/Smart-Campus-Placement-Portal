@@ -194,12 +194,18 @@ def index():
 @app.route('/init-db')
 def init_db_route():
     """Safely initialize the database on Render Free tier without shell access"""
+    # Security check: Require a secret token to trigger database DDL
+    secret_key = os.getenv('INIT_DB_SECRET', 'placement-portal-init-token-12345')
+    if request.args.get('secret') != secret_key:
+        return "<h3>Unauthorized</h3>Invalid or missing secret parameter.", 403
+        
     from init_db import init_database
     try:
         init_database()
         return "<h3>Database initialized successfully!</h3>You can now go to <a href='/'>Home</a> and log in with default credentials."
     except Exception as e:
         return f"Failed to initialize database: {e}"
+
 
 @app.route('/register', methods=['GET', 'POST'])
 
